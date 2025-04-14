@@ -9,7 +9,7 @@ import java.util.List;
 public class ConsoleWebObserver implements WebObserver {
 
     @Override
-    public void update(List<WebContent> news) {
+    public void send(List<WebContent> news) {
         log.info("发现 {} 条新内容:", news.size());
         for (WebContent item : news) {
             log.info("来源: {}", item.getSource());

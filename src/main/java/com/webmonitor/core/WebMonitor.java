@@ -78,7 +78,7 @@ public class WebMonitor {
     private void notifyObservers(List<WebContent> webContents) {
         for (WebObserver observer : observers) {
             try {
-                observer.update(webContents);
+                observer.send(webContents);
             } catch (Exception e) {
                 log.error("通知观察者失败", e);
             }

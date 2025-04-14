@@ -5,6 +5,6 @@ import com.webmonitor.WebMonitorEnum;
 import java.util.List;
 
 public interface ContentFetcher {
-    List<WebContent> fetch() throws Exception;
-    WebMonitorEnum getWebMonitorEnum();
+  List<WebContent> fetch() throws Exception;
+  WebMonitorEnum getWebMonitorEnum();
 } 

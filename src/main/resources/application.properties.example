@@ -1,0 +1,4 @@
+# 企业微信机器人配置
+weixin.webhook.base-url=
+weixin.webhook.key=
+
