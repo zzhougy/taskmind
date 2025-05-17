@@ -1,3 +1,5 @@
 .idea
 target
 out
+/src/main/resources/application.properties
+/dependency-reduced-pom.xml
