@@ -2,3 +2,19 @@
 weixin.webhook.base-url=
 weixin.webhook.key=
 
+# 邮件配置（QQ邮箱）
+email.host=smtp.qq.com
+email.port=465
+email.username=your-qq-number@qq.com
+email.password=your-qq-smtp-authorization-code
+email.from=your-qq-number@qq.com
+email.to=your-qq-number@qq.com
+
+# 注意：QQ邮箱的password不是QQ密码，而是授权码
+# 获取授权码步骤：
+# 1. 登录QQ邮箱网页版
+# 2. 点击"设置" -> "账户"
+# 3. 找到"POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务"
+# 4. 开启"POP3/SMTP服务"
+# 5. 点击"生成授权码"
+

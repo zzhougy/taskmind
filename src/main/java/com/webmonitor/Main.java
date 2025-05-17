@@ -2,6 +2,7 @@ package com.webmonitor;
 
 import com.webmonitor.core.WebMonitor;
 import com.webmonitor.observer.ConsoleWebObserver;
+import com.webmonitor.observer.EmailWebObserver;
 import com.webmonitor.observer.QyWeixinWebObserver;
 
 public class Main {
@@ -14,6 +15,7 @@ public class Main {
         // 添加观察者
         monitor.addObserver(new ConsoleWebObserver());
         monitor.addObserver(new QyWeixinWebObserver());
+        monitor.addObserver(new EmailWebObserver());
 
         // 启动所有监控
         monitor.startAllMonitoring();
