@@ -62,4 +62,78 @@
             <version>2.0.1</version>
         </dependency>
     </dependencies>
-</project> 
+
+    <build>
+        <plugins>
+            <!-- Shade 插件生成可执行 JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <id>create-shaded-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.webmonitor.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JPackage 插件生成 DMG -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>jpackage</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jpackage</executable>
+                            <arguments>
+                                <!-- 必须参数 -->
+                                <argument>--input</argument>
+                                <argument>${project.build.directory}</argument> <!-- target 目录 -->
+
+                                <argument>--type</argument>
+                                <argument>dmg</argument>
+
+                                <argument>--name</argument>
+                                <argument>${project.name}</argument>
+
+                                <argument>--main-jar</argument>
+                                <argument>${project.artifactId}-${project.version}.jar
+                                </argument> <!-- 与 shade 生成的 JAR 名称一致 -->
+
+                                <argument>--main-class</argument>
+                                <argument>com.webmonitor.Main</argument>
+
+                                <!-- 可选元数据 -->
+                                <argument>--app-version</argument>
+                                <argument>1.0</argument>
+                                <argument>--vendor</argument>
+                                <argument>WebMonitor</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
