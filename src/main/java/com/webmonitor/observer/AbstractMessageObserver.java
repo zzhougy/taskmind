@@ -13,10 +13,10 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public abstract class AbstractMessageObserver implements WebObserver {
-  protected static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+  protected static final MediaType JSON = MediaType.get("application/json");
   protected static final String CONFIG_FILE = "application.properties";
   protected static final int MAX_CONTENT_LENGTH = 2000;
-  protected static final int MAX_RETRY_TIMES = 3;
+  protected static final int MAX_RETRY_TIMES = 1;
   protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   protected final OkHttpClient client;
@@ -51,13 +51,16 @@ public abstract class AbstractMessageObserver implements WebObserver {
       }
 
       String baseUrl = props.getProperty(webhookBaseUrlProperty);
-      String key = props.getProperty(webhookKeyProperty);
+      String key = null;
+      if (!ObjectUtil.isEmpty(webhookKeyProperty)) {
+        key = props.getProperty(webhookKeyProperty);
+      }
 
-      if (ObjectUtil.isEmpty(baseUrl) || ObjectUtil.isEmpty(key)) {
+      if (ObjectUtil.isEmpty(baseUrl)) {
         throw new IllegalStateException("Webhook配置不完整");
       }
 
-      return baseUrl + "?key=" + key;
+      return ObjectUtil.isEmpty(key) ? baseUrl : baseUrl + "?key=" + key;
     } catch (IOException e) {
       log.error("加载Webhook配置失败", e);
       throw new RuntimeException("加载Webhook配置失败", e);
@@ -99,6 +102,7 @@ public abstract class AbstractMessageObserver implements WebObserver {
     Request request = new Request.Builder()
             .url(webhookUrl)
             .post(body)
+            .header("Content-Type", "application/json")
             .build();
 
     try (Response response = client.newCall(request).execute()) {

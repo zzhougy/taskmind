@@ -2,6 +2,9 @@
 weixin.webhook.base-url=
 weixin.webhook.key=
 
+# Slack机器人配置
+slack.webhook.base-url=
+
 # 邮件配置（QQ邮箱）
 email.host=smtp.qq.com
 email.port=465
@@ -17,4 +20,15 @@ email.to=your-qq-number@qq.com
 # 3. 找到"POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务"
 # 4. 开启"POP3/SMTP服务"
 # 5. 点击"生成授权码"
+
+# Slack Webhook配置说明：
+# 1. 访问 https://api.slack.com/apps
+# 2. 点击"Create New App"
+# 3. 选择"From scratch"
+# 4. 输入应用名称和工作区
+# 5. 在"Features"中选择"Incoming Webhooks"
+# 6. 激活Incoming Webhooks
+# 7. 点击"Add New Webhook to Workspace"
+# 8. 选择要发送消息的频道
+# 9. 复制Webhook URL
 
