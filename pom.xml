@@ -11,8 +11,8 @@
     <description>一个通用的网站内容监控工具，支持监控多个网站的内容更新</description>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -130,48 +130,24 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    
-                    <!-- Windows EXE 打包配置 -->
-                    <execution>
-                        <id>jpackage-exe</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>jpackage</executable>
-                            <arguments>
-                                <!-- 必须参数 -->
-                                <argument>--input</argument>
-                                <argument>${project.build.directory}</argument>
-
-                                <argument>--type</argument>
-                                <argument>exe</argument>
-
-                                <argument>--name</argument>
-                                <argument>${project.name}</argument>
-
-                                <argument>--main-jar</argument>
-                                <argument>${project.artifactId}-${project.version}.jar</argument>
-
-                                <argument>--main-class</argument>
-                                <argument>com.webmonitor.Main</argument>
-
-                                <!-- 可选元数据 -->
-                                <argument>--app-version</argument>
-                                <argument>1.0</argument>
-                                <argument>--vendor</argument>
-                                <argument>WebMonitor</argument>
-                                
-                                <!-- Windows 特定配置 -->
-                                <argument>--win-dir-chooser</argument>
-                                <argument>--win-menu</argument>
-                                <argument>--win-shortcut</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
+
+            <!-- win生成exe文件-->
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <headerType>console</headerType> <!-- 程序类型：gui 或 console -->
+                    <mainClassName>com.webmonitor.Main</mainClassName> <!-- 主类 -->
+                    <jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</jar> <!-- shade 生成的可执行 JAR -->
+                    <outfile>${project.build.directory}/${project.artifactId}.exe</outfile> <!-- 输出 EXE 路径 -->
+                    <icon></icon> <!-- 可选：指定程序图标路径 -->
+                    <jreMinVersion>17</jreMinVersion> <!-- 要求的最低 JRE 版本 -->
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
