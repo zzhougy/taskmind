@@ -2,12 +2,14 @@ package com.webmonitor;
 
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.fetcher.CssSelectorFetcher;
+import com.webmonitor.fetcher.XPathFetcher;
 import com.webmonitor.fetcher.ZzFetcher;
 
 public enum WebMonitorEnum {
 
   Zz("xxxx", "https://xxxxxx/", 60, new ZzFetcher()),
   CssSelector("ssss", "https://www.baidu.com", 6, new CssSelectorFetcher()),
+  XPath("ssss", "https://www.baidu.com", 6, new XPathFetcher()),
   ;
 
   private final String name;

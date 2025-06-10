@@ -3,7 +3,7 @@ package com.webmonitor.fetcher;
 import com.webmonitor.WebMonitorEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
-import com.webmonitor.util.CssSelectorUtil;
+import com.webmonitor.util.XPathUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class CssSelectorFetcher implements ContentFetcher {
+public class XPathFetcher implements ContentFetcher {
   private List<WebContent> lastWeb = new ArrayList<>();
   private boolean isFirstLoad = true;
 
@@ -35,7 +35,7 @@ public class CssSelectorFetcher implements ContentFetcher {
       headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0");
       headers.put("Accept-Language", "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7");
 
-      Map<String, String> result = CssSelectorUtil.getByCssSelector(getWebMonitorEnum().getUrl(), selectorDict, headers);
+      Map<String, String> result = XPathUtil.getXpathSelector(getWebMonitorEnum().getUrl(), selectorDict, headers);
       System.out.println(result);
 
 
@@ -85,6 +85,6 @@ public class CssSelectorFetcher implements ContentFetcher {
 
   @Override
   public WebMonitorEnum getWebMonitorEnum() {
-    return WebMonitorEnum.CssSelector;
+    return WebMonitorEnum.XPath;
   }
-} 
+}
