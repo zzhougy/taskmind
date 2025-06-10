@@ -62,7 +62,7 @@ public class XPathFetcher implements ContentFetcher {
 
     List<WebContent> newWeb = new ArrayList<>();
     if (!isFirstLoad) {
-      newWeb = findNewWebContent(currentWeb);
+      newWeb = findNewWebContent(currentWeb, lastWeb);
       log.info("{}检查完成，发现 {} 条新内容", getWebMonitorEnum().getName(), newWeb.size());
     } else {
       log.info("首次加载{}，获取到 {} 条政策，不通知", getWebMonitorEnum().getName(), currentWeb.size());
@@ -73,15 +73,7 @@ public class XPathFetcher implements ContentFetcher {
     return newWeb;
   }
 
-  private List<WebContent> findNewWebContent(List<WebContent> currentWeb) {
-    List<WebContent> newWeb = new ArrayList<>();
-    for (WebContent news : currentWeb) {
-      if (lastWeb.stream().noneMatch(n -> n.getId().equals(news.getId()))) {
-        newWeb.add(news);
-      }
-    }
-    return newWeb;
-  }
+
 
   @Override
   public WebMonitorEnum getWebMonitorEnum() {
