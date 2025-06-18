@@ -1,10 +1,20 @@
 package com.webmonitor.core;
 
-import com.webmonitor.WebMonitorEnum;
+import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
+import com.webmonitor.config.fetcher.FetcherConfig;
+import com.webmonitor.config.fetcher.XPathFetcherConfig;
+import com.webmonitor.config.fetcher.ZzFetcherConfig;
+import com.webmonitor.config.observer.ConsoleObserverConfig;
+import com.webmonitor.config.observer.EmailObserverConfig;
+import com.webmonitor.config.observer.ObserverConfig;
+import com.webmonitor.fetcher.CssSelectorFetcher;
+import com.webmonitor.fetcher.XPathFetcher;
+import com.webmonitor.fetcher.ZzFetcher;
+import com.webmonitor.observer.ConsoleWebObserver;
+import com.webmonitor.observer.EmailWebObserver;
 import com.webmonitor.observer.WebObserver;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -13,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class WebMonitor {
-    private final List<WebMonitorEnum> webMonitorEnums = new ArrayList<>();
     private final List<WebObserver> observers = new CopyOnWriteArrayList<>();
     private final ScheduledExecutorService scheduler;
 
@@ -28,10 +37,6 @@ public class WebMonitor {
         );
     }
 
-    public void registerContentFetcher(WebMonitorEnum webMonitorEnum) {
-        webMonitorEnums.add(webMonitorEnum);
-    }
-
     public void addObserver(WebObserver observer) {
         observers.add(observer);
     }
@@ -40,10 +45,19 @@ public class WebMonitor {
         observers.remove(observer);
     }
 
-    public void startMonitoring(WebMonitorEnum webMonitorEnum) {
-        ContentFetcher fetcher = webMonitorEnum.getContentFetcher();
+    public void startMonitoring(FetcherConfig fetcherConfig) {
+        ContentFetcher fetcher;
+        if (fetcherConfig instanceof ZzFetcherConfig) {
+            fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof CssSelectorFetcherConfig) {
+            fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof XPathFetcherConfig){
+            fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
+        } else {
+            fetcher = null;
+        }
         if (fetcher == null) {
-            log.error("未找到名为 {} 的内容获取器", webMonitorEnum.getName());
+            log.error("未找到名为 {} 的内容获取器", fetcherConfig.getName());
             return;
         }
 
@@ -54,13 +68,31 @@ public class WebMonitor {
                     notifyObservers(webContents);
                 }
             } catch (Exception e) {
-                log.error("监控任务执行失败: {}", webMonitorEnum.getName(), e);
+                log.error("监控任务执行失败: {}", fetcherConfig.getName(), e);
             }
-        }, 0, webMonitorEnum.getIntervalSeconds(), TimeUnit.SECONDS);
+        }, 0, fetcherConfig.getIntervalSeconds(), TimeUnit.SECONDS);
     }
 
-    public void startAllMonitoring() {
-        webMonitorEnums.forEach(this::startMonitoring);
+    public void startAllMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs) {
+        fetcherConfigs.forEach(o->{
+            if (o.isEnabled()) {
+                startMonitoring(o);
+            }
+        });
+
+        observerConfigs.forEach(o->{
+            if (o.isEnabled()) {
+                WebObserver observer = null;
+                if (o instanceof ConsoleObserverConfig) {
+                    observer = new ConsoleWebObserver();
+                    addObserver(observer);
+                }
+                if (o instanceof EmailObserverConfig) {
+                    observer = new EmailWebObserver();
+                    addObserver(observer);
+                }
+            }
+        });
     }
 
     public void stop() {

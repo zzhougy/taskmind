@@ -1,6 +1,6 @@
 package com.webmonitor.fetcher;
 
-import com.webmonitor.WebMonitorEnum;
+import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import com.webmonitor.util.CssSelectorUtil;
@@ -15,13 +15,18 @@ import java.util.Map;
 public class CssSelectorFetcher implements ContentFetcher {
   private List<WebContent> lastWeb = new ArrayList<>();
   private boolean isFirstLoad = true;
+  private final CssSelectorFetcherConfig cssSelectorFetcherConfig;
+
+  public CssSelectorFetcher(CssSelectorFetcherConfig cssSelectorFetcherConfig) {
+    this.cssSelectorFetcherConfig = cssSelectorFetcherConfig;
+  }
 
   @Override
   public List<WebContent> fetch() throws Exception {
     if (isFirstLoad) {
-      log.info("开始监控{}...", getWebMonitorEnum().getName());
+      log.info("开始监控{}...", cssSelectorFetcherConfig.getName());
     } else {
-      log.info("正在检查{}更新...", getWebMonitorEnum().getName());
+      log.info("正在检查{}更新...", cssSelectorFetcherConfig.getName());
     }
 
     List<WebContent> currentWeb = new ArrayList<>();
@@ -29,13 +34,14 @@ public class CssSelectorFetcher implements ContentFetcher {
     try {
       Map<String, String> selectorDict = new HashMap<>();
 //      selectorDict.put("title", "#lg > map > area[shape='rect']");
-      selectorDict.put("title", "*[id=\"lg\"] > map > area[shape='rect']");
+//      selectorDict.put("title", "*[id=\"lg\"] > map > area[shape='rect']");
+      selectorDict.put("title", cssSelectorFetcherConfig.getCssSelector());
 
       Map<String, String> headers = new HashMap<>();
       headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0");
       headers.put("Accept-Language", "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7");
 
-      Map<String, String> result = CssSelectorUtil.getByCssSelector(getWebMonitorEnum().getUrl(), selectorDict, headers);
+      Map<String, String> result = CssSelectorUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict, headers);
       System.out.println(result);
 
 
@@ -47,9 +53,9 @@ public class CssSelectorFetcher implements ContentFetcher {
                 .title(title)
                 .description(title)
                 .link(null)
-                .source(getWebMonitorEnum().getName())
+                .source(cssSelectorFetcherConfig.getName())
                 .dateStr(null)
-                .category(getWebMonitorEnum().getName())
+                .category(cssSelectorFetcherConfig.getName())
                 .build();
 
         currentWeb.add(webContent);
@@ -63,9 +69,9 @@ public class CssSelectorFetcher implements ContentFetcher {
     List<WebContent> newWeb = new ArrayList<>();
     if (!isFirstLoad) {
       newWeb = findNewWebContent(currentWeb, lastWeb);
-      log.info("{}检查完成，发现 {} 条新内容", getWebMonitorEnum().getName(), newWeb.size());
+      log.info("{}检查完成，发现 {} 条新内容", cssSelectorFetcherConfig.getName(), newWeb.size());
     } else {
-      log.info("首次加载{}，获取到 {} 条政策，不通知", getWebMonitorEnum().getName(), currentWeb.size());
+      log.info("首次加载{}，获取到 {} 条政策，不通知", cssSelectorFetcherConfig.getName(), currentWeb.size());
     }
 
     lastWeb = currentWeb;
@@ -73,9 +79,4 @@ public class CssSelectorFetcher implements ContentFetcher {
     return newWeb;
   }
 
-
-  @Override
-  public WebMonitorEnum getWebMonitorEnum() {
-    return WebMonitorEnum.CssSelector;
-  }
-} 
+}

@@ -1,14 +1,11 @@
 package com.webmonitor.core;
 
-import com.webmonitor.WebMonitorEnum;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public interface ContentFetcher {
-  List<WebContent> fetch() throws Exception;
-  WebMonitorEnum getWebMonitorEnum();
 
+  List<WebContent> fetch() throws Exception;
 
   default List<WebContent> findNewWebContent(List<WebContent> currentWeb, List<WebContent> lastWeb) {
     List<WebContent> newWeb = new ArrayList<>();

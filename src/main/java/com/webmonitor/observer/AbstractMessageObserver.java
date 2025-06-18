@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public abstract class AbstractMessageObserver implements WebObserver {
   protected static final MediaType JSON = MediaType.get("application/json");
-  protected static final String CONFIG_FILE = "application.properties";
+  protected static final String CONFIG_FILE = "application.yml";
   protected static final int MAX_CONTENT_LENGTH = 2000;
   protected static final int MAX_RETRY_TIMES = 1;
   protected static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

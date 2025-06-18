@@ -1,18 +1,3 @@
-# 企业微信机器人配置
-weixin.webhook.base-url=
-weixin.webhook.key=
-
-# Slack机器人配置
-slack.webhook.base-url=
-
-# 邮件配置（QQ邮箱）
-email.host=smtp.qq.com
-email.port=465
-email.username=your-qq-number@qq.com
-email.password=your-qq-smtp-authorization-code
-email.from=your-qq-number@qq.com
-email.to=your-qq-number@qq.com
-
 # 注意：QQ邮箱的password不是QQ密码，而是授权码
 # 获取授权码步骤：
 # 1. 登录QQ邮箱网页版
@@ -31,4 +16,3 @@ email.to=your-qq-number@qq.com
 # 7. 点击"Add New Webhook to Workspace"
 # 8. 选择要发送消息的频道
 # 9. 复制Webhook URL
-

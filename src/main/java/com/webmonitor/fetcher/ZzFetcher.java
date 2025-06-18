@@ -1,6 +1,6 @@
 package com.webmonitor.fetcher;
 
-import com.webmonitor.WebMonitorEnum;
+import com.webmonitor.config.fetcher.ZzFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import lombok.extern.slf4j.Slf4j;
@@ -14,18 +14,24 @@ import java.util.List;
 
 @Slf4j
 public class ZzFetcher implements ContentFetcher {
+
     private List<WebContent> lastWeb = new ArrayList<>();
     private boolean isFirstLoad = true;
+    private final ZzFetcherConfig zzFetcherConfig;
+
+    public ZzFetcher(ZzFetcherConfig zzFetcherConfig) {
+      this.zzFetcherConfig = zzFetcherConfig;
+    }
 
     @Override
     public List<WebContent> fetch() throws Exception {
         if (isFirstLoad) {
-            log.info("开始监控{}...", getWebMonitorEnum().getName());
+            log.info("开始监控{}...", zzFetcherConfig.getName());
         } else {
-            log.info("正在检查{}更新...", getWebMonitorEnum().getName());
+            log.info("正在检查{}更新...", zzFetcherConfig.getName());
         }
 
-        Document doc = Jsoup.connect(getWebMonitorEnum().getUrl())
+        Document doc = Jsoup.connect(zzFetcherConfig.getUrl())
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                 .get();
 
@@ -46,9 +52,9 @@ public class ZzFetcher implements ContentFetcher {
                         .title(title)
                         .description(title)
                         .link(url)
-                        .source(getWebMonitorEnum().getName())
+                        .source(zzFetcherConfig.getName())
                         .dateStr(dateStr)
-                        .category(getWebMonitorEnum().getName())
+                        .category(zzFetcherConfig.getName())
                         .build();
 
                 currentWeb.add(webContent);
@@ -58,9 +64,9 @@ public class ZzFetcher implements ContentFetcher {
         List<WebContent> newWeb = new ArrayList<>();
         if (!isFirstLoad) {
             newWeb = findNewWebContent(currentWeb, lastWeb);
-            log.info("{}检查完成，发现 {} 条新内容", getWebMonitorEnum().getName(), newWeb.size());
+            log.info("{}检查完成，发现 {} 条新内容", zzFetcherConfig.getName(), newWeb.size());
         } else {
-            log.info("首次加载{}，获取到 {} 条政策，不通知", getWebMonitorEnum().getName(), currentWeb.size());
+            log.info("首次加载{}，获取到 {} 条政策，不通知", zzFetcherConfig.getName(), currentWeb.size());
         }
         
         lastWeb = currentWeb;
@@ -69,9 +75,4 @@ public class ZzFetcher implements ContentFetcher {
     }
 
 
-
-    @Override
-    public WebMonitorEnum getWebMonitorEnum() {
-        return WebMonitorEnum.Zz;
-    }
-} 
+}

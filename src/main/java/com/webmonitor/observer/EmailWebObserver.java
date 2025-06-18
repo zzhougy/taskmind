@@ -34,9 +34,9 @@ public class EmailWebObserver implements WebObserver {
   private Properties loadEmailProperties() {
     try {
       Properties configProps = new Properties();
-      try (var inputStream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+      try (var inputStream = getClass().getClassLoader().getResourceAsStream("application.yml")) {
         if (inputStream == null) {
-          throw new RuntimeException("配置文件 application.properties 未找到");
+          throw new RuntimeException("配置文件 application.yml 未找到");
         }
         configProps.load(inputStream);
       }

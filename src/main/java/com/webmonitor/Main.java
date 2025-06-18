@@ -4,41 +4,42 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import com.webmonitor.config.WebMonitorFactory;
 import com.webmonitor.core.WebMonitor;
-import com.webmonitor.observer.ConsoleWebObserver;
-import com.webmonitor.observer.SlackWebObserver;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
 
+@Component
 @Slf4j
 public class Main {
 
   private static JTextArea logTextArea;
 
-  public static void main(String[] args) {
+  @Resource
+  private WebMonitorFactory webMonitorFactory;
 
+//  public static void main(String[] args) {
+//    start();
+//  }
+
+  public void start() {
     log.info("程序启动");
+    // 设置允许图形界面，解决java.awt.HeadlessException
+    System.setProperty("java.awt.headless", "false");
     // 初始化 Swing 界面
-    SwingUtilities.invokeLater(Main::createAndShowGUI);
+    SwingUtilities.invokeLater(this::createAndShowGUI);
     // 配置 Logback 将日志输出到 Swing 界面
     configureLogbackAppender();
 
     WebMonitor monitor = new WebMonitor();
 
-    // 注册内容获取器
-    monitor.registerContentFetcher(WebMonitorEnum.Zz);
-
-    // 添加观察者
-    monitor.addObserver(new ConsoleWebObserver());
-//        monitor.addObserver(new QyWeixinWebObserver());
-//        monitor.addObserver(new EmailWebObserver());
-    monitor.addObserver(new SlackWebObserver());
-
     // 启动所有监控
-    monitor.startAllMonitoring();
+    monitor.startAllMonitoring(webMonitorFactory.loadFetcherConfigs(), webMonitorFactory.loadObserverConfigs());
 
     // 保持程序运行
     Runtime.getRuntime().addShutdownHook(new Thread(monitor::stop));
@@ -51,7 +52,7 @@ public class Main {
     }
   }
 
-  private static void createAndShowGUI() {
+  private void createAndShowGUI() {
     JFrame frame = new JFrame("实时日志监控");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setSize(800, 600);
@@ -64,7 +65,7 @@ public class Main {
     frame.setVisible(true);
   }
 
-  private static void configureLogbackAppender() {
+  private void configureLogbackAppender() {
     Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
