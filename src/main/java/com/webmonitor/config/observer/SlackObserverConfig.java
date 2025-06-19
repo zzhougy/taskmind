@@ -6,4 +6,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SlackObserverConfig extends ObserverConfig {
+  private String webhookBaseUrl;
 }

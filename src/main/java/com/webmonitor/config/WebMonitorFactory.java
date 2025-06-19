@@ -5,9 +5,7 @@ import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
 import com.webmonitor.config.fetcher.FetcherConfig;
 import com.webmonitor.config.fetcher.XPathFetcherConfig;
 import com.webmonitor.config.fetcher.ZzFetcherConfig;
-import com.webmonitor.config.observer.ConsoleObserverConfig;
-import com.webmonitor.config.observer.EmailObserverConfig;
-import com.webmonitor.config.observer.ObserverConfig;
+import com.webmonitor.config.observer.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +54,12 @@ public class WebMonitorFactory {
             break;
           case "EmailObserver":
             observers.add(JSONUtil.toBean(JSONUtil.parseObj(observerMap), EmailObserverConfig.class));
+            break;
+          case "QyWeixinObserver":
+            observers.add(JSONUtil.toBean(JSONUtil.parseObj(observerMap), QyWeixinObserverConfig.class));
+            break;
+          case "SlackObserver":
+            observers.add(JSONUtil.toBean(JSONUtil.parseObj(observerMap), SlackObserverConfig.class));
             break;
           default:
             throw new IllegalArgumentException("Unknown observer type: " + observerMap.get("type"));

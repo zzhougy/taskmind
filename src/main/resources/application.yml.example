@@ -7,14 +7,14 @@ web-monitor:
       enabled: false
 
     - type: CssSelectorFetcher
-      name: ssss
+      name: CssSelector
       url: https://www.baidu.com
       intervalSeconds: 600
       enabled: false
       cssSelector: "*[id=\"lg\"] > map > area[shape='rect']"
 
     - type: XPathFetcher
-      name: ssss
+      name: XPath
       url: https://www.baidu.com
       intervalSeconds: 600
       enabled: false
@@ -38,14 +38,11 @@ web-monitor:
     # Slack机器人配置
     - type: SlackObserver
       enabled: false
-      webhook:
-        base-url:
+      webhookBaseUrl:
 
     # 企业微信机器人配置
     - type: QyWeixinObserver
       enabled: false
-      webhook:
-        base-url:
-        key:
-
+      webhookBaseUrl:
+      webhookKey:
 

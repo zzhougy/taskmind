@@ -6,4 +6,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class QyWeixinObserverConfig extends ObserverConfig {
+  private String webhookBaseUrl;
+  private String webhookKey;
 }

@@ -88,7 +88,7 @@ public class WebMonitor {
                     addObserver(observer);
                 }
                 if (o instanceof EmailObserverConfig) {
-                    observer = new EmailWebObserver();
+                    observer = new EmailWebObserver((EmailObserverConfig) o);
                     addObserver(observer);
                 }
             }

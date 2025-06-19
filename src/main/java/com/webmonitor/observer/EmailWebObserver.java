@@ -1,6 +1,7 @@
 package com.webmonitor.observer;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.core.WebContent;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -24,7 +25,10 @@ public class EmailWebObserver implements WebObserver {
   private final String toEmail;
   private final String fromEmail;
 
-  public EmailWebObserver() {
+  private final EmailObserverConfig emailObserverConfig;
+
+  public EmailWebObserver(EmailObserverConfig emailObserverConfig) {
+    this.emailObserverConfig = emailObserverConfig;
     Properties props = loadEmailProperties();
     this.session = createMailSession(props);
     this.toEmail = props.getProperty(EMAIL_TO_PROPERTY);
@@ -33,25 +37,17 @@ public class EmailWebObserver implements WebObserver {
 
   private Properties loadEmailProperties() {
     try {
-      Properties configProps = new Properties();
-      try (var inputStream = getClass().getClassLoader().getResourceAsStream("application.yml")) {
-        if (inputStream == null) {
-          throw new RuntimeException("配置文件 application.yml 未找到");
-        }
-        configProps.load(inputStream);
-      }
-
       Properties mailProps = new Properties();
       // QQ邮箱SMTP服务器配置
-      mailProps.put("mail.smtp.host", configProps.getProperty(EMAIL_HOST_PROPERTY));
-      mailProps.put("mail.smtp.port", configProps.getProperty(EMAIL_PORT_PROPERTY));
+      mailProps.put("mail.smtp.host", this.emailObserverConfig.getHost());
+      mailProps.put("mail.smtp.port", this.emailObserverConfig.getPort());
       mailProps.put("mail.smtp.auth", "true");
       mailProps.put("mail.smtp.ssl.enable", "true"); // 启用SSL
       mailProps.put("mail.smtp.ssl.protocols", "TLSv1.2"); // 指定SSL协议版本
-      mailProps.put(EMAIL_USERNAME_PROPERTY, configProps.getProperty(EMAIL_USERNAME_PROPERTY));
-      mailProps.put(EMAIL_PASSWORD_PROPERTY, configProps.getProperty(EMAIL_PASSWORD_PROPERTY));
-      mailProps.put(EMAIL_TO_PROPERTY, configProps.getProperty(EMAIL_TO_PROPERTY));
-      mailProps.put(EMAIL_FROM_PROPERTY, configProps.getProperty(EMAIL_FROM_PROPERTY));
+      mailProps.put(EMAIL_USERNAME_PROPERTY, this.emailObserverConfig.getUsername());
+      mailProps.put(EMAIL_PASSWORD_PROPERTY, this.emailObserverConfig.getPassword());
+      mailProps.put(EMAIL_TO_PROPERTY, this.emailObserverConfig.getTo());
+      mailProps.put(EMAIL_FROM_PROPERTY, this.emailObserverConfig.getFrom());
 
       return mailProps;
     } catch (Exception e) {
