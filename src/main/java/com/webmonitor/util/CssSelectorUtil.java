@@ -27,17 +27,35 @@ public class CssSelectorUtil {
     return result;
   }
 
-  static String cssParse(String html, String cssSelector) {
+  public static String cssParse(String html, String cssSelectorFull) {
     try {
       Document document = Jsoup.parse(html);
+
+      // 分割自定义选择器
+      String[] parts = cssSelectorFull.split("\\|");
+      if (parts.length != 2) {
+        throw new RuntimeException("无效的CSS选择器格式: " + cssSelectorFull);
+      }
+
+      String cssSelector = parts[0];
+      String attributePart = parts[1];
+
       Elements elements = document.select(cssSelector);
 
       if (!elements.isEmpty()) {
         Element first = elements.first();
-        return first != null ? first.attr("title") : null;
+        if ("text".equals(attributePart)) {
+          return first.text(); // 获取文本内容
+        } else if (attributePart.startsWith("attr(") && attributePart.endsWith(")")) {
+          String attribute = attributePart.substring(5, attributePart.length() - 1);
+          return first.attr(attribute); // 获取指定属性值
+        } else {
+          throw new RuntimeException("无效的属性部分: " + attributePart);
+        }
+      } else {
+        throw new RuntimeException("未找到指定元素");
       }
 
-      throw new RuntimeException("无法获取文本信息");
     } catch (Exception e) {
       throw new RuntimeException("css 解析失败: " + e.getMessage());
     }

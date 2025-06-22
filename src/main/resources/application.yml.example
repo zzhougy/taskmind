@@ -11,14 +11,9 @@ web-monitor:
       url: https://www.baidu.com
       intervalSeconds: 600
       enabled: false
-      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']"
-
-    - type: XPathFetcher
-      name: XPath
-      url: https://www.baidu.com
-      intervalSeconds: 600
-      enabled: false
-      xPath: "*[id=\"lg\"] > map > area[shape='rect']"
+      cssSelector: "#hotsearch-content-wrapper > li:nth-child(1) > a > span.title-content-title|text"
+#      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|text"
+#      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|attr(title)"
 
   observers:
     # 控制台log
