@@ -15,6 +15,15 @@ web-monitor:
 #      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|text"
 #      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|attr(title)"
 
+    - type: SeleniumFetcher
+      name: SeleniumMonitor
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: false
+      cssSelector: "#hotsearch-content-wrapper > li:nth-child(1) > a > span.title-content-title|text"
+      driverPath: "src/main/resources/chromedriver"
+      timeout: 10
+
   observers:
     # 控制台log
     - type: ConsoleObserver

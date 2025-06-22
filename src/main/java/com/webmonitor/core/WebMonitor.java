@@ -2,11 +2,13 @@ package com.webmonitor.core;
 
 import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
 import com.webmonitor.config.fetcher.FetcherConfig;
+import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
 import com.webmonitor.config.fetcher.ZzFetcherConfig;
 import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.fetcher.CssSelectorFetcher;
+import com.webmonitor.fetcher.SeleniumFetcher;
 import com.webmonitor.fetcher.ZzFetcher;
 import com.webmonitor.observer.ConsoleWebObserver;
 import com.webmonitor.observer.EmailWebObserver;
@@ -49,6 +51,8 @@ public class WebMonitor {
             fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
         } else if (fetcherConfig instanceof CssSelectorFetcherConfig) {
             fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof SeleniumFetcherConfig) {
+            fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
         } else {
             fetcher = null;
         }
@@ -112,4 +116,4 @@ public class WebMonitor {
             }
         }
     }
-} 
+}
