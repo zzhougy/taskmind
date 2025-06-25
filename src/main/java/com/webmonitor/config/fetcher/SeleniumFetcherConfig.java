@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SeleniumFetcherConfig extends FetcherConfig {
   private String cssSelector;
+  private String xPath;
   private String driverPath;
   private int timeout = 10;
 }

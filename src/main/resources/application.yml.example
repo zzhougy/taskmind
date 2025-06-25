@@ -21,6 +21,7 @@ web-monitor:
       intervalSeconds: 600
       enabled: false
       cssSelector: "#hotsearch-content-wrapper > li:nth-child(1) > a > span.title-content-title|text"
+      xPath: "/html/body/div[3]/div[4]/div[1]/div[3]/div[3]/div/div/div/div[1]/div/h3/a/div/div/p/span/span/span|text"
       driverPath: "src/main/resources/chromedriver"
       timeout: 10
 

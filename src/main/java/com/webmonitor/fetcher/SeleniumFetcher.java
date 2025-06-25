@@ -4,6 +4,7 @@ import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -50,15 +51,26 @@ public class SeleniumFetcher implements ContentFetcher {
       // 打开目标网页
       driver.get(seleniumFetcherConfig.getUrl());
 
-      // 使用CSS选择器获取元素
-      // 分割自定义选择器
-      String[] parts = seleniumFetcherConfig.getCssSelector().split("\\|");
+
+      if (!StringUtils.isEmpty(seleniumFetcherConfig.getCssSelector())
+      && !StringUtils.isEmpty(seleniumFetcherConfig.getXPath())) {
+        throw new RuntimeException("CSS选择器和XPath不能同时使用");
+      }
+
+      String selector = !StringUtils.isEmpty(seleniumFetcherConfig.getCssSelector())
+              ?  seleniumFetcherConfig.getCssSelector() : seleniumFetcherConfig.getXPath();
+      String[] parts = selector.split("\\|");
       String cssSelector = parts[0];
       String attributePart = parts[1];
       if (parts.length != 2) {
-        throw new RuntimeException("无效的CSS选择器格式: " + seleniumFetcherConfig.getCssSelector());
+        throw new RuntimeException("无效的选择器格式: " + selector);
       }
-      WebElement element = wait.until(d -> d.findElement(By.cssSelector(cssSelector)));
+      WebElement element = null;
+      if (!StringUtils.isEmpty(seleniumFetcherConfig.getCssSelector())) {
+        element = wait.until(d -> d.findElement(By.cssSelector(cssSelector)));
+      } else {
+        element = wait.until(d -> d.findElement(By.xpath(seleniumFetcherConfig.getXPath())));
+      }
       String title = null;
       if ("text".equals(attributePart)) {
         title = element.getText(); // 获取文本内容
