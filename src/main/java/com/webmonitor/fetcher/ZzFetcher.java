@@ -3,8 +3,8 @@ package com.webmonitor.fetcher;
 import com.webmonitor.config.fetcher.ZzFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
+import com.webmonitor.util.HtmlUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -31,9 +31,7 @@ public class ZzFetcher implements ContentFetcher {
             log.info("正在检查{}更新...", zzFetcherConfig.getName());
         }
 
-        Document doc = Jsoup.connect(zzFetcherConfig.getUrl())
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-                .get();
+        Document doc = HtmlUtil.getDocument(zzFetcherConfig.getUrl(), null, null);
 
         Elements newsElements = doc.select(".list01 li");
         List<WebContent> currentWeb = new ArrayList<>();

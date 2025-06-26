@@ -13,7 +13,8 @@ public class CssSelectorUtil {
 
 
   public static Map<String, String> getByCssSelector(String url, Map<String, String> selectorDict, Map<String, String> headers) throws IOException {
-    String html = HtmlUtil.getHtml(url, headers);
+    String html = HtmlUtil.getHtml(url, headers, null);
+    System.out.println( html);
     Map<String, String> result = new LinkedHashMap<>();
 
     for (Map.Entry<String, String> entry : selectorDict.entrySet()) {

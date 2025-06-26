@@ -3,9 +3,9 @@ package com.webmonitor.fetcher;
 import com.webmonitor.config.fetcher.XPathFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
+import com.webmonitor.util.HtmlUtil;
 import com.webmonitor.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.seimicrawler.xpath.JXDocument;
@@ -34,7 +34,8 @@ public class XPathFetcher implements ContentFetcher {
 
     List<WebContent> currentWeb = new ArrayList<>();
 
-    Document document = Jsoup.connect(xPathFetcherConfig.getUrl()).get();
+
+    Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null, xPathFetcherConfig.getUserAgent());
 
     JXDocument jxDocument = JXDocument.create(document);
 
@@ -59,7 +60,7 @@ public class XPathFetcher implements ContentFetcher {
       }
     }
 
-
+    log.info("{}获取到内容：{}", xPathFetcherConfig.getName(), title);
     WebContent webContent = WebContent.builder()
             .id(title)
             .title(title)

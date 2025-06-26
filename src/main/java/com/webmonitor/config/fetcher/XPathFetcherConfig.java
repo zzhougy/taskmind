@@ -7,5 +7,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class XPathFetcherConfig extends FetcherConfig {
   private String xPath;
+  private String userAgent;
 
 }

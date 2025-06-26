@@ -1,5 +1,6 @@
 package com.webmonitor.util;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -8,20 +9,19 @@ import java.util.Map;
 
 public class HtmlUtil {
 
-
-  public static String getHtml(String url, Map<String, String> headers) throws IOException {
-    Document document;
-    if (headers != null && !headers.isEmpty()) {
-      document = Jsoup.connect(url)
-              .headers(headers)
-              .timeout(10000)
-              .get();
-    } else {
-      document = Jsoup.connect(url)
-              .timeout(10000)
-              .get();
+  public static Document getDocument(String url, Map<String, String> headers, String userAgent) throws IOException {
+    Connection connect = Jsoup.connect(url).timeout(10000);
+    if (headers != null) {
+      connect.headers(headers);
     }
-    return document.html();
+    if (userAgent != null) {
+      connect.userAgent(userAgent);
+    }
+    return connect.get();
+  }
+
+  public static String getHtml(String url, Map<String, String> headers, String userAgent) throws IOException {
+    return getDocument(url, headers, userAgent).html();
   }
 
 
