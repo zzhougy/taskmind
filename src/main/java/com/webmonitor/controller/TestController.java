@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-    @Autowired
-    private WebMonitorProperties webMonitorProperties;
+  @Autowired
+  private WebMonitorProperties webMonitorProperties;
 
-    @GetMapping("/test")
-    public String testApi() {
-        System.out.println(webMonitorProperties.getConfigs());
-        return "Hello, this is a test API!";
-    }
+  @GetMapping("/test")
+  public String testApi() {
+    System.out.println(webMonitorProperties.getConfigs());
+    return "Hello, this is a test API!";
+  }
 }

@@ -21,6 +21,7 @@ web-monitor:
       intervalSeconds: 600
       enabled: true
       xPath: "//*[@id=\"hotsearch-content-wrapper\"]/li[3]/a/span[2]|text"
+      userAgent:
 
     - type: SeleniumFetcher
       name: SeleniumMonitor
