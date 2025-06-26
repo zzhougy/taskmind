@@ -35,7 +35,7 @@ public class XPathFetcher implements ContentFetcher {
     List<WebContent> currentWeb = new ArrayList<>();
 
 
-    Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null, xPathFetcherConfig.getUserAgent());
+    Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null);
 
     JXDocument jxDocument = JXDocument.create(document);
 

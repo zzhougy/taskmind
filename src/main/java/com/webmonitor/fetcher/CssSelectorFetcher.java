@@ -37,11 +37,7 @@ public class CssSelectorFetcher implements ContentFetcher {
 //      selectorDict.put("title", "*[id=\"lg\"] > map > area[shape='rect']");
       selectorDict.put("title", cssSelectorFetcherConfig.getCssSelector());
 
-      Map<String, String> headers = new HashMap<>();
-      headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0");
-      headers.put("Accept-Language", "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7");
-
-      Map<String, String> result = CssSelectorUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict, headers);
+      Map<String, String> result = CssSelectorUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict, null);
       System.out.println(result);
 
 
