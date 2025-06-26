@@ -1,10 +1,7 @@
 package com.webmonitor.config;
 
 import cn.hutool.json.JSONUtil;
-import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
-import com.webmonitor.config.fetcher.FetcherConfig;
-import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
-import com.webmonitor.config.fetcher.ZzFetcherConfig;
+import com.webmonitor.config.fetcher.*;
 import com.webmonitor.config.observer.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +27,9 @@ public class WebMonitorFactory {
             break;
           case "CssSelectorFetcher":
             configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), CssSelectorFetcherConfig.class));
+            break;
+          case "XPathFetcher":
+            configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), XPathFetcherConfig.class));
             break;
           case "SeleniumFetcher":
             configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), SeleniumFetcherConfig.class));

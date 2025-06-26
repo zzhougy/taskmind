@@ -15,6 +15,13 @@ web-monitor:
 #      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|text"
 #      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|attr(title)"
 
+    - type: XPathFetcher
+      name: XPathMonitor
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: true
+      xPath: "//*[@id=\"hotsearch-content-wrapper\"]/li[3]/a/span[2]|text"
+
     - type: SeleniumFetcher
       name: SeleniumMonitor
       url: https://www.baidu.com

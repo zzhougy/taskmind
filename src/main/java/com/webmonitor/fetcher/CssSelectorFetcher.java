@@ -63,7 +63,7 @@ public class CssSelectorFetcher implements ContentFetcher {
 
 
     } catch (Exception e) {
-      e.printStackTrace();
+      throw e;
     }
 
     List<WebContent> newWeb = new ArrayList<>();

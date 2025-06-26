@@ -3,6 +3,7 @@ package com.webmonitor.fetcher;
 import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
+import com.webmonitor.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
@@ -57,28 +58,22 @@ public class SeleniumFetcher implements ContentFetcher {
         throw new RuntimeException("CSS选择器和XPath不能同时使用");
       }
 
-      String selector = !StringUtils.isEmpty(seleniumFetcherConfig.getCssSelector())
+      String selectorStr = !StringUtils.isEmpty(seleniumFetcherConfig.getCssSelector())
               ?  seleniumFetcherConfig.getCssSelector() : seleniumFetcherConfig.getXPath();
-      String[] parts = selector.split("\\|");
-      String cssSelector = parts[0];
+      String[] parts = StringUtil.splitAndCheckSelectorStr(selectorStr);
+      String selector = parts[0];
       String attributePart = parts[1];
-      if (parts.length != 2) {
-        throw new RuntimeException("无效的选择器格式: " + selector);
-      }
       WebElement element = null;
       if (!StringUtils.isEmpty(seleniumFetcherConfig.getCssSelector())) {
-        element = wait.until(d -> d.findElement(By.cssSelector(cssSelector)));
+        element = wait.until(d -> d.findElement(By.cssSelector(selector)));
       } else {
-        element = wait.until(d -> d.findElement(By.xpath(seleniumFetcherConfig.getXPath())));
+        element = wait.until(d -> d.findElement(By.xpath(selector)));
       }
       String title = null;
       if ("text".equals(attributePart)) {
         title = element.getText(); // 获取文本内容
-      } else if (attributePart.startsWith("attr(") && attributePart.endsWith(")")) {
-        String attribute = attributePart.substring(5, attributePart.length() - 1);
-        title = element.getAttribute(attribute); // 获取指定属性值
       } else {
-        throw new RuntimeException("无效的属性部分: " + attributePart);
+        title = element.getAttribute(StringUtil.getAttribute(attributePart)); // 获取指定属性值
       }
 
 //      WebElement searchBox = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("kw")));
@@ -103,6 +98,7 @@ public class SeleniumFetcher implements ContentFetcher {
 
     } catch (Exception e) {
       log.error("Selenium获取内容失败", e);
+      throw e;
     } finally {
       if (driver != null) {
         driver.quit();

@@ -32,11 +32,7 @@ public class CssSelectorUtil {
       Document document = Jsoup.parse(html);
 
       // 分割自定义选择器
-      String[] parts = cssSelectorFull.split("\\|");
-      if (parts.length != 2) {
-        throw new RuntimeException("无效的CSS选择器格式: " + cssSelectorFull);
-      }
-
+      String[] parts = StringUtil.splitAndCheckSelectorStr(cssSelectorFull);
       String cssSelector = parts[0];
       String attributePart = parts[1];
 
@@ -46,11 +42,8 @@ public class CssSelectorUtil {
         Element first = elements.first();
         if ("text".equals(attributePart)) {
           return first.text(); // 获取文本内容
-        } else if (attributePart.startsWith("attr(") && attributePart.endsWith(")")) {
-          String attribute = attributePart.substring(5, attributePart.length() - 1);
-          return first.attr(attribute); // 获取指定属性值
         } else {
-          throw new RuntimeException("无效的属性部分: " + attributePart);
+          return first.attr(StringUtil.getAttribute(attributePart)); // 获取指定属性值
         }
       } else {
         throw new RuntimeException("未找到指定元素");

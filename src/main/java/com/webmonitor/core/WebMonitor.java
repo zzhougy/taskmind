@@ -1,14 +1,12 @@
 package com.webmonitor.core;
 
-import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
-import com.webmonitor.config.fetcher.FetcherConfig;
-import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
-import com.webmonitor.config.fetcher.ZzFetcherConfig;
+import com.webmonitor.config.fetcher.*;
 import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.fetcher.CssSelectorFetcher;
 import com.webmonitor.fetcher.SeleniumFetcher;
+import com.webmonitor.fetcher.XPathFetcher;
 import com.webmonitor.fetcher.ZzFetcher;
 import com.webmonitor.observer.ConsoleWebObserver;
 import com.webmonitor.observer.EmailWebObserver;
@@ -16,10 +14,8 @@ import com.webmonitor.observer.WebObserver;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class WebMonitor {
@@ -51,6 +47,8 @@ public class WebMonitor {
             fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
         } else if (fetcherConfig instanceof CssSelectorFetcherConfig) {
             fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof XPathFetcherConfig) {
+            fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
         } else if (fetcherConfig instanceof SeleniumFetcherConfig) {
             fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
         } else {
@@ -61,7 +59,10 @@ public class WebMonitor {
             return;
         }
 
-        scheduler.scheduleAtFixedRate(() -> {
+        AtomicReference<Future<?>> futureRef = new AtomicReference<>();
+        // scheduleAtFixedRate
+        // scheduleWithFixedDelay: 任务执行完后，等待IntervalSeconds，再继续重复执行当前任务
+        futureRef.set(scheduler.scheduleWithFixedDelay(() -> {
             try {
                 List<WebContent> webContents = fetcher.fetch();
                 if (webContents != null && !webContents.isEmpty()) {
@@ -69,8 +70,12 @@ public class WebMonitor {
                 }
             } catch (Exception e) {
                 log.error("监控任务执行失败: {}", fetcherConfig.getName(), e);
+                // 取消当前任务，不影响其他任务
+                futureRef.get().cancel(true);
             }
-        }, 0, fetcherConfig.getIntervalSeconds(), TimeUnit.SECONDS);
+        }, 0, fetcherConfig.getIntervalSeconds(), TimeUnit.SECONDS));
+
+
     }
 
     public void startAllMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs) {
