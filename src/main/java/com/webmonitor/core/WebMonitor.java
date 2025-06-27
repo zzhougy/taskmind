@@ -4,10 +4,7 @@ import com.webmonitor.config.fetcher.*;
 import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
-import com.webmonitor.fetcher.CssSelectorFetcher;
-import com.webmonitor.fetcher.SeleniumFetcher;
-import com.webmonitor.fetcher.XPathFetcher;
-import com.webmonitor.fetcher.ZzFetcher;
+import com.webmonitor.fetcher.*;
 import com.webmonitor.observer.ConsoleWebObserver;
 import com.webmonitor.observer.EmailWebObserver;
 import com.webmonitor.observer.WebObserver;
@@ -51,6 +48,8 @@ public class WebMonitor {
       fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
     } else if (fetcherConfig instanceof SeleniumFetcherConfig) {
       fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
+    } else if (fetcherConfig instanceof KeywordSelectorFetcherConfig) {
+      fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
     } else {
       fetcher = null;
     }

@@ -32,6 +32,13 @@ web-monitor:
       driverPath: "src/main/resources/chromedriver"
       timeout: 10
 
+    - type: KeywordSelectorFetcher
+      name: KeywordSelectorFetcher
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: 0
+      keyword: "（这里填写关键词用于定位页面标签）"
+
   observers:
     # 控制台log
     - type: ConsoleObserver
