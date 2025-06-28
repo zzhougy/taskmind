@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class CssSelectorUtil {
+public class JsoupUtil {
 
 
   public static Map<String, String> getByCssSelector(String url, Map<String, String> selectorDict, Map<String, String> headers) throws IOException {
@@ -52,6 +52,32 @@ public class CssSelectorUtil {
 
     } catch (Exception e) {
       throw new RuntimeException("css 解析失败: " + e.getMessage());
+    }
+  }
+
+
+  public static String xpathParse(String html, String xpath) {
+    try {
+      Document document = Jsoup.parse(html);
+
+      // 分割自定义选择器
+      String[] parts = StringUtil.splitAndCheckSelectorStr(xpath);
+      String xPathSelector = parts[0];
+      String attributePart = parts[1];
+
+      Elements elements = document.selectXpath(xPathSelector);
+      if (!elements.isEmpty()) {
+        Element first = elements.first();
+        if ("text".equals(attributePart)) {
+          return first.text(); // 获取文本内容
+        } else {
+          return first.attr(StringUtil.getAttribute(attributePart)); // 获取指定属性值
+        }
+      } else {
+        throw new RuntimeException("未找到指定元素");
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("xpath 解析失败: " + e.getMessage());
     }
   }
 

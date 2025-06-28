@@ -4,12 +4,9 @@ import com.webmonitor.config.fetcher.XPathFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import com.webmonitor.util.HtmlUtil;
-import com.webmonitor.util.StringUtil;
+import com.webmonitor.util.JsoupUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.seimicrawler.xpath.JXDocument;
-import org.seimicrawler.xpath.JXNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,34 +32,9 @@ public class XPathFetcher implements ContentFetcher {
     List<WebContent> currentWeb = new ArrayList<>();
 
 
-    /**
-     * 方式1： Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null);
-     * 方式2：Elements elements = document.selectXpath(cssSelector);
-     */
     Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null);
 
-    JXDocument jxDocument = JXDocument.create(document);
-
-    String[] parts = StringUtil.splitAndCheckSelectorStr(xPathFetcherConfig.getXPath());
-    String selector = parts[0];
-    String attributePart = parts[1];
-
-
-    String title = null;
-    List<JXNode> jxNodes = jxDocument.selN(selector);
-    if ("text".equals(attributePart)) {
-      for (JXNode jxNode : jxNodes) {
-        Element element = jxNode.asElement();
-        System.out.println(element.text());
-        title = element.text();
-      }
-    } else {
-      for (JXNode jxNode : jxNodes) {
-        Element element = jxNode.asElement();
-        System.out.println(element.text());
-        title = element.attr(StringUtil.getAttribute(attributePart));
-      }
-    }
+    String title = JsoupUtil.xpathParse(document.html(), xPathFetcherConfig.getXPath());
 
     log.info("{}获取到内容：{}", xPathFetcherConfig.getName(), title);
     WebContent webContent = WebContent.builder()

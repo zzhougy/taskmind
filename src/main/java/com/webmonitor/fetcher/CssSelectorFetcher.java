@@ -3,7 +3,7 @@ package com.webmonitor.fetcher;
 import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
-import com.webmonitor.util.CssSelectorUtil;
+import com.webmonitor.util.JsoupUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class CssSelectorFetcher implements ContentFetcher {
 //      selectorDict.put("title", "*[id=\"lg\"] > map > area[shape='rect']");
       selectorDict.put("title", cssSelectorFetcherConfig.getCssSelector());
 
-      Map<String, String> result = CssSelectorUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict, null);
+      Map<String, String> result = JsoupUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict, null);
       System.out.println(result);
 
 
