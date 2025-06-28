@@ -1,18 +1,16 @@
 package com.webmonitor.fetcher;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.webmonitor.config.fetcher.KeywordSelectorFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
-import com.webmonitor.util.CssSelectorUtil;
 import com.webmonitor.util.HtmlUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class KeywordSelectorFetcher implements ContentFetcher {
@@ -37,27 +35,23 @@ public class KeywordSelectorFetcher implements ContentFetcher {
 
     Document document = HtmlUtil.getDocument(config.getUrl(), null);
     Elements elements = document.getElementsContainingOwnText(config.getKeyword());
-    String cssSelector = elements.first().cssSelector();
-    Map<String, String> selectorDict = new HashMap<>();
-    selectorDict.put("title", cssSelector + "|text");
-
-    Map<String, String> result = CssSelectorUtil.getByCssSelector(config.getUrl(), selectorDict, null);
-
-    if (result.containsKey("title")) {
-      String title = result.get("title");
-      log.info("{}获取到内容：{}", config.getName(), title);
-      WebContent webContent = WebContent.builder()
-              .id(title)
-              .title(title)
-              .description(title)
-              .link(null)
-              .source(config.getName())
-              .dateStr(null)
-              .category(config.getName())
-              .build();
-
-      currentWeb.add(webContent);
+    if (CollectionUtil.isEmpty(elements)) {
+      throw new RuntimeException(config.getName() + "没有获取到内容，请重试或者联系管理员");
     }
+    String title = elements.first().text();
+
+    log.info("{}获取到内容：{}", config.getName(), title);
+    WebContent webContent = WebContent.builder()
+            .id(title)
+            .title(title)
+            .description(title)
+            .link(null)
+            .source(config.getName())
+            .dateStr(null)
+            .category(config.getName())
+            .build();
+
+    currentWeb.add(webContent);
 
 
     List<WebContent> newWeb = new ArrayList<>();
