@@ -37,6 +37,9 @@ public class WebMonitorFactory {
           case "KeywordSelectorFetcher":
             configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), KeywordSelectorFetcherConfig.class));
             break;
+          case "AIFetcher":
+            configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), AIFetcherConfig.class));
+            break;
           default:
             throw new IllegalArgumentException("Unknown fetcher type: " + configMap.get("type"));
         }

@@ -1,5 +1,23 @@
+spring:
+  ai:
+    zhipuai:
+      api-key: ${ZHIPUAI_API_KEY}
+      base-url: "https://open.bigmodel.cn/api/paas"
+      chat:
+        options:
+          model: GLM-4-Flash-250414
+      embedding:
+        enabled: false
+
 web-monitor:
   configs:
+    - type: AIFetcher
+      name: AIMonitor
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: 0
+      userQuery: 获取第一个热搜的标题
+
     - type: ZzFetcher
       name: 1111
       url:

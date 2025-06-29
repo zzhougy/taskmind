@@ -9,6 +9,7 @@ import com.webmonitor.core.WebMonitor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -22,6 +23,8 @@ public class Main {
 
   @Resource
   private WebMonitorFactory webMonitorFactory;
+  @Resource
+  private ChatModel zhipuAiChatModel;
 
 //  public static void main(String[] args) {
 //    start();
@@ -39,7 +42,8 @@ public class Main {
     WebMonitor monitor = new WebMonitor();
 
     // 启动所有监控
-    monitor.startAllMonitoring(webMonitorFactory.loadFetcherConfigs(), webMonitorFactory.loadObserverConfigs());
+    monitor.startAllMonitoring(webMonitorFactory.loadFetcherConfigs(),
+            webMonitorFactory.loadObserverConfigs(), zhipuAiChatModel);
 
     // 保持程序运行
     Runtime.getRuntime().addShutdownHook(new Thread(monitor::stop));

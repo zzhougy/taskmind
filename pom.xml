@@ -100,7 +100,55 @@
         <!--  End faker request info     -->
 
 
-    </dependencies>
+        <!-- Start zhipu ai     -->
+        <dependency>
+            <groupId>cn.bigmodel.openapi</groupId>
+            <artifactId>oapi-java-sdk</artifactId>
+            <version>release-V4-2.3.0</version>
+        </dependency>
+        <!-- End zhipu ai     -->
+
+
+    <!-- Start spring ai     -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-zhipuai</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-core</artifactId>
+            <version>1.0.0-M6</version>
+        </dependency>
+    <!-- End spring ai     -->
+
+
+
+
+<!--    </dependencies>-->
+
+<!--&lt;!&ndash;    注意：由于 spring-ai 相关依赖包还没有发布到中央仓库，如出现 spring-ai-core 等相关依赖解析问题，请在您项目的 pom.xml 依赖中加入如下仓库配置。&ndash;&gt;-->
+
+<!--     <repositories>-->
+
+<!--         <repository>-->
+
+<!--         	<id>spring-milestones</id>-->
+
+<!--         	<name>Spring Milestones</name>-->
+
+<!--         	<url>[https://repo.spring.io/milestone</url>-->
+
+<!--         	<snapshots>-->
+
+<!--         		<enabled>false</enabled>-->
+
+<!--         	</snapshots>-->
+
+<!--         </repository>-->
+
+<!--     </repositories>-->
+
 
     <build>
         <plugins>

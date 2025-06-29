@@ -1,6 +1,10 @@
 package com.webmonitor.core;
 
 import com.webmonitor.config.fetcher.*;
+import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
+import com.webmonitor.config.fetcher.XPathFetcherConfig;
+import com.webmonitor.config.fetcher.ZzFetcherConfig;
+import com.webmonitor.config.fetcher.AIFetcherConfig;
 import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
@@ -9,6 +13,7 @@ import com.webmonitor.observer.ConsoleWebObserver;
 import com.webmonitor.observer.EmailWebObserver;
 import com.webmonitor.observer.WebObserver;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.model.ChatModel;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -38,7 +43,7 @@ public class WebMonitor {
     observers.remove(observer);
   }
 
-  public void startMonitoring(FetcherConfig fetcherConfig) {
+  public void startMonitoring(FetcherConfig fetcherConfig, ChatModel zhipuAiChatModel) {
     ContentFetcher fetcher;
     if (fetcherConfig instanceof ZzFetcherConfig) {
       fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
@@ -50,6 +55,8 @@ public class WebMonitor {
       fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
     } else if (fetcherConfig instanceof KeywordSelectorFetcherConfig) {
       fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
+    } else if (fetcherConfig instanceof AIFetcherConfig) {
+      fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, zhipuAiChatModel);
     } else {
       fetcher = null;
     }
@@ -77,10 +84,10 @@ public class WebMonitor {
 
   }
 
-  public void startAllMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs) {
+  public void startAllMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs, ChatModel zhipuAiChatModel) {
     fetcherConfigs.forEach(o -> {
       if (o.isEnabled()) {
-        startMonitoring(o);
+        startMonitoring(o, zhipuAiChatModel);
       }
     });
 
