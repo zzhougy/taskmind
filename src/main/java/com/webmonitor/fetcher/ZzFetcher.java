@@ -31,7 +31,7 @@ public class ZzFetcher implements ContentFetcher {
       log.info("正在检查{}更新...", zzFetcherConfig.getName());
     }
 
-    Document doc = HtmlUtil.getDocument(zzFetcherConfig.getUrl(), null);
+    Document doc = HtmlUtil.getDocument(zzFetcherConfig.getUrl(), null, zzFetcherConfig.getCookie());
 
     Elements newsElements = doc.select(".list01 li");
     List<WebContent> currentWeb = new ArrayList<>();

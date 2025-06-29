@@ -37,7 +37,8 @@ public class CssSelectorFetcher implements ContentFetcher {
 //      selectorDict.put("title", "*[id=\"lg\"] > map > area[shape='rect']");
       selectorDict.put("title", cssSelectorFetcherConfig.getCssSelector());
 
-      Map<String, String> result = JsoupUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict, null);
+      Map<String, String> result = JsoupUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict,
+              null, cssSelectorFetcherConfig.getCookie());
       System.out.println(result);
 
 

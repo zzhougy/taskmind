@@ -9,5 +9,6 @@ public abstract class FetcherConfig {
   private String url;
   private int intervalSeconds;
   private boolean enabled;
+  private String cookie;
 
 }

@@ -33,7 +33,7 @@ public class KeywordSelectorFetcher implements ContentFetcher {
     List<WebContent> currentWeb = new ArrayList<>();
 
 
-    Document document = HtmlUtil.getDocument(config.getUrl(), null);
+    Document document = HtmlUtil.getDocument(config.getUrl(), null, config.getCookie());
     Elements elements = document.getElementsContainingOwnText(config.getKeyword());
     if (CollectionUtil.isEmpty(elements)) {
       throw new RuntimeException(config.getName() + "没有获取到内容，请重试或者联系管理员");

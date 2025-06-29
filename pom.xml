@@ -96,6 +96,12 @@
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
             <version>1.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--  End faker request info     -->
 
@@ -107,11 +113,6 @@
             <version>release-V4-2.3.0</version>
         </dependency>
         <!-- End zhipu ai     -->
-
-
-        ppppp
-
-
 
 
         <!-- Start spring ai     -->

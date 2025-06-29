@@ -32,7 +32,7 @@ public class XPathFetcher implements ContentFetcher {
     List<WebContent> currentWeb = new ArrayList<>();
 
 
-    Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null);
+    Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null, xPathFetcherConfig.getCookie());
 
     String title = JsoupUtil.xpathParse(document.html(), xPathFetcherConfig.getXPath());
 

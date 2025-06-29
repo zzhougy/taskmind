@@ -44,12 +44,15 @@ public class AIFetcher implements ContentFetcher {
     // 检查是否有缓存的XPath
     if (cachedXPath == null) {
       cachedXPath = getXPathFromAI();
+      if (cachedXPath == null || cachedXPath.isEmpty()) {
+        throw new Exception("通过ai获取XPath失败，请检查配置，或者重试，cachedXPath ：" + cachedXPath);
+      }
       cachedXPath = cachedXPath + "|text";
       log.info("成功通过ai获取XPath: {}", cachedXPath);
     }
 
     // 使用缓存的XPath获取内容
-    Document document = HtmlUtil.getDocument(aiFetcherConfig.getUrl(), null);
+    Document document = HtmlUtil.getDocument(aiFetcherConfig.getUrl(), null, aiFetcherConfig.getCookie());
     String html = document.html();
     String title = JsoupUtil.xpathParse(html, cachedXPath);
 
@@ -82,7 +85,7 @@ public class AIFetcher implements ContentFetcher {
 
   private String getXPathFromAI() throws IOException {
     // 获取网页内容
-    String html = HtmlUtil.getHtml(aiFetcherConfig.getUrl(), null);
+    String html = HtmlUtil.getHtml(aiFetcherConfig.getUrl(), null, aiFetcherConfig.getCookie());
     String cleanedHtml = HtmlUtil.extractBodyByJsoup(html);
 
     // 读取prompt模板
@@ -91,7 +94,8 @@ public class AIFetcher implements ContentFetcher {
       throw new IOException("Prompt file not found");
     }
     String promptTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-    String prompt = promptTemplate.replace("用户本次需求：", "用户本次需求：" + aiFetcherConfig.getUserQuery()) + cleanedHtml;
+    String prompt = promptTemplate.replace("用户本次需求：", "用户本次需求：" + aiFetcherConfig.getUserQuery())
+            .replace("HTML 内容如下：", "HTML 内容如下：" + cleanedHtml);
 
     String xpath = zhipuAiChatModel.call(new Prompt(prompt)).getResult().getOutput().getText();
 
