@@ -1,6 +1,7 @@
 package com.webmonitor.fetcher;
 
 import com.webmonitor.config.fetcher.AIFetcherConfig;
+import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import com.webmonitor.util.HtmlUtil;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class AIFetcher implements ContentFetcher {
@@ -23,13 +25,13 @@ public class AIFetcher implements ContentFetcher {
   private String cachedXPath;
   private List<WebContent> lastWeb = new ArrayList<>();
   private boolean isFirstLoad = true;
-  private ChatModel zhipuAiChatModel;
+  private Map<AIModelEnum, ChatModel> aiModelMap;
 
 
 
-  public AIFetcher(AIFetcherConfig config, ChatModel zhipuAiChatModel) {
+  public AIFetcher(AIFetcherConfig config, Map<AIModelEnum, ChatModel> aiModelMap) {
     this.aiFetcherConfig = config;
-    this.zhipuAiChatModel = zhipuAiChatModel;
+    this.aiModelMap = aiModelMap;
 
   }
 
@@ -47,6 +49,10 @@ public class AIFetcher implements ContentFetcher {
       if (cachedXPath == null || cachedXPath.isEmpty()) {
         throw new Exception("通过ai获取XPath失败，请检查配置，或者重试，cachedXPath ：" + cachedXPath);
       }
+      cachedXPath = cachedXPath.replace("`",   "");
+      cachedXPath = cachedXPath.replace("xpath",   "");
+      // 去掉换行
+      cachedXPath = cachedXPath.replace("\n", "");
       cachedXPath = cachedXPath + "|text";
       log.info("成功通过ai获取XPath: {}", cachedXPath);
     }
@@ -83,7 +89,7 @@ public class AIFetcher implements ContentFetcher {
     return newWeb;
   }
 
-  private String getXPathFromAI() throws IOException {
+  private String getXPathFromAI() throws Exception {
     // 获取网页内容
     String html = HtmlUtil.getHtml(aiFetcherConfig.getUrl(), null, aiFetcherConfig.getCookie());
     String cleanedHtml = HtmlUtil.extractBodyByJsoup(html);
@@ -96,11 +102,16 @@ public class AIFetcher implements ContentFetcher {
     String promptTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     String prompt = promptTemplate.replace("用户本次需求：", "用户本次需求：" + aiFetcherConfig.getUserQuery())
             .replace("HTML 内容如下：", "HTML 内容如下：" + cleanedHtml);
-
-    String xpath = zhipuAiChatModel.call(new Prompt(prompt)).getResult().getOutput().getText();
-
-
-    return xpath;
+    String modelName = aiFetcherConfig.getModelName();
+    if (AIModelEnum.ZHIPU.getName().equals(modelName) && aiModelMap.get(AIModelEnum.ZHIPU) != null) {
+      return aiModelMap.get(AIModelEnum.ZHIPU).call(new Prompt(prompt)).getResult().getOutput().getText();
+    } else if (AIModelEnum.KIMI.getName().equals(modelName) && aiModelMap.get(AIModelEnum.KIMI) != null) {
+      return aiModelMap.get(AIModelEnum.KIMI).call(new Prompt(prompt)).getResult().getOutput().getText();
+    } else if (AIModelEnum.CUSTOM.getName().equals(modelName) && aiModelMap.get(AIModelEnum.CUSTOM) != null) {
+      return aiModelMap.get(AIModelEnum.CUSTOM).call(new Prompt(prompt)).getResult().getOutput().getText();
+    } else {
+      throw new Exception("不支持的模型：" + modelName);
+    }
   }
 
 }

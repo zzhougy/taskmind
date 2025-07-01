@@ -43,7 +43,7 @@ public class WebMonitor {
     observers.remove(observer);
   }
 
-  public void startMonitoring(FetcherConfig fetcherConfig, ChatModel zhipuAiChatModel) {
+  public void startMonitoring(FetcherConfig fetcherConfig, Map<AIModelEnum, ChatModel> aiModelMap) {
     ContentFetcher fetcher;
     if (fetcherConfig instanceof ZzFetcherConfig) {
       fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
@@ -56,7 +56,7 @@ public class WebMonitor {
     } else if (fetcherConfig instanceof KeywordSelectorFetcherConfig) {
       fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
     } else if (fetcherConfig instanceof AIFetcherConfig) {
-      fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, zhipuAiChatModel);
+      fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, aiModelMap);
     } else {
       fetcher = null;
     }
@@ -84,10 +84,10 @@ public class WebMonitor {
 
   }
 
-  public void startAllMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs, ChatModel zhipuAiChatModel) {
+  public void startAllMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
     fetcherConfigs.forEach(o -> {
       if (o.isEnabled()) {
-        startMonitoring(o, zhipuAiChatModel);
+        startMonitoring(o, aiModelMap);
       }
     });
 
