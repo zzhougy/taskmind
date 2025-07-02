@@ -5,15 +5,19 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.webmonitor.config.WebMonitorFactory;
+import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.core.WebMonitor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -24,8 +28,14 @@ public class Main {
   @Resource
   private WebMonitorFactory webMonitorFactory;
   @Resource
-  private ChatModel zhipuAiChatModel;
-
+  @Qualifier("zhiPuAiChatModel")
+  private ChatModel zhiPuAiChatModel;
+  @Resource
+  @Qualifier("deepSeekChatModel")
+  private ChatModel deepSeekChatModel;
+  @Resource
+  @Qualifier("customChatModel")
+  private ChatModel customChatModel;
 //  public static void main(String[] args) {
 //    start();
 //  }
@@ -41,9 +51,16 @@ public class Main {
 
     WebMonitor monitor = new WebMonitor();
 
+    Map<AIModelEnum, ChatModel> chatModels = new HashMap<>();
+    chatModels.put(AIModelEnum.ZHIPU, zhiPuAiChatModel);
+    chatModels.put(AIModelEnum.KIMI, null);
+    chatModels.put(AIModelEnum.DEEPSEEK, deepSeekChatModel);
+    chatModels.put(AIModelEnum.CUSTOM, customChatModel);
+
+
     // 启动所有监控
     monitor.startAllMonitoring(webMonitorFactory.loadFetcherConfigs(),
-            webMonitorFactory.loadObserverConfigs(), zhipuAiChatModel);
+            webMonitorFactory.loadObserverConfigs(), chatModels);
 
     // 保持程序运行
     Runtime.getRuntime().addShutdownHook(new Thread(monitor::stop));

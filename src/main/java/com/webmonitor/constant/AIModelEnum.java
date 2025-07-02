@@ -4,6 +4,7 @@ package com.webmonitor.constant;
 public enum AIModelEnum {
   ZHIPU("zhipu"),
   KIMI("kimi"),
+  DEEPSEEK("deepseek"),
   CUSTOM("custom")
     ;
 

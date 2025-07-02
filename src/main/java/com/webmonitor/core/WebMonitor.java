@@ -1,13 +1,10 @@
 package com.webmonitor.core;
 
 import com.webmonitor.config.fetcher.*;
-import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
-import com.webmonitor.config.fetcher.XPathFetcherConfig;
-import com.webmonitor.config.fetcher.ZzFetcherConfig;
-import com.webmonitor.config.fetcher.AIFetcherConfig;
 import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
+import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.fetcher.*;
 import com.webmonitor.observer.ConsoleWebObserver;
 import com.webmonitor.observer.EmailWebObserver;
@@ -16,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
