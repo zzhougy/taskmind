@@ -34,8 +34,14 @@ public class Main {
   @Qualifier("deepSeekChatModel")
   private ChatModel deepSeekChatModel;
   @Resource
+  @Qualifier("kimiChatModel")
+  private ChatModel kimiChatModel;
+  @Resource
   @Qualifier("customChatModel")
   private ChatModel customChatModel;
+
+
+
 //  public static void main(String[] args) {
 //    start();
 //  }
@@ -49,11 +55,10 @@ public class Main {
     // 配置 Logback 将日志输出到 Swing 界面
     configureLogbackAppender();
 
-    WebMonitor monitor = new WebMonitor();
-
+    WebMonitor monitor = new WebMonitor(null);
     Map<AIModelEnum, ChatModel> chatModels = new HashMap<>();
     chatModels.put(AIModelEnum.ZHIPU, zhiPuAiChatModel);
-    chatModels.put(AIModelEnum.KIMI, null);
+    chatModels.put(AIModelEnum.KIMI, kimiChatModel);
     chatModels.put(AIModelEnum.DEEPSEEK, deepSeekChatModel);
     chatModels.put(AIModelEnum.CUSTOM, customChatModel);
 
@@ -106,4 +111,4 @@ public class Main {
 
     rootLogger.addAppender(swingAppender);
   }
-} 
+}

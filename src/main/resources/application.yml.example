@@ -6,6 +6,25 @@ spring:
       chat:
         options:
           model: GLM-4-Flash-250414
+#          model: GLM-4-PLUS
+      embedding:
+        enabled: false
+
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}
+      base-url: "https://api.deepseek.com"
+      chat:
+        options:
+          model: deepseek-chat
+      embedding:
+        enabled: false
+
+    kimi:
+      api-key: ${KIMI_API_KEY}
+      base-url: "https://api.moonshot.cn/v1/chat/completions"
+      chat:
+        options:
+          model: moonshot-v1-8k
       embedding:
         enabled: false
 
@@ -17,6 +36,7 @@ web-monitor:
       intervalSeconds: 600
       enabled: 0
       userQuery: 获取第一个热搜的标题
+      modelName: kimi
 
     - type: ZzFetcher
       name: 1111

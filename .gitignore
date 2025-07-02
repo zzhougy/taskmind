@@ -4,3 +4,4 @@ out
 /src/main/resources/application.properties
 /src/main/resources/application.yml
 /dependency-reduced-pom.xml
+/src/main/resources/chromedriver
