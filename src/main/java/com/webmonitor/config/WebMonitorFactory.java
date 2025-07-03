@@ -3,10 +3,15 @@ package com.webmonitor.config;
 import cn.hutool.json.JSONUtil;
 import com.webmonitor.config.fetcher.*;
 import com.webmonitor.config.observer.*;
+import com.webmonitor.constant.AIModelEnum;
+import jakarta.annotation.Resource;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +20,18 @@ public class WebMonitorFactory {
 
   @Autowired
   private WebMonitorProperties webMonitorProperties;
+  @Resource
+  @Qualifier("zhiPuAiChatModel")
+  private ChatModel zhiPuAiChatModel;
+  @Resource
+  @Qualifier("deepSeekChatModel")
+  private ChatModel deepSeekChatModel;
+  @Resource
+  @Qualifier("kimiChatModel")
+  private ChatModel kimiChatModel;
+  @Resource
+  @Qualifier("customChatModel")
+  private ChatModel customChatModel;
 
 
   public List<FetcherConfig> loadFetcherConfigs() {
@@ -76,4 +93,26 @@ public class WebMonitorFactory {
     }
     return observers;
   }
+
+
+
+  public Map<AIModelEnum, ChatModel> loadAIModels() {
+    Map<AIModelEnum, ChatModel> chatModels = new HashMap<>();
+    chatModels.put(AIModelEnum.ZHIPU, zhiPuAiChatModel);
+    chatModels.put(AIModelEnum.KIMI, kimiChatModel);
+    chatModels.put(AIModelEnum.DEEPSEEK, deepSeekChatModel);
+    chatModels.put(AIModelEnum.CUSTOM, customChatModel);
+    return chatModels;
+  }
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -1,0 +1,35 @@
+package com.webmonitor.controller;
+
+import com.webmonitor.config.WebMonitorFactory;
+import com.webmonitor.constant.AIModelEnum;
+import com.webmonitor.core.WebMonitor;
+import com.webmonitor.entity.bo.AIUserInputBO;
+import com.webmonitor.service.ai.AITools;
+import jakarta.annotation.Resource;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController("/api/ai")
+public class WebMonitorController {
+
+  @Resource
+  private WebMonitorFactory webMonitorFactory;
+  @Resource
+  private WebMonitor monitor;
+
+
+  @PostMapping("/chat")
+  public String chatWithAI(@RequestBody AIUserInputBO bo) {
+    String response = ChatClient.create(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU))
+            .prompt(bo.getUserInput())
+            .tools(new AITools())
+            .call()
+            .content();
+
+    monitor.startMonitoring()
+
+    return response;
+  }
+}

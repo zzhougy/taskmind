@@ -1,5 +1,6 @@
 package com.webmonitor;
 
+import com.webmonitor.core.WebMonitor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -20,7 +21,8 @@ public class WebMonitorApplication {
     System.out.println("✅ 任务开始执行。。。。。");
 
     Main main = context.getBean(Main.class);
-    main.start();
+    WebMonitor webMonitor = context.getBean(WebMonitor.class);
+    main.start(webMonitor);
 
   }
 }

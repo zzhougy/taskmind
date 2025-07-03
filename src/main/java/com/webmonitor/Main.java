@@ -5,18 +5,19 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.webmonitor.config.WebMonitorFactory;
+import com.webmonitor.config.fetcher.FetcherConfig;
+import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.core.WebMonitor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -27,26 +28,13 @@ public class Main {
 
   @Resource
   private WebMonitorFactory webMonitorFactory;
-  @Resource
-  @Qualifier("zhiPuAiChatModel")
-  private ChatModel zhiPuAiChatModel;
-  @Resource
-  @Qualifier("deepSeekChatModel")
-  private ChatModel deepSeekChatModel;
-  @Resource
-  @Qualifier("kimiChatModel")
-  private ChatModel kimiChatModel;
-  @Resource
-  @Qualifier("customChatModel")
-  private ChatModel customChatModel;
-
 
 
 //  public static void main(String[] args) {
 //    start();
 //  }
 
-  public void start() {
+  public void start(WebMonitor monitor) {
     log.info("程序启动");
     // 设置允许图形界面，解决java.awt.HeadlessException
     System.setProperty("java.awt.headless", "false");
@@ -55,17 +43,10 @@ public class Main {
     // 配置 Logback 将日志输出到 Swing 界面
     configureLogbackAppender();
 
-    WebMonitor monitor = new WebMonitor(null);
-    Map<AIModelEnum, ChatModel> chatModels = new HashMap<>();
-    chatModels.put(AIModelEnum.ZHIPU, zhiPuAiChatModel);
-    chatModels.put(AIModelEnum.KIMI, kimiChatModel);
-    chatModels.put(AIModelEnum.DEEPSEEK, deepSeekChatModel);
-    chatModels.put(AIModelEnum.CUSTOM, customChatModel);
 
-
-    // 启动所有监控
-    monitor.startAllMonitoring(webMonitorFactory.loadFetcherConfigs(),
-            webMonitorFactory.loadObserverConfigs(), chatModels);
+    monitor.startMonitoring(webMonitorFactory.loadFetcherConfigs(),
+            webMonitorFactory.loadObserverConfigs(),
+            webMonitorFactory.loadAIModels());
 
     // 保持程序运行
     Runtime.getRuntime().addShutdownHook(new Thread(monitor::stop));
@@ -76,6 +57,15 @@ public class Main {
       monitor.stop();
       Thread.currentThread().interrupt();
     }
+  }
+
+  private void startMonitoring(WebMonitor monitor, List<FetcherConfig> fetcherConfigs,
+                               List<ObserverConfig> observerConfigs,
+                               Map<AIModelEnum, ChatModel> aiModelMap) {
+    // 启动所有监控
+    monitor.startAllMonitoring(fetcherConfigs,
+            observerConfigs,
+            aiModelMap);
   }
 
   private void createAndShowGUI() {

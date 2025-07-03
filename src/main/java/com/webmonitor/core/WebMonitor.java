@@ -11,12 +11,14 @@ import com.webmonitor.observer.EmailWebObserver;
 import com.webmonitor.observer.WebObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Component
 @Slf4j
 public class WebMonitor {
   private final List<WebObserver> observers = new CopyOnWriteArrayList<>();
@@ -117,6 +119,7 @@ public class WebMonitor {
   }
 
   private void notifyObservers(List<WebContent> webContents) {
+    // 通知观察者
     for (WebObserver observer : observers) {
       try {
         observer.send(webContents);
