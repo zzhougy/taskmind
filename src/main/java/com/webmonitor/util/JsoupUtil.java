@@ -1,15 +1,23 @@
 package com.webmonitor.util;
 
+import com.webmonitor.constant.AIModelEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.ai.chat.model.ChatModel;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
+@Slf4j
 public class JsoupUtil {
+  public static final String PROMPT_TXT = "prompts/xpath_generator_prompt.txt";
 
 
   public static Map<String, String> getByCssSelector(String url, Map<String, String> selectorDict,
@@ -81,6 +89,35 @@ public class JsoupUtil {
       throw new RuntimeException("xpath 解析失败: " + e.getMessage());
     }
   }
+
+
+
+  public static String getXPathFromAI(String url, String modelName, String userQuery, Map<AIModelEnum, ChatModel> aiModelMap) throws Exception {
+    // 获取网页内容
+    String html = HtmlUtil.getHtml(url, null, null);
+    String cleanedHtml = HtmlUtil.extractBodyByJsoup(html);
+
+    // 读取prompt模板
+    InputStream inputStream = JsoupUtil.class.getClassLoader().getResourceAsStream(PROMPT_TXT);
+    if (inputStream == null) {
+      throw new IOException("Prompt file not found");
+    }
+    String promptTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+    String prompt = promptTemplate.replace("用户本次需求：", "用户本次需求：" + userQuery)
+            .replace("HTML 内容如下：", "HTML 内容如下：" + cleanedHtml);
+    String xpathFromAI = AIUtil.callAI(modelName, aiModelMap, prompt);
+    if (xpathFromAI == null || xpathFromAI.isEmpty()) {
+      throw new Exception("通过ai获取XPath失败，请检查配置，或者重试，cachedXPath ：" + xpathFromAI);
+    }
+    xpathFromAI = xpathFromAI.replace("`",   "");
+    xpathFromAI = xpathFromAI.replace("xpath",   "");
+    // 去掉换行
+    xpathFromAI = xpathFromAI.replace("\n", "");
+    log.info("成功通过ai获取XPath: {}", xpathFromAI);
+    return xpathFromAI + "|text";
+  }
+
+
 
 
 }

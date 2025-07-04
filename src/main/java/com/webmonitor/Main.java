@@ -59,15 +59,6 @@ public class Main {
     }
   }
 
-  private void startMonitoring(WebMonitor monitor, List<FetcherConfig> fetcherConfigs,
-                               List<ObserverConfig> observerConfigs,
-                               Map<AIModelEnum, ChatModel> aiModelMap) {
-    // 启动所有监控
-    monitor.startAllMonitoring(fetcherConfigs,
-            observerConfigs,
-            aiModelMap);
-  }
-
   private void createAndShowGUI() {
     JFrame frame = new JFrame("实时日志监控");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

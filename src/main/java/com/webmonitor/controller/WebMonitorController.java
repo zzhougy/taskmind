@@ -18,17 +18,17 @@ public class WebMonitorController {
   private WebMonitorFactory webMonitorFactory;
   @Resource
   private WebMonitor monitor;
-
+  @Resource
+  private AITools aiTools;
 
   @PostMapping("/chat")
   public String chatWithAI(@RequestBody AIUserInputBO bo) {
     String response = ChatClient.create(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU))
             .prompt(bo.getUserInput())
-            .tools(new AITools())
+            .tools(aiTools)
             .call()
             .content();
 
-    monitor.startMonitoring()
 
     return response;
   }

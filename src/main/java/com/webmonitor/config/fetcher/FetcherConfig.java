@@ -8,6 +8,7 @@ public abstract class FetcherConfig {
   private String name;
   private String url;
   private int intervalSeconds;
+  private String cron;
   private boolean enabled;
   private String cookie;
 

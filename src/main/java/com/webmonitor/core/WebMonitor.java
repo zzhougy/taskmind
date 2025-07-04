@@ -9,6 +9,8 @@ import com.webmonitor.fetcher.*;
 import com.webmonitor.observer.ConsoleWebObserver;
 import com.webmonitor.observer.EmailWebObserver;
 import com.webmonitor.observer.WebObserver;
+import com.webmonitor.service.job.UserSchedulerService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class WebMonitor {
   private final List<WebObserver> observers = new CopyOnWriteArrayList<>();
   private final ScheduledExecutorService scheduler;
+  @Resource
+  private UserSchedulerService schedulerService;
 
   public WebMonitor() {
     this.scheduler = Executors.newScheduledThreadPool(
@@ -43,28 +47,7 @@ public class WebMonitor {
     observers.remove(observer);
   }
 
-  public void startMonitoring(FetcherConfig fetcherConfig, Map<AIModelEnum, ChatModel> aiModelMap) {
-    ContentFetcher fetcher;
-    if (fetcherConfig instanceof ZzFetcherConfig) {
-      fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
-    } else if (fetcherConfig instanceof CssSelectorFetcherConfig) {
-      fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
-    } else if (fetcherConfig instanceof XPathFetcherConfig) {
-      fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
-    } else if (fetcherConfig instanceof SeleniumFetcherConfig) {
-      fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
-    } else if (fetcherConfig instanceof KeywordSelectorFetcherConfig) {
-      fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
-    } else if (fetcherConfig instanceof AIFetcherConfig) {
-      fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, aiModelMap);
-    } else {
-      fetcher = null;
-    }
-    if (fetcher == null) {
-      log.error("未找到名为 {} 的内容获取器", fetcherConfig.getName());
-      return;
-    }
-
+  public void doStartMonitoring(ContentFetcher fetcher, FetcherConfig fetcherConfig) {
     AtomicReference<Future<?>> futureRef = new AtomicReference<>();
     // scheduleAtFixedRate
     // scheduleWithFixedDelay: 任务执行完后，等待IntervalSeconds，再继续重复执行当前任务
@@ -80,17 +63,14 @@ public class WebMonitor {
         futureRef.get().cancel(true);
       }
     }, 0, fetcherConfig.getIntervalSeconds(), TimeUnit.SECONDS));
-
-
   }
 
-  public void startAllMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
-    fetcherConfigs.forEach(o -> {
-      if (o.isEnabled()) {
-        startMonitoring(o, aiModelMap);
-      }
-    });
+  public void doStartMonitoring2(ContentFetcher fetcher, FetcherConfig fetcherConfig) {
+    schedulerService.scheduleTaskForUser(11L,
+            fetcherConfig.getCron(), createUserTask(11L, fetcher));
+  }
 
+  public void startMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
     observerConfigs.forEach(o -> {
       if (o.isEnabled()) {
         WebObserver observer = null;
@@ -102,6 +82,32 @@ public class WebMonitor {
           observer = new EmailWebObserver((EmailObserverConfig) o);
           addObserver(observer);
         }
+      }
+    });
+
+    fetcherConfigs.forEach(fetcherConfig -> {
+      if (fetcherConfig.isEnabled()) {
+        ContentFetcher fetcher;
+        if (fetcherConfig instanceof ZzFetcherConfig) {
+          fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof CssSelectorFetcherConfig) {
+          fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof XPathFetcherConfig) {
+          fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof SeleniumFetcherConfig) {
+          fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof KeywordSelectorFetcherConfig) {
+          fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
+        } else if (fetcherConfig instanceof AIFetcherConfig) {
+          fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, aiModelMap);
+        } else {
+          fetcher = null;
+        }
+        if (fetcher == null) {
+          log.error("未找到名为 {} 的内容获取器", fetcherConfig.getName());
+          return;
+        }
+        doStartMonitoring2(fetcher, fetcherConfig);
       }
     });
   }
@@ -127,5 +133,23 @@ public class WebMonitor {
         log.error("通知观察者失败", e);
       }
     }
+  }
+
+
+
+  public Runnable createUserTask(Long userId, ContentFetcher fetcher) {
+    return () -> {
+      try {
+        List<WebContent> webContents = fetcher.fetch();
+
+        if (webContents != null && !webContents.isEmpty()) {
+          notifyObservers(webContents);
+        }
+      } catch (Exception e) {
+        // 错误处理 - 取消该用户的任务
+        schedulerService.cancelTaskForUser(userId);
+        System.err.println("用户 " + userId + " 的任务执行失败: " + e.getMessage());
+      }
+    };
   }
 }

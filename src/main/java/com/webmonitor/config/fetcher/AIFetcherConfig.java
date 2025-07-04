@@ -1,7 +1,6 @@
 package com.webmonitor.config.fetcher;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
