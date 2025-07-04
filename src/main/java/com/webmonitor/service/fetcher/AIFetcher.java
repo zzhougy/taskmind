@@ -1,4 +1,4 @@
-package com.webmonitor.fetcher;
+package com.webmonitor.service.fetcher;
 
 import com.webmonitor.config.fetcher.AIFetcherConfig;
 import com.webmonitor.constant.AIModelEnum;

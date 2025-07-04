@@ -1,4 +1,4 @@
-package com.webmonitor.observer;
+package com.webmonitor.service.observer;
 
 import com.webmonitor.core.WebContent;
 

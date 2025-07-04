@@ -5,10 +5,10 @@ import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.constant.AIModelEnum;
-import com.webmonitor.fetcher.*;
-import com.webmonitor.observer.ConsoleWebObserver;
-import com.webmonitor.observer.EmailWebObserver;
-import com.webmonitor.observer.WebObserver;
+import com.webmonitor.service.fetcher.*;
+import com.webmonitor.service.observer.ConsoleWebObserver;
+import com.webmonitor.service.observer.EmailWebObserver;
+import com.webmonitor.service.observer.WebObserver;
 import com.webmonitor.service.job.UserSchedulerService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -65,12 +65,12 @@ public class WebMonitor {
     }, 0, fetcherConfig.getIntervalSeconds(), TimeUnit.SECONDS));
   }
 
-  public void doStartMonitoring2(ContentFetcher fetcher, FetcherConfig fetcherConfig) {
-    schedulerService.scheduleTaskForUser(11L,
-            fetcherConfig.getCron(), createUserTask(11L, fetcher));
+  public void doStartMonitoring2(Long userId, ContentFetcher fetcher, FetcherConfig fetcherConfig) {
+    schedulerService.scheduleTaskForUser(userId,
+            fetcherConfig.getCron(), createUserTask(userId, fetcher));
   }
 
-  public void startMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
+  public void startMonitoring(Long userId, List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
     observerConfigs.forEach(o -> {
       if (o.isEnabled()) {
         WebObserver observer = null;
@@ -107,7 +107,7 @@ public class WebMonitor {
           log.error("未找到名为 {} 的内容获取器", fetcherConfig.getName());
           return;
         }
-        doStartMonitoring2(fetcher, fetcherConfig);
+        doStartMonitoring2(userId, fetcher, fetcherConfig);
       }
     });
   }
@@ -148,7 +148,7 @@ public class WebMonitor {
       } catch (Exception e) {
         // 错误处理 - 取消该用户的任务
         schedulerService.cancelTaskForUser(userId);
-        System.err.println("用户 " + userId + " 的任务执行失败: " + e.getMessage());
+        log.error("任务移除，用户 " + userId + " 的任务执行失败: " + e.getMessage());
       }
     };
   }

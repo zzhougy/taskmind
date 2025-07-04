@@ -1,4 +1,4 @@
-package com.webmonitor.observer;
+package com.webmonitor.service.observer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.webmonitor.core.WebContent;

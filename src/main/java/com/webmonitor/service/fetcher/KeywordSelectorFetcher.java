@@ -1,4 +1,4 @@
-package com.webmonitor.fetcher;
+package com.webmonitor.service.fetcher;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.webmonitor.config.fetcher.KeywordSelectorFetcherConfig;

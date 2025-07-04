@@ -1,4 +1,4 @@
-package com.webmonitor.observer;
+package com.webmonitor.service.observer;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -5,20 +5,14 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.webmonitor.config.WebMonitorFactory;
-import com.webmonitor.config.fetcher.FetcherConfig;
-import com.webmonitor.config.observer.ObserverConfig;
-import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.core.WebMonitor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -44,7 +38,7 @@ public class Main {
     configureLogbackAppender();
 
 
-    monitor.startMonitoring(webMonitorFactory.loadFetcherConfigs(),
+    monitor.startMonitoring(null, webMonitorFactory.loadFetcherConfigs(),
             webMonitorFactory.loadObserverConfigs(),
             webMonitorFactory.loadAIModels());
 
