@@ -20,6 +20,7 @@ import java.util.Map;
 public class JsoupUtil {
   public static final String XPATH_PROMPT_TXT = "prompts/xpath_generator_prompt.txt";
   public static final String CSS_PROMPT_TXT = "prompts/css_generator_prompt.txt";
+  public static final int MAX_HTML_SIZE = 300000;
 
 
   public static Map<String, String> getByCssSelector(String url, Map<String, String> selectorDict,
@@ -108,7 +109,15 @@ public class JsoupUtil {
                                           Map<AIModelEnum, ChatModel> aiModelMap, SelectorTypeEnum typeEnum) throws Exception {
     // 获取网页内容
     String html = HtmlUtil.getHtml(url, null, null);
+    // todo
+    html = HtmlUtil.getHtmlBySelenium(url);
+
     String cleanedHtml = HtmlUtil.extractBodyByJsoup(html);
+    log.info("[getSelectorFromAI] 原始htmlSize:{}, 截取主要html后的htmlSize:{}", html.length(), cleanedHtml.length());
+    if (cleanedHtml.length() >= MAX_HTML_SIZE) {
+      throw new Exception("网页内容过长，暂不处理");
+    }
+
 
     // 读取prompt模板
     InputStream inputStream = JsoupUtil.class.getClassLoader()
@@ -119,6 +128,7 @@ public class JsoupUtil {
     String promptTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     String prompt = promptTemplate.replace("用户本次需求：", "用户本次需求：" + userQuery)
             .replace("HTML 内容如下：", "HTML 内容如下：" + cleanedHtml);
+    log.info("[getSelectorFromAI] Start call api");
     String selectorFromAI = AIUtil.callAI(modelName, aiModelMap, prompt);
     if (selectorFromAI == null || selectorFromAI.isEmpty()) {
       throw new Exception("通过ai获取" + typeEnum.getCode() +"失败，请检查配置，或者重试，selector ：" + selectorFromAI);
@@ -127,7 +137,7 @@ public class JsoupUtil {
     selectorFromAI = selectorFromAI.replace("xpath",   "");
     // 去掉换行
     selectorFromAI = selectorFromAI.replace("\n", "");
-    log.info("成功通过ai获取" + typeEnum.getCode() + ": {}", selectorFromAI);
+    log.info("[getSelectorFromAI] 成功通过ai获取" + typeEnum.getCode() + ": {}", selectorFromAI);
     return selectorFromAI + "|text";
   }
 

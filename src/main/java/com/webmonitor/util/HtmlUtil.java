@@ -8,6 +8,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.IOException;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class HtmlUtil {
 
   public static Document getDocument(String url, Map<String, String> headers, String cookie) throws IOException {
+    log.info("[getHtml] Start");
     Connection connect = Jsoup.connect(url).timeout(10000);
     if (headers != null) {
       connect.headers(headers);
@@ -26,12 +28,25 @@ public class HtmlUtil {
     if (!StringUtils.isEmpty(cookie)) {
       connect.cookie("Cookie", cookie);
     }
-    log.info("Success getDocument {}",  url);
+    log.info("[getDocument] End Success, {}", url);
     return connect.get();
   }
 
   public static String getHtml(String url, Map<String, String> headers, String cookie) throws IOException {
-    return getDocument(url, headers, cookie).html();
+    log.info("[getHtml] Start");
+    String html = getDocument(url, headers, cookie).html();
+    log.info("[getHtml] End Success, url: {}, htmlSize: {}", url, html.length());
+    return html;
+  }
+
+  public static String getHtmlBySelenium(String url) {
+    log.info("[getHtmlBySelenium] Start");
+    ChromeDriver driver = SeleniumUtil.getChromeDriver();
+    // 打开目标网页
+    driver.get(url);
+    String html = driver.getPageSource();
+    log.info("[getHtmlBySelenium] End Success, url: {}, htmlSize: {}", url, html.length());
+    return html;
   }
 
 

@@ -7,5 +7,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class CssSelectorFetcherConfig extends FetcherConfig {
   private String cssSelector;
+  private String wayToGetHtml;
 
 }

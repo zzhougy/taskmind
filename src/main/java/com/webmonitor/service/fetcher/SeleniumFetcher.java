@@ -1,22 +1,17 @@
-package com.webmonitor.fetcher;
+package com.webmonitor.service.fetcher;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.Internet;
 import com.webmonitor.config.fetcher.SeleniumFetcherConfig;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
+import com.webmonitor.util.SeleniumUtil;
 import com.webmonitor.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +20,6 @@ public class SeleniumFetcher implements ContentFetcher {
   private List<WebContent> lastWeb = new ArrayList<>();
   private boolean isFirstLoad = true;
   private final SeleniumFetcherConfig seleniumFetcherConfig;
-  private WebDriver driver;
-  private WebDriverWait wait;
 
   public SeleniumFetcher(SeleniumFetcherConfig seleniumFetcherConfig) {
     this.seleniumFetcherConfig = seleniumFetcherConfig;
@@ -34,7 +27,7 @@ public class SeleniumFetcher implements ContentFetcher {
   }
 
   @Override
-  public List<WebContent> fetch() {
+  public List<WebContent> fetch() throws InterruptedException {
     if (isFirstLoad) {
       log.info("开始监控{}...", seleniumFetcherConfig.getName());
     } else {
@@ -43,30 +36,11 @@ public class SeleniumFetcher implements ContentFetcher {
 
     List<WebContent> currentWeb = new ArrayList<>();
 
+    ChromeDriver driver = null;
     try {
-      // 初始化WebDriver
-      ChromeOptions options = new ChromeOptions();
-//      options.addArguments("--headless=new");
-//      options.addArguments("--headless");
-      // 禁用GPU加速，解决无头模式渲染问题
-      options.addArguments("--disable-gpu");
-      String userAgent = new Faker().internet().userAgent(Internet.UserAgent.CHROME);
-      options.addArguments("--user-agent=" + userAgent);
-      // 禁用沙箱。适用场景：Linux服务器环境
-      options.addArguments("--no-sandbox");
-      options.addArguments("--window-size=1920,1080");
-      // 禁用密码保存提示
-      options.addArguments("--disable-save-password-bubble");
-      // 设置浏览器不被检测
-      options.addArguments("--disable-blink-features=AutomationControlled");
-      // 排除自动化标志
-      options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
-      driver = new ChromeDriver(options);
-      // 在页面加载前覆盖关键属性，使 navigator.webdriver 返回 undefined
-      String js = "Object.defineProperty(navigator, 'webdriver', { get: () => undefined });";
-      ((JavascriptExecutor) driver).executeScript(js);
+      driver = SeleniumUtil.getChromeDriver();
 
-      wait = new WebDriverWait(driver, Duration.ofSeconds(seleniumFetcherConfig.getTimeout()));
+      WebDriverWait wait = SeleniumUtil.getWebDriverWait(driver, seleniumFetcherConfig.getTimeout());
 
       // 打开目标网页
       driver.get(seleniumFetcherConfig.getUrl());

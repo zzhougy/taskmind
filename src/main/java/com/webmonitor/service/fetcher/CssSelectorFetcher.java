@@ -1,15 +1,16 @@
 package com.webmonitor.service.fetcher;
 
 import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
+import com.webmonitor.constant.WayToGetHtmlEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
+import com.webmonitor.util.HtmlUtil;
 import com.webmonitor.util.JsoupUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.nodes.Document;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class CssSelectorFetcher implements ContentFetcher {
@@ -31,37 +32,25 @@ public class CssSelectorFetcher implements ContentFetcher {
 
     List<WebContent> currentWeb = new ArrayList<>();
 
-    try {
-      Map<String, String> selectorDict = new HashMap<>();
-//      selectorDict.put("title", "#lg > map > area[shape='rect']");
-//      selectorDict.put("title", "*[id=\"lg\"] > map > area[shape='rect']");
-      selectorDict.put("title", cssSelectorFetcherConfig.getCssSelector());
-
-      Map<String, String> result = JsoupUtil.getByCssSelector(cssSelectorFetcherConfig.getUrl(), selectorDict,
-              null, cssSelectorFetcherConfig.getCookie());
-      System.out.println(result);
-
-
-      if (result.containsKey("title")) {
-        String title = result.get("title");
-
-        WebContent webContent = WebContent.builder()
-                .id(title)
-                .title(title)
-                .description(title)
-                .link(null)
-                .source(cssSelectorFetcherConfig.getName())
-                .dateStr(null)
-                .category(cssSelectorFetcherConfig.getName())
-                .build();
-
-        currentWeb.add(webContent);
-      }
-
-
-    } catch (Exception e) {
-      throw e;
+    String title = null;
+    if (cssSelectorFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.JSOUP.getCode())) {
+      Document document = HtmlUtil.getDocument(cssSelectorFetcherConfig.getUrl(), null, cssSelectorFetcherConfig.getCookie());
+      title = JsoupUtil.cssParse(document.html(), cssSelectorFetcherConfig.getCssSelector());
+    } else if (cssSelectorFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.SELENIUM.getCode())) {
+      title = JsoupUtil.cssParse(HtmlUtil.getHtmlBySelenium(cssSelectorFetcherConfig.getUrl()), cssSelectorFetcherConfig.getCssSelector());
     }
+
+    WebContent webContent = WebContent.builder()
+            .id(title)
+            .title(title)
+            .description(title)
+            .link(null)
+            .source(cssSelectorFetcherConfig.getName())
+            .dateStr(null)
+            .category(cssSelectorFetcherConfig.getName())
+            .build();
+
+    currentWeb.add(webContent);
 
     List<WebContent> newWeb = new ArrayList<>();
     if (!isFirstLoad) {

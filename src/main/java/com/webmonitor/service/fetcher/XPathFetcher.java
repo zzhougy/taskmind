@@ -1,6 +1,7 @@
 package com.webmonitor.service.fetcher;
 
 import com.webmonitor.config.fetcher.XPathFetcherConfig;
+import com.webmonitor.constant.WayToGetHtmlEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import com.webmonitor.util.HtmlUtil;
@@ -32,9 +33,14 @@ public class XPathFetcher implements ContentFetcher {
     List<WebContent> currentWeb = new ArrayList<>();
 
 
-    Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null, xPathFetcherConfig.getCookie());
+    String title = null;
+    if (xPathFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.JSOUP.getCode())) {
+      Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null, xPathFetcherConfig.getCookie());
+      title = JsoupUtil.xpathParse(document.html(), xPathFetcherConfig.getXPath());
+    } else if (xPathFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.SELENIUM.getCode())) {
+      title = JsoupUtil.xpathParse(HtmlUtil.getHtmlBySelenium(xPathFetcherConfig.getUrl()), xPathFetcherConfig.getXPath());
+    }
 
-    String title = JsoupUtil.xpathParse(document.html(), xPathFetcherConfig.getXPath());
 
     log.info("{}获取到内容：{}", xPathFetcherConfig.getName(), title);
     WebContent webContent = WebContent.builder()
