@@ -68,7 +68,7 @@ public class CssSelectorFetcher implements ContentFetcher {
       newWeb = findNewWebContent(currentWeb, lastWeb);
       log.info("{}检查完成，发现 {} 条新内容", cssSelectorFetcherConfig.getName(), newWeb.size());
     } else {
-      log.info("首次加载{}，获取到 {} 条政策，不通知", cssSelectorFetcherConfig.getName(), currentWeb.size());
+      log.info("首次加载{}，获取到 {} 条政策，不通知。内容如下：{}", cssSelectorFetcherConfig.getName(), currentWeb.size(), currentWeb);
     }
 
     lastWeb = currentWeb;

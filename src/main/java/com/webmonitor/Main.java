@@ -9,10 +9,12 @@ import com.webmonitor.core.WebMonitor;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -22,6 +24,9 @@ public class Main {
 
   @Resource
   private WebMonitorFactory webMonitorFactory;
+
+  @Resource
+  private ApplicationContext context;
 
 
 //  public static void main(String[] args) {
@@ -38,7 +43,7 @@ public class Main {
     configureLogbackAppender();
 
 
-    monitor.startMonitoring(null, webMonitorFactory.loadFetcherConfigs(),
+    monitor.startMonitoring(webMonitorFactory.loadFetcherConfigs(),
             webMonitorFactory.loadObserverConfigs(),
             webMonitorFactory.loadAIModels());
 

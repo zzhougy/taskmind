@@ -65,51 +65,75 @@ public class WebMonitor {
     }, 0, fetcherConfig.getIntervalSeconds(), TimeUnit.SECONDS));
   }
 
+
+
   public void doStartMonitoring2(Long userId, ContentFetcher fetcher, FetcherConfig fetcherConfig) {
     schedulerService.scheduleTaskForUser(userId,
             fetcherConfig.getCron(), createUserTask(userId, fetcher));
   }
 
-  public void startMonitoring(Long userId, List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
-    observerConfigs.forEach(o -> {
-      if (o.isEnabled()) {
-        WebObserver observer = null;
-        if (o instanceof ConsoleObserverConfig) {
-          observer = new ConsoleWebObserver();
-          addObserver(observer);
-        }
-        if (o instanceof EmailObserverConfig) {
-          observer = new EmailWebObserver((EmailObserverConfig) o);
-          addObserver(observer);
-        }
-      }
-    });
+  public boolean startMonitoringByUser(Long userId, FetcherConfig fetcherConfig, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
+    observerConfigs.forEach(this::doMonitorConfig);
+    return doFetcherConfig(userId, aiModelMap, fetcherConfig);
+  }
+
+  public void startMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
+    observerConfigs.forEach(this::doMonitorConfig);
 
     fetcherConfigs.forEach(fetcherConfig -> {
-      if (fetcherConfig.isEnabled()) {
-        ContentFetcher fetcher;
-        if (fetcherConfig instanceof ZzFetcherConfig) {
-          fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
-        } else if (fetcherConfig instanceof CssSelectorFetcherConfig) {
-          fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
-        } else if (fetcherConfig instanceof XPathFetcherConfig) {
-          fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
-        } else if (fetcherConfig instanceof SeleniumFetcherConfig) {
-          fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
-        } else if (fetcherConfig instanceof KeywordSelectorFetcherConfig) {
-          fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
-        } else if (fetcherConfig instanceof AIFetcherConfig) {
-          fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, aiModelMap);
-        } else {
-          fetcher = null;
-        }
-        if (fetcher == null) {
-          log.error("未找到名为 {} 的内容获取器", fetcherConfig.getName());
-          return;
+      doFetcherConfig(null, aiModelMap, fetcherConfig);
+    });
+  }
+
+  private boolean doFetcherConfig(Long userId, Map<AIModelEnum, ChatModel> aiModelMap, FetcherConfig fetcherConfig) {
+    if (fetcherConfig.isEnabled()) {
+      ContentFetcher fetcher;
+      if (fetcherConfig instanceof ZzFetcherConfig) {
+        fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
+      } else if (fetcherConfig instanceof CssSelectorFetcherConfig) {
+        fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
+      } else if (fetcherConfig instanceof XPathFetcherConfig) {
+        fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
+      } else if (fetcherConfig instanceof SeleniumFetcherConfig) {
+        fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
+      } else if (fetcherConfig instanceof KeywordSelectorFetcherConfig) {
+        fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
+      } else if (fetcherConfig instanceof AIFetcherConfig) {
+        fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, aiModelMap);
+      } else {
+        fetcher = null;
+      }
+      if (fetcher == null) {
+        log.error("未找到名为 {} 的内容获取器", fetcherConfig.getName());
+        return false;
+      }
+      if (userId != null) {
+        try {
+          fetcher.fetch() ;
+        } catch (Exception e) {
+          log.error("任务测试执行时出现异常，请重试，用户 " + userId);
+          return false;
         }
         doStartMonitoring2(userId, fetcher, fetcherConfig);
+      } else {
+        doStartMonitoring(fetcher, fetcherConfig);
       }
-    });
+    }
+    return true;
+  }
+
+  private void doMonitorConfig(ObserverConfig o) {
+    if (o.isEnabled()) {
+      WebObserver observer = null;
+      if (o instanceof ConsoleObserverConfig) {
+        observer = new ConsoleWebObserver();
+        addObserver(observer);
+      }
+      if (o instanceof EmailObserverConfig) {
+        observer = new EmailWebObserver((EmailObserverConfig) o);
+        addObserver(observer);
+      }
+    }
   }
 
   public void stop() {

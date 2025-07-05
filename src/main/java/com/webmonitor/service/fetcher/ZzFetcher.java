@@ -64,7 +64,7 @@ public class ZzFetcher implements ContentFetcher {
       newWeb = findNewWebContent(currentWeb, lastWeb);
       log.info("{}检查完成，发现 {} 条新内容", zzFetcherConfig.getName(), newWeb.size());
     } else {
-      log.info("首次加载{}，获取到 {} 条政策，不通知", zzFetcherConfig.getName(), currentWeb.size());
+      log.info("首次加载{}，获取到 {} 条政策，不通知。内容如下：{}", zzFetcherConfig.getName(), currentWeb.size(), currentWeb);
     }
 
     lastWeb = currentWeb;

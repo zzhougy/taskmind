@@ -7,4 +7,5 @@ import lombok.*;
 public class AIFetcherConfig extends FetcherConfig {
     private String userQuery;
     private String modelName;
+    private String selectorType;
 }

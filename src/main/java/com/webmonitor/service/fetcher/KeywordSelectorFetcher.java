@@ -6,6 +6,7 @@ import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import com.webmonitor.util.HtmlUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -59,7 +60,7 @@ public class KeywordSelectorFetcher implements ContentFetcher {
       newWeb = findNewWebContent(currentWeb, lastWeb);
       log.info("{}检查完成，发现 {} 条新内容", config.getName(), newWeb.size());
     } else {
-      log.info("首次加载{}，获取到 {} 条政策，不通知", config.getName(), currentWeb.size());
+      log.info("首次加载{}，获取到 {} 条政策，不通知。内容如下：{}", config.getName(), currentWeb.size(), currentWeb);
     }
 
     lastWeb = currentWeb;

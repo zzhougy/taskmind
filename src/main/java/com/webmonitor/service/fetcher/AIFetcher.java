@@ -2,6 +2,7 @@ package com.webmonitor.service.fetcher;
 
 import com.webmonitor.config.fetcher.AIFetcherConfig;
 import com.webmonitor.constant.AIModelEnum;
+import com.webmonitor.constant.SelectorTypeEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import com.webmonitor.util.HtmlUtil;
@@ -17,7 +18,7 @@ import java.util.Map;
 @Slf4j
 public class AIFetcher implements ContentFetcher {
   private final AIFetcherConfig aiFetcherConfig;
-  private String cachedXPath;
+  private String cachedSelector;
   private List<WebContent> lastWeb = new ArrayList<>();
   private boolean isFirstLoad = true;
   private Map<AIModelEnum, ChatModel> aiModelMap;
@@ -38,15 +39,26 @@ public class AIFetcher implements ContentFetcher {
       log.info("正在检查{}更新...", aiFetcherConfig.getName());
     }
 
-    // 检查是否有缓存的XPath
-    if (cachedXPath == null) {
-      cachedXPath = JsoupUtil.getXPathFromAI(aiFetcherConfig.getUrl(), aiFetcherConfig.getModelName(), aiFetcherConfig.getUserQuery(), aiModelMap);
+    // 检查是否有缓存的
+    if (cachedSelector == null) {
+      if (SelectorTypeEnum.CSS.getCode().equals(aiFetcherConfig.getSelectorType())){
+        cachedSelector = JsoupUtil.getXPathFromAI(aiFetcherConfig.getUrl(), aiFetcherConfig.getModelName(),
+                aiFetcherConfig.getUserQuery(), aiModelMap);
+      } else {
+        cachedSelector = JsoupUtil.getCssSelectorFromAI(aiFetcherConfig.getUrl(), aiFetcherConfig.getModelName(),
+                aiFetcherConfig.getUserQuery(), aiModelMap);
+      }
     }
 
-    // 使用缓存的XPath获取内容
     Document document = HtmlUtil.getDocument(aiFetcherConfig.getUrl(), null, aiFetcherConfig.getCookie());
     String html = document.html();
-    String title = JsoupUtil.xpathParse(html, cachedXPath);
+
+    String title = "";
+    if (SelectorTypeEnum.CSS.getCode().equals(aiFetcherConfig.getSelectorType())) {
+      title = JsoupUtil.cssParse(html, cachedSelector);
+    } else {
+      title = JsoupUtil.xpathParse(html, cachedSelector);
+    }
 
     log.info("{}获取到内容：{}", aiFetcherConfig.getName(), title);
     WebContent webContent = WebContent.builder()

@@ -1,6 +1,7 @@
 package com.webmonitor.util;
 
 import com.webmonitor.constant.AIModelEnum;
+import com.webmonitor.constant.SelectorTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,7 +18,8 @@ import java.util.Map;
 
 @Slf4j
 public class JsoupUtil {
-  public static final String PROMPT_TXT = "prompts/xpath_generator_prompt.txt";
+  public static final String XPATH_PROMPT_TXT = "prompts/xpath_generator_prompt.txt";
+  public static final String CSS_PROMPT_TXT = "prompts/css_generator_prompt.txt";
 
 
   public static Map<String, String> getByCssSelector(String url, Map<String, String> selectorDict,
@@ -39,6 +41,7 @@ public class JsoupUtil {
 
   public static String cssParse(String html, String cssSelectorFull) {
     try {
+      System.out.println("html is " + html);
       Document document = Jsoup.parse(html);
 
       // 分割自定义选择器
@@ -90,31 +93,42 @@ public class JsoupUtil {
     }
   }
 
+  public static String getXPathFromAI(String url, String modelName, String userQuery,
+                                      Map<AIModelEnum, ChatModel> aiModelMap) throws Exception {
+    return getSelectorFromAI(url, modelName, userQuery, aiModelMap, SelectorTypeEnum.XPATH);
+  }
+
+  public static String getCssSelectorFromAI(String url, String modelName, String userQuery,
+                                            Map<AIModelEnum, ChatModel> aiModelMap) throws Exception {
+    return getSelectorFromAI(url, modelName, userQuery, aiModelMap, SelectorTypeEnum.CSS);
+  }
 
 
-  public static String getXPathFromAI(String url, String modelName, String userQuery, Map<AIModelEnum, ChatModel> aiModelMap) throws Exception {
+  private static String getSelectorFromAI(String url, String modelName, String userQuery,
+                                          Map<AIModelEnum, ChatModel> aiModelMap, SelectorTypeEnum typeEnum) throws Exception {
     // 获取网页内容
     String html = HtmlUtil.getHtml(url, null, null);
     String cleanedHtml = HtmlUtil.extractBodyByJsoup(html);
 
     // 读取prompt模板
-    InputStream inputStream = JsoupUtil.class.getClassLoader().getResourceAsStream(PROMPT_TXT);
+    InputStream inputStream = JsoupUtil.class.getClassLoader()
+            .getResourceAsStream(typeEnum == SelectorTypeEnum.CSS ? CSS_PROMPT_TXT : XPATH_PROMPT_TXT);
     if (inputStream == null) {
       throw new IOException("Prompt file not found");
     }
     String promptTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
     String prompt = promptTemplate.replace("用户本次需求：", "用户本次需求：" + userQuery)
             .replace("HTML 内容如下：", "HTML 内容如下：" + cleanedHtml);
-    String xpathFromAI = AIUtil.callAI(modelName, aiModelMap, prompt);
-    if (xpathFromAI == null || xpathFromAI.isEmpty()) {
-      throw new Exception("通过ai获取XPath失败，请检查配置，或者重试，cachedXPath ：" + xpathFromAI);
+    String selectorFromAI = AIUtil.callAI(modelName, aiModelMap, prompt);
+    if (selectorFromAI == null || selectorFromAI.isEmpty()) {
+      throw new Exception("通过ai获取" + typeEnum.getCode() +"失败，请检查配置，或者重试，selector ：" + selectorFromAI);
     }
-    xpathFromAI = xpathFromAI.replace("`",   "");
-    xpathFromAI = xpathFromAI.replace("xpath",   "");
+    selectorFromAI = selectorFromAI.replace("`",   "");
+    selectorFromAI = selectorFromAI.replace("xpath",   "");
     // 去掉换行
-    xpathFromAI = xpathFromAI.replace("\n", "");
-    log.info("成功通过ai获取XPath: {}", xpathFromAI);
-    return xpathFromAI + "|text";
+    selectorFromAI = selectorFromAI.replace("\n", "");
+    log.info("成功通过ai获取" + typeEnum.getCode() + ": {}", selectorFromAI);
+    return selectorFromAI + "|text";
   }
 
 

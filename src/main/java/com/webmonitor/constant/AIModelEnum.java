@@ -5,7 +5,8 @@ public enum AIModelEnum {
   ZHIPU("zhipu"),
   KIMI("kimi"),
   DEEPSEEK("deepseek"),
-  CUSTOM("custom")
+  CUSTOM("custom"),
+  GEMINI("gemini"),
     ;
 
   private String name;

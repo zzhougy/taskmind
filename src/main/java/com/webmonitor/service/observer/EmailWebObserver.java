@@ -1,6 +1,7 @@
 package com.webmonitor.service.observer;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.CharsetUtil;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.core.WebContent;
 import jakarta.mail.*;
@@ -8,6 +9,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
@@ -20,6 +22,7 @@ public class EmailWebObserver implements WebObserver {
   private static final String EMAIL_PASSWORD_PROPERTY = "email.password";
   private static final String EMAIL_TO_PROPERTY = "email.to";
   private static final String EMAIL_FROM_PROPERTY = "email.from";
+  public static final String SENDER_NAME = "这是发送人的测试";
 
   private final Session session;
   private final String toEmail;
@@ -105,9 +108,9 @@ public class EmailWebObserver implements WebObserver {
     return messageBuilder.toString();
   }
 
-  private void sendEmail(String subject, String content) throws MessagingException {
+  private void sendEmail(String subject, String content) throws MessagingException, UnsupportedEncodingException {
     Message message = new MimeMessage(session);
-    message.setFrom(new InternetAddress(fromEmail));
+    message.setFrom(new InternetAddress(fromEmail, SENDER_NAME, CharsetUtil.UTF_8));
     message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
     message.setSubject(subject);
     message.setText(content);

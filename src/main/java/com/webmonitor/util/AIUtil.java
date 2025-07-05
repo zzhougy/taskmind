@@ -15,6 +15,10 @@ public class AIUtil {
       return aiModelMap.get(AIModelEnum.KIMI).call(new Prompt(prompt)).getResult().getOutput().getText();
     } else if (AIModelEnum.CUSTOM.getName().equals(modelName) && aiModelMap.get(AIModelEnum.CUSTOM) != null) {
       return aiModelMap.get(AIModelEnum.CUSTOM).call(new Prompt(prompt)).getResult().getOutput().getText();
+    } else if (AIModelEnum.DEEPSEEK.getName().equals(modelName) && aiModelMap.get(AIModelEnum.DEEPSEEK) != null) {
+      return aiModelMap.get(AIModelEnum.DEEPSEEK).call(new Prompt(prompt)).getResult().getOutput().getText();
+    } else if (AIModelEnum.GEMINI.getName().equals(modelName) && aiModelMap.get(AIModelEnum.GEMINI) != null) {
+      return aiModelMap.get(AIModelEnum.GEMINI).call(new Prompt(prompt)).getResult().getOutput().getText();
     } else {
       throw new Exception("不支持的模型：" + modelName);
     }
