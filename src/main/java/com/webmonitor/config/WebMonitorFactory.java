@@ -32,9 +32,9 @@ public class WebMonitorFactory {
   @Resource
   @Qualifier("customChatModel")
   private ChatModel customChatModel;
-  @Resource
-  @Qualifier("vertexAiGeminiChat")
-  private ChatModel vertexAiGeminiChat;
+//  @Resource
+//  @Qualifier("vertexAiGeminiChat")
+//  private ChatModel vertexAiGeminiChat;
 
 
   public List<FetcherConfig> loadFetcherConfigs() {
@@ -105,7 +105,7 @@ public class WebMonitorFactory {
     chatModels.put(AIModelEnum.KIMI, kimiChatModel);
     chatModels.put(AIModelEnum.DEEPSEEK, deepSeekChatModel);
     chatModels.put(AIModelEnum.CUSTOM, customChatModel);
-    chatModels.put(AIModelEnum.GEMINI, vertexAiGeminiChat);
+//    chatModels.put(AIModelEnum.GEMINI, vertexAiGeminiChat);
     return chatModels;
   }
 

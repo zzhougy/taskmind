@@ -1,11 +1,15 @@
 package com.webmonitor;
 
 import com.webmonitor.core.WebMonitor;
+import org.dromara.autotable.springboot.EnableAutoTable;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
+@MapperScan(basePackages = {"com.webmonitor.mapper"})
+@EnableAutoTable // 声明使用AutoTable框架
 public class WebMonitorApplication {
   public static void main(String[] args) {
     ApplicationContext context = SpringApplication.run(WebMonitorApplication.class, args);
