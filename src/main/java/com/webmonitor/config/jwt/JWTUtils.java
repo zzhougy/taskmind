@@ -63,7 +63,8 @@ public class JWTUtils {
       // 附带username信息
       return JWT.create()
               .withClaim("username", username)
-              .withExpiresAt(date)
+              // todo 永久
+//              .withExpiresAt(date)
               .sign(algorithm);
     } catch (Exception e) {
       return null;

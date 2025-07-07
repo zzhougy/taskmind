@@ -60,6 +60,9 @@ public class WebMonitorFactory {
           case "AIFetcher":
             configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), AIFetcherConfig.class));
             break;
+          case "SimpleFetcher":
+            configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), SimpleFetcherConfig.class));
+            break;
           default:
             throw new IllegalArgumentException("Unknown fetcher type: " + configMap.get("type"));
         }

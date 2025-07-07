@@ -87,7 +87,8 @@ public class JWTFilter extends AccessControlFilter {
       return false;
     }
     //3. 如果有，对进行进行token验证
-    JWTToken jwtToken = new JWTToken(token);
+    // split "Bearer xxxx"
+    JWTToken jwtToken = new JWTToken(token.split(" ")[1]);
     try {
       SecurityUtils.getSubject().login(jwtToken);
     } catch (AuthenticationException e) {

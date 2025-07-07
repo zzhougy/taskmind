@@ -73,9 +73,9 @@ public class UserRealm extends AuthorizingRealm {
     if (userBean == null) {
       throw new AccountException("账号不存在!");
     }
-    if (JWTUtils.isExpire(token)) {
-      throw new AuthenticationException(" token过期，请重新登入！");
-    }
+//    if (JWTUtils.isExpire(token)) {
+//      throw new AuthenticationException(" token过期，请重新登入！");
+//    }
 
 //    if (!JWTUtils.verify(token, username, userBean.getPassword())) {
 //      throw new CredentialsException("密码错误!");
