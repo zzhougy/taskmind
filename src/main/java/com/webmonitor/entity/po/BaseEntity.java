@@ -1,16 +1,18 @@
 package com.webmonitor.entity.po;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public abstract class BaseEntity {
 
-    private Long id;
+  @TableField(fill = FieldFill.INSERT)
+  private LocalDateTime createTime;
 
-    private Date createTime;
-
-    private Date updateTime;
+  @TableField(fill = FieldFill.INSERT_UPDATE)
+  private LocalDateTime updateTime;
 
 }
