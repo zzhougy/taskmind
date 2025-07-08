@@ -38,8 +38,9 @@ public class AITools {
                   + "1) 简单提醒任务 - 直接填写提醒内容（如'吃药'）"
                   + "2) 动态获取任务 - 填写操作指令格式：'指令::描述'，如'GET_FIRST_HOT::获取热搜标题'")
           String content
-  ) throws Exception  {
-    log.info("[setUpTimingTask] url: {}, cron: {}, content: {}", url, cron, content);
+  ) {
+    try {
+      log.info("[setUpTimingTask] url: {}, cron: {}, content: {}", url, cron, content);
 //    XPathFetcherConfig config = new XPathFetcherConfig();
 //    config.setUrl(url);
 //    config.setType("XPathFetcher");
@@ -49,40 +50,42 @@ public class AITools {
 //    String xPath = JsoupUtil.getXPathFromAI(url, "zhipu", contentWithoutTimeAndUrl, webMonitorFactory.loadAIModels());
 //    config.setXPath(xPath);
 
+      CssSelectorFetcherConfig cssSelectorFetcherConfig = null;
+      SimpleFetcherConfig simpleFetcherConfig = null;
+      if (url != null) {
+        // css
+        cssSelectorFetcherConfig = new CssSelectorFetcherConfig();
+        cssSelectorFetcherConfig.setUrl(url);
+        cssSelectorFetcherConfig.setType("CssSelectorFetcher");
+        cssSelectorFetcherConfig.setName("CssMonitor");
+        cssSelectorFetcherConfig.setEnabled(true);
+        cssSelectorFetcherConfig.setCron(cron);
+        String cssSelector = JsoupUtil.getXPathFromAI(url, "zhipu", content, webMonitorFactory.loadAIModels());
+        cssSelectorFetcherConfig.setCssSelector(cssSelector);
 
+        List<ObserverConfig> observerConfigs = webMonitorFactory.loadObserverConfigs();
+        // 随机生成一个long
+        long userId = (long) (Math.random() * 1000000000000000000L);
+        boolean b = monitor.startMonitoringByUser(userId, cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
+        return b;
+      } else {
+        // simpleFetch
+        simpleFetcherConfig = new SimpleFetcherConfig();
+        simpleFetcherConfig.setType("SimpleFetcher");
+        simpleFetcherConfig.setName("SimpleMonitor");
+        simpleFetcherConfig.setEnabled(true);
+        simpleFetcherConfig.setContent(content);
+        simpleFetcherConfig.setCron(cron);
 
-    CssSelectorFetcherConfig cssSelectorFetcherConfig = null;
-    SimpleFetcherConfig simpleFetcherConfig = null;
-    if (url != null) {
-      // css
-      cssSelectorFetcherConfig = new CssSelectorFetcherConfig();
-      cssSelectorFetcherConfig.setUrl(url);
-      cssSelectorFetcherConfig.setType("CssSelectorFetcher");
-      cssSelectorFetcherConfig.setName("CssMonitor");
-      cssSelectorFetcherConfig.setEnabled(true);
-      cssSelectorFetcherConfig.setCron(cron);
-      String cssSelector = JsoupUtil.getXPathFromAI(url, "zhipu", content, webMonitorFactory.loadAIModels());
-      cssSelectorFetcherConfig.setCssSelector(cssSelector);
-
-      List<ObserverConfig> observerConfigs = webMonitorFactory.loadObserverConfigs();
-      // 随机生成一个long
-      long userId = (long) (Math.random() * 1000000000000000000L);
-      boolean b = monitor.startMonitoringByUser(userId, cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
-      return b;
-    } else {
-      // simpleFetch
-      simpleFetcherConfig = new SimpleFetcherConfig();
-      simpleFetcherConfig.setType("SimpleFetcher");
-      simpleFetcherConfig.setName("SimpleMonitor");
-      simpleFetcherConfig.setEnabled(true);
-      simpleFetcherConfig.setContent(content);
-      simpleFetcherConfig.setCron(cron);
-
-      List<ObserverConfig> observerConfigs = webMonitorFactory.loadObserverConfigs();
-      // 随机生成一个long
-      long userId = (long) (Math.random() * 1000000000000000000L);
-      boolean b = monitor.startMonitoringByUser(userId, simpleFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
-      return b;
+        List<ObserverConfig> observerConfigs = webMonitorFactory.loadObserverConfigs();
+        // 随机生成一个long
+        long userId = (long) (Math.random() * 1000000000000000000L);
+        boolean b = monitor.startMonitoringByUser(userId, simpleFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
+        return b;
+      }
+    } catch (Exception e) {
+      log.error("[setUpTimingTask] error: {}", e.getMessage());
+      return false;
     }
 
   }
