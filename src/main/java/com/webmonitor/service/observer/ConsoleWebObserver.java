@@ -17,7 +17,7 @@ public class ConsoleWebObserver implements WebObserver {
       log.info("时间: {}", item.getDateStr());
       log.info("标题: {}", item.getTitle());
       log.info("描述: {}", item.getDescription());
-      log.info("链接: {}", item.getLink());
+      log.info("链接: {}", item.getUrl());
       log.info("------------------------");
     }
   }

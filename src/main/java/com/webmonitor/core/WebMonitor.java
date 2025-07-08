@@ -5,11 +5,14 @@ import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.constant.AIModelEnum;
+import com.webmonitor.constant.TaskTypeEnum;
+import com.webmonitor.entity.po.TaskUserConfig;
+import com.webmonitor.provider.TaskUserConfigProvider;
 import com.webmonitor.service.fetcher.*;
+import com.webmonitor.service.job.UserSchedulerService;
 import com.webmonitor.service.observer.ConsoleWebObserver;
 import com.webmonitor.service.observer.EmailWebObserver;
 import com.webmonitor.service.observer.WebObserver;
-import com.webmonitor.service.job.UserSchedulerService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
@@ -27,6 +30,8 @@ public class WebMonitor {
   private final ScheduledExecutorService scheduler;
   @Resource
   private UserSchedulerService schedulerService;
+  @Resource
+  private TaskUserConfigProvider taskUserConfigProvider;
 
   public WebMonitor() {
     this.scheduler = Executors.newScheduledThreadPool(
@@ -37,6 +42,79 @@ public class WebMonitor {
               return t;
             }
     );
+  }
+
+  // 根据TaskUserConfig创建FetcherConfig
+  public FetcherConfig createFetcherConfigFromTaskConfig(TaskUserConfig config) {
+    if (config == null) {
+      log.error("任务配置为空");
+      return null;
+    }
+
+    // 根据taskTypeCode创建对应的FetcherConfig
+    FetcherConfig fetcherConfig = null;
+    TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(config.getTaskTypeCode());
+    switch (taskTypeEnum) {
+      case CSS_SELECTOR:
+        CssSelectorFetcherConfig cssConfig = new CssSelectorFetcherConfig();
+        cssConfig.setUrl(config.getUrl());
+        cssConfig.setCron(config.getCronExpression());
+        cssConfig.setEnabled(true);
+        cssConfig.setCssSelector(config.getCssSelector());
+        fetcherConfig = cssConfig;
+        break;
+      case XPATH_SELECTOR:
+        XPathFetcherConfig xpathConfig = new XPathFetcherConfig();
+        xpathConfig.setUrl(config.getUrl());
+        xpathConfig.setCron(config.getCronExpression());
+        xpathConfig.setEnabled(true);
+        xpathConfig.setXPath(config.getXpathSelector());
+        fetcherConfig = xpathConfig;
+        break;
+      case SIMPLE:
+        SimpleFetcherConfig simpleConfig = new SimpleFetcherConfig();
+        simpleConfig.setUrl(config.getUrl());
+        simpleConfig.setCron(config.getCronExpression());
+        simpleConfig.setEnabled(true);
+        simpleConfig.setContent(config.getTaskContent());
+        fetcherConfig = simpleConfig;
+        break;
+      default:
+        log.error("不支持的任务类型: {}", config.getTaskTypeCode());
+    }
+
+    return fetcherConfig;
+  }
+
+  // 根据TaskUserConfig创建ContentFetcher
+  public ContentFetcher createContentFetcherFromTaskConfig(TaskUserConfig config) {
+    if (config == null) {
+      log.error("任务配置为空");
+      return null;
+    }
+
+    // 根据wayToGetHtmlCode创建对应的ContentFetcher
+    ContentFetcher fetcher = null;
+    FetcherConfig fetcherConfig = createFetcherConfigFromTaskConfig(config);
+    if (fetcherConfig == null) {
+      return null;
+    }
+
+    switch (config.getWayToGetHtmlCode()) {
+      case "SIMPLE":
+        fetcher = new SimpleFetcher((SimpleFetcherConfig) fetcherConfig);
+        break;
+      case "SELENIUM":
+        fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
+        break;
+      case "ZZ":
+        fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
+        break;
+      default:
+        log.error("不支持的HTML获取方式: {}", config.getWayToGetHtmlCode());
+    }
+
+    return fetcher;
   }
 
   public void addObserver(WebObserver observer) {

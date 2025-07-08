@@ -49,7 +49,7 @@ public class ZzFetcher implements ContentFetcher {
                 .id(url)
                 .title(title)
                 .description(title)
-                .link(url)
+                .url(url)
                 .source(zzFetcherConfig.getName())
                 .dateStr(dateStr)
                 .category(zzFetcherConfig.getName())

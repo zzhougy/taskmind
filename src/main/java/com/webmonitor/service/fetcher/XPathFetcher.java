@@ -47,7 +47,7 @@ public class XPathFetcher implements ContentFetcher {
             .id(title)
             .title(title)
             .description(title)
-            .link(null)
+            .url(null)
             .source(xPathFetcherConfig.getName())
             .dateStr(null)
             .category(xPathFetcherConfig.getName())

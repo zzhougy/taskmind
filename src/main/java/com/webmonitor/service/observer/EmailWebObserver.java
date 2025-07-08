@@ -101,7 +101,7 @@ public class EmailWebObserver implements WebObserver {
       if (content.getDescription() != null && !content.getDescription().isEmpty()) {
         messageBuilder.append("\n描述：").append(content.getDescription());
       }
-      messageBuilder.append("\n链接：").append(content.getLink());
+      messageBuilder.append("\n链接：").append(content.getUrl());
       messageBuilder.append("\n------------------------\n");
     }
 

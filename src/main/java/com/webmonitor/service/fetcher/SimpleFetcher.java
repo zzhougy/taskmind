@@ -32,7 +32,7 @@ public class SimpleFetcher implements ContentFetcher {
             .id("url")
             .title(config.getContent())
             .description("title")
-            .link("url")
+            .url("url")
             .source("")
             .dateStr("dateStr")
             .category("")

@@ -1,4 +1,4 @@
-package com.webmonitor.service.ai;
+package com.webmonitor.service.springai;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;

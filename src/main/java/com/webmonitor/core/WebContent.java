@@ -10,7 +10,7 @@ public class WebContent {
   private String id;
   private String title;
   private String description;
-  private String link;
+  private String url;
   private String source;
   private String dateStr;
   private String category;

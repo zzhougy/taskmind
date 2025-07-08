@@ -4,17 +4,26 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.webmonitor.config.WebMonitorFactory;
+import com.webmonitor.config.fetcher.FetcherConfig;
+import com.webmonitor.constant.AIModelEnum;
+import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebMonitor;
+import com.webmonitor.entity.po.TaskUserConfig;
+import com.webmonitor.provider.TaskUserConfigProvider;
+import com.webmonitor.service.springai.AITools;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Map;
+import java.util.List;
+
 
 @Component
 @Slf4j
@@ -28,7 +37,11 @@ public class Main {
   @Resource
   private ApplicationContext context;
 
+  @Resource
+  private AITools aiTools;
 
+  @Resource
+  private TaskUserConfigProvider taskUserConfigProvider;
 //  public static void main(String[] args) {
 //    start();
 //  }
@@ -46,6 +59,30 @@ public class Main {
     monitor.startMonitoring(webMonitorFactory.loadFetcherConfigs(),
             webMonitorFactory.loadObserverConfigs(),
             webMonitorFactory.loadAIModels());
+
+    // 从数据库查询有效任务配置并启动监控
+    List<TaskUserConfig> configs = taskUserConfigProvider.list(new QueryWrapper<TaskUserConfig>().lambda()
+                    .eq(TaskUserConfig::getEnable, true)
+            .eq(TaskUserConfig::getDeleted, false));
+
+
+    log.info("查找到 {} 个有效的任务配置", configs.size());
+
+    for (TaskUserConfig config : configs) {
+      try {
+        FetcherConfig fetcherConfig = monitor.createFetcherConfigFromTaskConfig(config);
+        ContentFetcher contentFetcher = monitor.createContentFetcherFromTaskConfig(config);
+
+        if (fetcherConfig != null && contentFetcher != null) {
+          monitor.doStartMonitoring2(config.getUserId(), contentFetcher, fetcherConfig);
+          log.info("成功启动任务: {}", config.getTaskContent());
+        } else {
+          log.error("创建任务配置或抓取器失败，任务ID: {}", config.getId());
+        }
+      } catch (Exception e) {
+        log.error("启动任务失败，任务ID: {}", config.getId(), e);
+      }
+    }
 
     // 保持程序运行
     Runtime.getRuntime().addShutdownHook(new Thread(monitor::stop));

@@ -44,7 +44,7 @@ public class CssSelectorFetcher implements ContentFetcher {
             .id(title)
             .title(title)
             .description(title)
-            .link(null)
+            .url(null)
             .source(cssSelectorFetcherConfig.getName())
             .dateStr(null)
             .category(cssSelectorFetcherConfig.getName())

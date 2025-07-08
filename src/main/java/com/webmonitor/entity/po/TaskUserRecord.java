@@ -1,15 +1,19 @@
 package com.webmonitor.entity.po;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.dromara.autotable.annotation.AutoColumn;
 import org.dromara.autotable.annotation.AutoTable;
 import org.dromara.autotable.annotation.PrimaryKey;
 
+import java.time.LocalDateTime;
+
 @Data
 @AutoTable(comment = "任务执行记录表")
 @TableName("task_user_record")
-public class TaskUserRecord extends BaseEntity {
+public class TaskUserRecord {
 
   @PrimaryKey(autoIncrement = true)
   private Long id;
@@ -27,10 +31,12 @@ public class TaskUserRecord extends BaseEntity {
   private String contentDetail;
 
   @AutoColumn(comment = "链接（如有）", length = 50)
-  private String contentLink;
+  private String contentUrl;
 
   @AutoColumn(comment = "时间", length = 50)
   private String contentDateStr;
 
+  @TableField(fill = FieldFill.INSERT)
+  private LocalDateTime createTime;
 
 }

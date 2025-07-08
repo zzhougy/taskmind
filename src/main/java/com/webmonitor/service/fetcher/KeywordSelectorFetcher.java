@@ -46,7 +46,7 @@ public class KeywordSelectorFetcher implements ContentFetcher {
             .id(title)
             .title(title)
             .description(title)
-            .link(null)
+            .url(null)
             .source(config.getName())
             .dateStr(null)
             .category(config.getName())

@@ -1,4 +1,4 @@
-package com.webmonitor.service.ai;
+package com.webmonitor.service.springai;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;

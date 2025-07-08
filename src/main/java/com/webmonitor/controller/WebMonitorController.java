@@ -5,7 +5,7 @@ import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.core.WebMonitor;
 import com.webmonitor.entity.ResponseVO;
 import com.webmonitor.entity.bo.AIUserInputBO;
-import com.webmonitor.service.ai.AITools;
+import com.webmonitor.service.springai.AITools;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;

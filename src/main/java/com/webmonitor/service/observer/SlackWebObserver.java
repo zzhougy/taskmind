@@ -52,7 +52,7 @@ public class SlackWebObserver extends AbstractMessageObserver {
               .append("时间：").append(content.getDateStr()).append("\n")
               .append("标题：").append(content.getTitle()).append("\n")
               .append("描述：").append(content.getDescription()).append("\n")
-              .append("链接：").append(content.getLink()).append("\n")
+              .append("链接：").append(content.getUrl()).append("\n")
               .append("------------------------\n");
     }
 

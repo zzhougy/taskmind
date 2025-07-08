@@ -65,7 +65,7 @@ public class AIFetcher implements ContentFetcher {
             .id(title)
             .title(title)
             .description(title)
-            .link(null)
+            .url(null)
             .source(aiFetcherConfig.getName())
             .dateStr(null)
             .category(aiFetcherConfig.getName())

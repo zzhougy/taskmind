@@ -81,7 +81,7 @@ public class SeleniumFetcher implements ContentFetcher {
               .id(title)
               .title(title)
               .description(title)
-              .link(seleniumFetcherConfig.getUrl())
+              .url(seleniumFetcherConfig.getUrl())
               .source(seleniumFetcherConfig.getName())
               .dateStr(null)
               .category(seleniumFetcherConfig.getName())
