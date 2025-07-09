@@ -70,7 +70,7 @@ public class AIServiceImpl implements AIService {
       config.setCssSelector(cssSelector);
       taskUserConfigProvider.save(config);
 
-      boolean b = monitor.startMonitoringByUser(UserContext.getUserId(), cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
+      boolean b = monitor.startMonitoringByUser(config, cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
       return b;
     } else {
       // simpleFetch
@@ -85,7 +85,7 @@ public class AIServiceImpl implements AIService {
       config.setTaskTypeCode(TaskTypeEnum.SIMPLE.getCode());
       taskUserConfigProvider.save(config);
 
-      boolean b = monitor.startMonitoringByUser(UserContext.getUserId(), simpleFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
+      boolean b = monitor.startMonitoringByUser(config, simpleFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
       return b;
     }
   }

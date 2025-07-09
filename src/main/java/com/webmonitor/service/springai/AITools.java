@@ -24,7 +24,7 @@ public class AITools {
 
   @Tool(description = "设置定时任务：1) 简单提醒任务 2) 动态获取任务。对于网页内容获取任务，需在content参数中明确指定操作指令（如GET_FIRST_HOT）。",
           returnDirect = true)
-  boolean setUpTimingTask(
+  String setUpTimingTask(
           @Nullable
           @ToolParam(description = "仅动态获取任务需要，如'https://top.baidu.com/board?tab=realtime'。简单提醒任务留空", required = false)
           String url,
@@ -39,10 +39,13 @@ public class AITools {
   ) {
     log.info("[setUpTimingTask] url: {}, cron: {}, content: {}", url, cron, content);
     try {
-      return aiService.setUpTimingTask(url, cron, content);
+      if (aiService.setUpTimingTask(url, cron, content)) {
+        return "设置成功";
+      }
+      return "失败请修改描述重试";
     } catch (Exception e) {
       log.error("[setUpTimingTask] error: {}", e.getMessage());
-      return false;
+      return "失败请修改描述重试";
     }
   }
 

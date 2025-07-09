@@ -21,8 +21,8 @@ public class TaskUserRecord {
   @AutoColumn(comment = "用户id")
   private Long userId;
 
-  @AutoColumn(length = 50)
-  private String taskConfigId;
+  @AutoColumn
+  private Long taskConfigId;
 
   @AutoColumn(length = 50)
   private String contentTitle;

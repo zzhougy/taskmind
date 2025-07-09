@@ -17,4 +17,13 @@ public enum TaskTypeEnum {
     this.description = description;
   }
 
+  public static TaskTypeEnum getByCode(String code) {
+    for (TaskTypeEnum value : values()) {
+      if (value.code.equals(code)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
 }

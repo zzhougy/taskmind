@@ -90,6 +90,9 @@ public class WebMonitorFactory {
           case "SlackObserver":
             observers.add(JSONUtil.toBean(JSONUtil.parseObj(observerMap), SlackObserverConfig.class));
             break;
+          case "DBObserver":
+            observers.add(JSONUtil.toBean(JSONUtil.parseObj(observerMap), DBObserverConfig.class));
+            break;
           default:
             throw new IllegalArgumentException("Unknown observer type: " + observerMap.get("type"));
         }

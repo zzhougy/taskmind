@@ -7,7 +7,6 @@ import ch.qos.logback.core.AppenderBase;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.webmonitor.config.WebMonitorFactory;
 import com.webmonitor.config.fetcher.FetcherConfig;
-import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebMonitor;
 import com.webmonitor.entity.po.TaskUserConfig;
@@ -16,7 +15,6 @@ import com.webmonitor.service.springai.AITools;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -74,7 +72,7 @@ public class Main {
         ContentFetcher contentFetcher = monitor.createContentFetcherFromTaskConfig(config);
 
         if (fetcherConfig != null && contentFetcher != null) {
-          monitor.doStartMonitoring2(config.getUserId(), contentFetcher, fetcherConfig);
+          monitor.doStartMonitoring2(config, contentFetcher, fetcherConfig);
           log.info("成功启动任务: {}", config.getTaskContent());
         } else {
           log.error("创建任务配置或抓取器失败，任务ID: {}", config.getId());

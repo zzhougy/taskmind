@@ -2,24 +2,29 @@ package com.webmonitor.core;
 
 import com.webmonitor.config.fetcher.*;
 import com.webmonitor.config.observer.ConsoleObserverConfig;
+import com.webmonitor.config.observer.DBObserverConfig;
 import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.constant.TaskTypeEnum;
 import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserRecordProvider;
+import com.webmonitor.service.TaskUserRecordService;
 import com.webmonitor.service.fetcher.*;
 import com.webmonitor.service.job.UserSchedulerService;
 import com.webmonitor.service.observer.ConsoleWebObserver;
+import com.webmonitor.service.observer.DBWebObserver;
 import com.webmonitor.service.observer.EmailWebObserver;
 import com.webmonitor.service.observer.WebObserver;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,6 +37,8 @@ public class WebMonitor {
   private UserSchedulerService schedulerService;
   @Resource
   private TaskUserRecordProvider taskUserRecordProvider;
+  @Autowired
+  private TaskUserRecordService taskUserRecordService;
 
   public WebMonitor() {
     this.scheduler = Executors.newScheduledThreadPool(
@@ -44,7 +51,6 @@ public class WebMonitor {
     );
   }
 
-  // 根据TaskUserConfig创建FetcherConfig
   public FetcherConfig createFetcherConfigFromTaskConfig(TaskUserConfig config) {
     if (config == null) {
       log.error("任务配置为空");
@@ -53,8 +59,9 @@ public class WebMonitor {
 
     // 根据taskTypeCode创建对应的FetcherConfig
     FetcherConfig fetcherConfig = null;
-    TaskTypeEnum taskTypeEnum = TaskTypeEnum.valueOf(config.getTaskTypeCode());
-    switch (taskTypeEnum) {
+
+    TaskTypeEnum taskTypeEnum = TaskTypeEnum.getByCode(config.getTaskTypeCode());
+    switch (Objects.requireNonNull(taskTypeEnum)) {
       case CSS_SELECTOR:
         CssSelectorFetcherConfig cssConfig = new CssSelectorFetcherConfig();
         cssConfig.setUrl(config.getUrl());
@@ -100,18 +107,19 @@ public class WebMonitor {
       return null;
     }
 
-    switch (config.getWayToGetHtmlCode()) {
-      case "SIMPLE":
+    TaskTypeEnum byCode = TaskTypeEnum.getByCode(config.getTaskTypeCode());
+    switch (Objects.requireNonNull(byCode)) {
+      case SIMPLE:
         fetcher = new SimpleFetcher((SimpleFetcherConfig) fetcherConfig);
         break;
-      case "SELENIUM":
-        fetcher = new SeleniumFetcher((SeleniumFetcherConfig) fetcherConfig);
+      case XPATH_SELECTOR:
+        fetcher = new XPathFetcher((XPathFetcherConfig) fetcherConfig);
         break;
-      case "ZZ":
-        fetcher = new ZzFetcher((ZzFetcherConfig) fetcherConfig);
+      case CSS_SELECTOR:
+        fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
         break;
       default:
-        log.error("不支持的HTML获取方式: {}", config.getWayToGetHtmlCode());
+        log.error("不支持的方式: {}", config.getTaskTypeCode());
     }
 
     return fetcher;
@@ -133,7 +141,7 @@ public class WebMonitor {
       try {
         List<WebContent> webContents = fetcher.fetch();
         if (webContents != null && !webContents.isEmpty()) {
-          notifyObservers(webContents);
+          notifyObservers(null, webContents);
         }
       } catch (Exception e) {
         log.error("监控任务执行失败: {}", fetcherConfig.getName(), e);
@@ -145,14 +153,14 @@ public class WebMonitor {
 
 
 
-  public void doStartMonitoring2(Long userId, ContentFetcher fetcher, FetcherConfig fetcherConfig) {
-    schedulerService.scheduleTaskForUser(userId,
-            fetcherConfig.getCron(), createUserTask(userId, fetcher));
+  public void doStartMonitoring2(TaskUserConfig config, ContentFetcher fetcher, FetcherConfig fetcherConfig) {
+    schedulerService.scheduleTaskForUser(config.getUserId(),
+            fetcherConfig.getCron(), createUserTask(config, fetcher));
   }
 
-  public boolean startMonitoringByUser(Long userId, FetcherConfig fetcherConfig, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
+  public boolean startMonitoringByUser(TaskUserConfig config, FetcherConfig fetcherConfig, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
     observerConfigs.forEach(this::doMonitorConfig);
-    return doFetcherConfig(userId, aiModelMap, fetcherConfig);
+    return doFetcherConfig(config, aiModelMap, fetcherConfig);
   }
 
   public void startMonitoring(List<FetcherConfig> fetcherConfigs, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
@@ -163,7 +171,7 @@ public class WebMonitor {
     });
   }
 
-  private boolean doFetcherConfig(Long userId, Map<AIModelEnum, ChatModel> aiModelMap, FetcherConfig fetcherConfig) {
+  private boolean doFetcherConfig(TaskUserConfig config, Map<AIModelEnum, ChatModel> aiModelMap, FetcherConfig fetcherConfig) {
     if (fetcherConfig.isEnabled()) {
       ContentFetcher fetcher;
       if (fetcherConfig instanceof ZzFetcherConfig) {
@@ -187,14 +195,14 @@ public class WebMonitor {
         log.error("未找到名为 {} 的内容获取器", fetcherConfig.getName());
         return false;
       }
-      if (userId != null) {
+      if (config != null) {
         try {
           fetcher.fetch() ;
         } catch (Exception e) {
-          log.error("任务测试执行时出现异常，请重试，用户 " + userId);
+          log.error("任务测试执行时出现异常，请重试，用户 " + config.getUserId());
           return false;
         }
-        doStartMonitoring2(userId, fetcher, fetcherConfig);
+        doStartMonitoring2(config, fetcher, fetcherConfig);
       } else {
         doStartMonitoring(fetcher, fetcherConfig);
       }
@@ -213,6 +221,10 @@ public class WebMonitor {
         observer = new EmailWebObserver((EmailObserverConfig) o);
         addObserver(observer);
       }
+      if (o instanceof DBObserverConfig) {
+        observer = new DBWebObserver(taskUserRecordService);
+        addObserver(observer);
+      }
     }
   }
 
@@ -228,11 +240,15 @@ public class WebMonitor {
     }
   }
 
-  private void notifyObservers(List<WebContent> webContents) {
+  private void notifyObservers(TaskUserConfig config, List<WebContent> webContents) {
     // 通知观察者
     for (WebObserver observer : observers) {
       try {
-        observer.send(webContents);
+        if (observer instanceof DBWebObserver) {
+          ((DBWebObserver) observer).saveDB(config, webContents);
+        } else {
+          observer.send(webContents);
+        }
       } catch (Exception e) {
         log.error("通知观察者失败", e);
       }
@@ -241,18 +257,18 @@ public class WebMonitor {
 
 
 
-  public Runnable createUserTask(Long userId, ContentFetcher fetcher) {
+  public Runnable createUserTask(TaskUserConfig config, ContentFetcher fetcher) {
     return () -> {
       try {
         List<WebContent> webContents = fetcher.fetch();
 
         if (webContents != null && !webContents.isEmpty()) {
-          notifyObservers(webContents);
+          notifyObservers(config, webContents);
         }
       } catch (Exception e) {
         // 错误处理 - 取消该用户的任务
-        schedulerService.cancelTaskForUser(userId);
-        log.error("任务移除，用户 " + userId + " 的任务执行失败: " + e.getMessage());
+        schedulerService.cancelTaskForUser(config.getUserId());
+        log.error("任务移除，用户 " + config.getUserId() + " 的任务执行失败: " + e.getMessage());
       }
     };
   }

@@ -41,7 +41,7 @@ public class SimpleFetcher implements ContentFetcher {
 
 
     isFirstLoad = false;
-    return null;
+    return currentWeb;
   }
 
 
