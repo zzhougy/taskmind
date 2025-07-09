@@ -47,7 +47,6 @@ public class AIServiceImpl implements AIService {
     TaskUserConfig config = new TaskUserConfig();
     config.setUserId(UserContext.getUserId());
     config.setCronExpression(cron);
-    config.setWayToGetHtmlCode(WayToGetHtmlEnum.SELENIUM.getCode());
     config.setUrl(url);
     config.setTaskContent(content);
     config.setEnable(true);
@@ -65,6 +64,7 @@ public class AIServiceImpl implements AIService {
       cssSelectorFetcherConfig.setCssSelector(cssSelector);
 
 
+      config.setWayToGetHtmlCode(WayToGetHtmlEnum.SELENIUM.getCode());
       // 保存TaskUserConfig到数据库
       config.setTaskTypeCode(TaskTypeEnum.CSS_SELECTOR.getCode());
       config.setCssSelector(cssSelector);

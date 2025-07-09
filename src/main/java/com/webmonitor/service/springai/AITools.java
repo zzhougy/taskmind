@@ -22,7 +22,8 @@ public class AITools {
   @Resource
   private AIService aiService;
 
-  @Tool(description = "设置定时任务：1) 简单提醒任务 2) 动态获取任务。对于网页内容获取任务，需在content参数中明确指定操作指令（如GET_FIRST_HOT）。")
+  @Tool(description = "设置定时任务：1) 简单提醒任务 2) 动态获取任务。对于网页内容获取任务，需在content参数中明确指定操作指令（如GET_FIRST_HOT）。",
+          returnDirect = true)
   boolean setUpTimingTask(
           @Nullable
           @ToolParam(description = "仅动态获取任务需要，如'https://top.baidu.com/board?tab=realtime'。简单提醒任务留空", required = false)

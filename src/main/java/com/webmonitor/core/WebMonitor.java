@@ -7,7 +7,7 @@ import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.constant.TaskTypeEnum;
 import com.webmonitor.entity.po.TaskUserConfig;
-import com.webmonitor.provider.TaskUserConfigProvider;
+import com.webmonitor.provider.TaskUserRecordProvider;
 import com.webmonitor.service.fetcher.*;
 import com.webmonitor.service.job.UserSchedulerService;
 import com.webmonitor.service.observer.ConsoleWebObserver;
@@ -31,7 +31,7 @@ public class WebMonitor {
   @Resource
   private UserSchedulerService schedulerService;
   @Resource
-  private TaskUserConfigProvider taskUserConfigProvider;
+  private TaskUserRecordProvider taskUserRecordProvider;
 
   public WebMonitor() {
     this.scheduler = Executors.newScheduledThreadPool(
