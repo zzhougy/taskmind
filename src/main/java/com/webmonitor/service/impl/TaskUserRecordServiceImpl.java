@@ -1,12 +1,14 @@
 package com.webmonitor.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webmonitor.entity.po.TaskUserRecord;
 import com.webmonitor.entity.vo.PageResult;
+import com.webmonitor.entity.vo.TaskUserRecordVO;
 import com.webmonitor.provider.TaskUserRecordProvider;
 import com.webmonitor.service.TaskUserRecordService;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -29,13 +31,16 @@ public class TaskUserRecordServiceImpl implements TaskUserRecordService {
   }
 
   @Override
-  public PageResult<TaskUserRecord> queryUserTaskRecordsByPage(Long userId, int pageNum, int pageSize) {
-    Page<TaskUserRecord> page = new Page<>(pageNum, pageSize);
-    LambdaQueryWrapper<TaskUserRecord> queryWrapper = new LambdaQueryWrapper<>();
-    queryWrapper.eq(TaskUserRecord::getUserId, userId);
-    // 按创建时间倒序排列
-    queryWrapper.orderByDesc(TaskUserRecord::getCreateTime);
-    Page<TaskUserRecord> resultPage = taskUserRecordProvider.page(page, queryWrapper);
-    return new PageResult<>(resultPage.getRecords(), resultPage.getTotal(), pageNum, pageSize);
+  public PageResult<TaskUserRecordVO> queryUserTaskRecordsByPage(Long userId, int pageNum, int pageSize) {
+
+    Page<TaskUserRecord> taskUserRecordPage = taskUserRecordProvider.queryUserTaskRecordsByPage(userId, pageNum, pageSize);
+
+    List<TaskUserRecordVO> taskUserRecordVOS = BeanUtil.copyToList(taskUserRecordPage.getRecords(), TaskUserRecordVO.class);
+
+
+    PageResult<TaskUserRecordVO> result = new PageResult<>(taskUserRecordVOS, taskUserRecordPage.getTotal(), taskUserRecordPage.getCurrent(), taskUserRecordPage.getSize());
+    return result;
   }
+
+
 }

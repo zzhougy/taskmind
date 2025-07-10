@@ -15,7 +15,7 @@ public class PageResult<T> {
     /**
      * 每页记录数
      */
-    private int pageSize;
+    private long pageSize;
     /**
      * 总页数
      */
@@ -23,7 +23,7 @@ public class PageResult<T> {
     /**
      * 当前页码
      */
-    private int pageNum;
+    private long pageNum;
     /**
      * 列表数据
      */
@@ -36,7 +36,7 @@ public class PageResult<T> {
      * @param pageNum 当前页码
      * @param pageSize 每页记录数
      */
-    public PageResult(List<T> list, long total, int pageNum, int pageSize) {
+    public PageResult(List<T> list, long total, long pageNum, long pageSize) {
         this.list = list;
         this.total = total;
         this.pageNum = pageNum;

@@ -1,5 +1,6 @@
 package com.webmonitor.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -11,8 +12,10 @@ import com.webmonitor.config.jwt.JWTUtils;
 import com.webmonitor.constant.ErrorCodeEnum;
 import com.webmonitor.entity.po.User;
 import com.webmonitor.entity.vo.LoginVO;
+import com.webmonitor.entity.vo.UserVO;
 import com.webmonitor.provider.UserProvider;
 import com.webmonitor.service.UserService;
+import com.webmonitor.util.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -84,6 +87,13 @@ public class UserServiceImpl implements UserService {
   @Override
   public User selectUserByName(String username) {
     return userProvider.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, username));
+  }
+
+  @Override
+  public UserVO userInfo() {
+    User user1 = UserContext.getUser();
+    UserVO userVO = BeanUtil.copyProperties(user1, UserVO.class);
+    return userVO;
   }
 
 
