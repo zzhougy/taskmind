@@ -2,20 +2,21 @@ package com.webmonitor.entity.po;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.dromara.autotable.annotation.AutoColumn;
 import org.dromara.autotable.annotation.AutoTable;
-import org.dromara.autotable.annotation.Ignore;
 import org.dromara.autotable.annotation.PrimaryKey;
 
 import java.time.LocalDateTime;
 
 @Data
 @AutoTable(comment = "任务执行记录表")
-@TableName("task_user_record")
+@TableName(value = "task_user_record" ,autoResultMap = true)
 public class TaskUserRecord {
 
+  @TableId
   @PrimaryKey(autoIncrement = true)
   private Long id;
 
@@ -40,7 +41,7 @@ public class TaskUserRecord {
   @TableField(fill = FieldFill.INSERT)
   private LocalDateTime createTime;
 
-  @Ignore
+  @TableField(exist = false)
   private TaskUserConfig taskUserConfig;
 
 }

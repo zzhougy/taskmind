@@ -2,7 +2,7 @@ package com.webmonitor.constant;
 
 
 public enum ErrorCodeEnum {
-  VALIDATE_ERROR(10000, "数据校验不通过"),
+  VALIDATE_ERROR(400, "数据校验不通过"),
   SYS_ERROR(500, "系统异常，请联系管理员"),
   SYS_PERMISSION(403, "无权限"),
   USER_ACCOUNT_NOT_FOUND(20020, "账号不存在"),

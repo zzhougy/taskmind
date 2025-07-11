@@ -13,24 +13,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 任务用户记录控制器
- * 处理用户任务记录的分页查询请求
- */
 @RestController
-@RequestMapping("/v1/user/task/record")
-public class TaskUserRecordController {
+@RequestMapping("/v1/user/task/config")
+public class TaskUserConfigController {
 
   private final TaskUserRecordService taskUserRecordService;
 
   @Autowired
-  public TaskUserRecordController(TaskUserRecordService taskUserRecordService) {
+  public TaskUserConfigController(TaskUserRecordService taskUserRecordService) {
     this.taskUserRecordService = taskUserRecordService;
   }
 
-  /**
-   * 分页查询当前用户的任务记录
-   */
   @GuestAccess // todo remove
   @PostMapping("/page")
   public ResponseVO<PageResult<TaskUserRecordVO>> getUserTaskRecords(@Validated @RequestBody TaskUserRecordPageBO bo) {

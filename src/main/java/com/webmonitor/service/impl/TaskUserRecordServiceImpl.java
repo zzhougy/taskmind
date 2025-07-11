@@ -2,11 +2,13 @@ package com.webmonitor.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.webmonitor.entity.bo.TaskUserRecordPageBO;
 import com.webmonitor.entity.po.TaskUserRecord;
 import com.webmonitor.entity.vo.PageResult;
 import com.webmonitor.entity.vo.TaskUserRecordVO;
 import com.webmonitor.provider.TaskUserRecordProvider;
 import com.webmonitor.service.TaskUserRecordService;
+import com.webmonitor.util.UserContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,14 +33,15 @@ public class TaskUserRecordServiceImpl implements TaskUserRecordService {
   }
 
   @Override
-  public PageResult<TaskUserRecordVO> queryUserTaskRecordsByPage(Long userId, int pageNum, int pageSize) {
+  public PageResult<TaskUserRecordVO> queryUserTaskRecordsByPage(TaskUserRecordPageBO bo) {
 
-    Page<TaskUserRecord> taskUserRecordPage = taskUserRecordProvider.queryUserTaskRecordsByPage(userId, pageNum, pageSize);
+    Long userId = UserContext.getUserId();
+    Page<TaskUserRecord> taskUserRecordPage = taskUserRecordProvider.queryUserTaskRecordsByPage(userId, bo.getPageNum(), bo.getPageSize());
 
     List<TaskUserRecordVO> taskUserRecordVOS = BeanUtil.copyToList(taskUserRecordPage.getRecords(), TaskUserRecordVO.class);
 
-
-    PageResult<TaskUserRecordVO> result = new PageResult<>(taskUserRecordVOS, taskUserRecordPage.getTotal(), taskUserRecordPage.getCurrent(), taskUserRecordPage.getSize());
+    PageResult<TaskUserRecordVO> result = new PageResult<>(taskUserRecordVOS, taskUserRecordPage.getTotal(),
+            taskUserRecordPage.getCurrent(), taskUserRecordPage.getSize());
     return result;
   }
 

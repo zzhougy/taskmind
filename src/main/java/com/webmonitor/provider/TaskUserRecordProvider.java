@@ -9,8 +9,6 @@ import com.webmonitor.mapper.TaskUserRecordMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class TaskUserRecordProvider extends ServiceImpl<TaskUserRecordMapper, TaskUserRecord> {
 
@@ -23,8 +21,6 @@ public class TaskUserRecordProvider extends ServiceImpl<TaskUserRecordMapper, Ta
             .innerJoin(TaskUserConfig.class, TaskUserConfig::getId, TaskUserRecord::getTaskConfigId)
             .eq(TaskUserRecord::getUserId, userId)
             .orderByDesc(TaskUserRecord::getCreateTime);
-
-    List<TaskUserRecord> taskUserRecords = taskUserRecordMapper.selectJoinList(TaskUserRecord.class, wrapper);
 
     Page<TaskUserRecord> listPage = taskUserRecordMapper.selectJoinPage(new Page<>(pageNum, pageSize), TaskUserRecord.class, wrapper);
 
