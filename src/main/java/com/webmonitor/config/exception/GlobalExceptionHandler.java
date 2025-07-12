@@ -41,10 +41,26 @@ public class GlobalExceptionHandler {
     return ResponseVO.error(ex.getCode(), ex.getMsg());
   }
 
+  @ExceptionHandler(SystemException.class)
+  @ResponseBody
+  public ResponseVO<String> handleSystemException(SystemException ex) {
+    log.error("SystemException:", ex);
+    // 返回错误信息给客户端
+    return ResponseVO.error(ErrorCodeEnum.SYS_ERROR.getCode(), ErrorCodeEnum.SYS_ERROR.getMsg());
+  }
+
   @ExceptionHandler(RuntimeException.class)
   @ResponseBody
   public ResponseVO<String> handleRuntimeException(RuntimeException ex) {
     log.error("RuntimeException:", ex);
+    // 返回错误信息给客户端
+    return ResponseVO.error(ErrorCodeEnum.SYS_ERROR.getCode(), ErrorCodeEnum.SYS_ERROR.getMsg());
+  }
+
+  @ExceptionHandler(Exception.class)
+  @ResponseBody
+  public ResponseVO<String> handleException(Exception ex) {
+    log.error("Exception:", ex);
     // 返回错误信息给客户端
     return ResponseVO.error(ErrorCodeEnum.SYS_ERROR.getCode(), ErrorCodeEnum.SYS_ERROR.getMsg());
   }

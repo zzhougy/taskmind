@@ -1,7 +1,5 @@
 package com.webmonitor.entity.vo;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -16,6 +14,8 @@ public class TaskUserRecordVO {
   private String contentUrl;
 
   private String contentDateStr;
+
+  private String userInput;
 
   private LocalDateTime createTime;
 

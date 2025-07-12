@@ -18,13 +18,13 @@ public class TaskUserRecord {
 
   @TableId
   @PrimaryKey(autoIncrement = true)
-  private Long id;
+  private Integer id;
 
   @AutoColumn(comment = "用户id")
-  private Long userId;
+  private Integer userId;
 
   @AutoColumn
-  private Long taskConfigId;
+  private Integer taskConfigId;
 
   @AutoColumn(length = 50)
   private String contentTitle;

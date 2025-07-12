@@ -28,13 +28,13 @@ public class SimpleFetcher implements ContentFetcher {
 
     List<WebContent> currentWeb = new ArrayList<>();
     WebContent webContent = WebContent.builder()
-            .id("url")
+            .id(null)
             .title(config.getContent())
-            .description("title")
-            .url("url")
-            .source("")
-            .dateStr("dateStr")
-            .category("")
+            .description(null)
+            .url(null)
+            .source(null)
+            .dateStr(null)
+            .category(null)
             .build();
 
     currentWeb.add(webContent);

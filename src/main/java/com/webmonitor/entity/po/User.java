@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class User {
 
   @PrimaryKey(autoIncrement = true)
-  private Long id;
+  private Integer id;
 
   @AutoColumn(value = "open_id", comment = "微信的用户唯一标识", length = 50)
   private String openId;

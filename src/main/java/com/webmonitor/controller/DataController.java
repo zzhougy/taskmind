@@ -16,9 +16,14 @@ public class DataController {
 
   @GetMapping("/ai/demo")
   public ResponseVO<List<String>> chatWithAI() {
-    return ResponseVO.success(Arrays.asList("每10分钟获取百度热搜第一名",
-            "每小时获取北京天气信息",
-            "监控指定股票价格变化",
-            "每天获取最新科技新闻"));
+    return ResponseVO.success(Arrays.asList(
+//            "每10分钟获取百度热搜第一名",
+//            "每小时获取北京天气信息",
+//            "监控指定股票价格变化",
+//            "每天获取最新科技新闻",
+            "每天下午1点提醒我吃药",
+            "每3小时提醒我站起来"
+
+            ));
   }
 }

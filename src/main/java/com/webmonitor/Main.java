@@ -11,7 +11,6 @@ import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebMonitor;
 import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserConfigProvider;
-import com.webmonitor.service.springai.AITools;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
@@ -35,8 +34,6 @@ public class Main {
   @Resource
   private ApplicationContext context;
 
-  @Resource
-  private AITools aiTools;
 
   @Resource
   private TaskUserConfigProvider taskUserConfigProvider;

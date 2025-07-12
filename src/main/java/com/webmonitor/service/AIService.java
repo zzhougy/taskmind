@@ -1,6 +1,6 @@
 package com.webmonitor.service;
 
 public interface AIService {
-  boolean setUpTimingTask(String url, String cron, String content) throws Exception;
+  void setUpTimingTask(String userInput, String url, String cron, String content) throws Exception;
 
 }

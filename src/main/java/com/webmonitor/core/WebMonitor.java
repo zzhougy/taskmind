@@ -154,7 +154,7 @@ public class WebMonitor {
 
 
   public void doStartMonitoring2(TaskUserConfig config, ContentFetcher fetcher, FetcherConfig fetcherConfig) {
-    schedulerService.scheduleTaskForUser(config.getUserId(),
+    schedulerService.scheduleTaskForUser(config.getId(),
             fetcherConfig.getCron(), createUserTask(config, fetcher));
   }
 

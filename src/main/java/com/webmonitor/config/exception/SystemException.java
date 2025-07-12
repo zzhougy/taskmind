@@ -3,23 +3,24 @@ package com.webmonitor.config.exception;
 import lombok.Getter;
 import lombok.Setter;
 
+
 /**
-  * Description：问题来自用户，该异常问题可以显示给用户看
-  */
+ * Description：问题来自平台系统，该异常问题不能显示给用户看
+ */
 @Getter
 @Setter
-public class BusinessException extends RuntimeException {
+public class SystemException extends RuntimeException {
 
   private Integer code;
   private String msg;
 
-  public BusinessException(Integer code, String msg) {
+  public SystemException(Integer code, String msg) {
     super(msg);
     this.code = code;
     this.msg = msg;
   }
 
-  public BusinessException(String msg) {
+  public SystemException(String msg) {
     super(msg);
     this.msg = msg;
   }

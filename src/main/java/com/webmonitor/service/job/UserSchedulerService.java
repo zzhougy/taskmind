@@ -18,10 +18,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public class UserSchedulerService {
 
   // 存储用户的任务引用
-  private final Map<Long, ScheduledFuture<?>> userTasks = new ConcurrentHashMap<>();
+  private final Map<Integer, ScheduledFuture<?>> userTasks = new ConcurrentHashMap<>();
 
   // 存储任务执行状态
-  private final Map<Long, TaskExecutionState> taskStates = new ConcurrentHashMap<>();
+  private final Map<Integer, TaskExecutionState> taskStates = new ConcurrentHashMap<>();
 
   private final TaskScheduler taskScheduler;
 
@@ -31,34 +31,34 @@ public class UserSchedulerService {
   }
 
   // 创建/更新定时任务
-  public void scheduleTaskForUser(Long userId, String cronExpression, Runnable task) {
+  public void scheduleTaskForUser(Integer taskUserConfigId, String cronExpression, Runnable task) {
     // 取消现有任务
-    cancelTaskForUser(userId);
+    cancelTaskForUser(taskUserConfigId);
 
     // 创建新的Cron触发器
     CronTrigger trigger = new CronTrigger(cronExpression);
 
     // 获取或创建任务状态
-    TaskExecutionState state = taskStates.computeIfAbsent(userId, k -> new TaskExecutionState());
+    TaskExecutionState state = taskStates.computeIfAbsent(taskUserConfigId, k -> new TaskExecutionState());
 
     // 添加执行状态跟踪和跳过逻辑
-    Runnable monitoredTask = createMonitoredTask(userId, task, state);
+    Runnable monitoredTask = createMonitoredTask(taskUserConfigId, task, state);
 
     // 调度任务
     ScheduledFuture<?> future = taskScheduler.schedule(monitoredTask, trigger);
 
     // 存储任务引用
-    userTasks.put(userId, future);
+    userTasks.put(taskUserConfigId, future);
 
-    log.info("为用户 {} 创建了新的定时任务，Cron表达式: {}", userId, cronExpression);
+    log.info("为任务 {} 创建了新的定时任务，Cron表达式: {}", taskUserConfigId, cronExpression);
   }
 
-  private Runnable createMonitoredTask(Long userId, Runnable originalTask, TaskExecutionState state) {
+  private Runnable createMonitoredTask(Integer taskUserConfigId, Runnable originalTask, TaskExecutionState state) {
     return () -> {
-      log.info("开始执行用户 {} 的任务", userId);
+      log.info("开始执行任务: {} 的任务", taskUserConfigId);
       // 检查前一个任务是否仍在运行
       if (state.isRunning()) {
-        log.warn("为用户 {} 跳过任务执行 - 前一个任务仍在运行", userId);
+        log.warn("为任务 {} 跳过任务执行 - 前一个任务仍在运行", taskUserConfigId);
         return;
       }
 
@@ -69,9 +69,9 @@ public class UserSchedulerService {
         // 执行实际任务
         originalTask.run();
 
-        log.debug("用户 {} 的任务执行完成", userId);
+        log.debug("任务 {} 的任务执行完成", taskUserConfigId);
       } catch (Exception e) {
-        log.error("用户 {} 的任务执行失败", userId, e);
+        log.error("任务 {} 的任务执行失败", taskUserConfigId, e);
       } finally {
         // 确保任务状态被重置
         state.markCompleted();
@@ -79,27 +79,27 @@ public class UserSchedulerService {
     };
   }
 
-  public void cancelTaskForUser(Long userId) {
-    ScheduledFuture<?> future = userTasks.get(userId);
+  public void cancelTaskForUser(Integer taskUserConfigId) {
+    ScheduledFuture<?> future = userTasks.get(taskUserConfigId);
     if (future != null) {
-      future.cancel(true);
-      userTasks.remove(userId);
+        future.cancel(true);
+        userTasks.remove(taskUserConfigId);
 
-      // 重置任务状态
-      TaskExecutionState state = taskStates.get(userId);
-      if (state != null) {
-        state.reset();
-      }
+        // 重置任务状态
+        TaskExecutionState state = taskStates.get(taskUserConfigId);
+        if (state != null) {
+            state.reset();
+        }
 
-      log.info("已取消用户 {} 的定时任务", userId);
+        log.info("已取消任务 {} 的定时任务", taskUserConfigId);
     }
-  }
+}
 
-  public Map<Long, String> getActiveTasks() {
-    Map<Long, String> activeTasks = new HashMap<>();
-    for (Map.Entry<Long, ScheduledFuture<?>> entry : userTasks.entrySet()) {
+  public Map<Integer, String> getActiveTasks() {
+    Map<Integer, String> activeTasks = new HashMap<>();
+    for (Map.Entry<Integer, ScheduledFuture<?>> entry : userTasks.entrySet()) {
       if (!entry.getValue().isCancelled()) {
-        Long userId = entry.getKey();
+        Integer userId = entry.getKey();
         TaskExecutionState state = taskStates.get(userId);
         String status = state != null && state.isRunning() ? "RUNNING" : "SCHEDULED";
         activeTasks.put(userId, status);
@@ -108,7 +108,7 @@ public class UserSchedulerService {
     return activeTasks;
   }
 
-  public String getUserTaskStatus(Long userId) {
+  public String getUserTaskStatus(Integer userId) {
     TaskExecutionState state = taskStates.get(userId);
     if (state == null) return "NOT_SCHEDULED";
     if (state.isRunning()) return "RUNNING";

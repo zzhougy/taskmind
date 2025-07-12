@@ -15,9 +15,10 @@ public class TaskUserRecordProvider extends ServiceImpl<TaskUserRecordMapper, Ta
   @Resource
   private TaskUserRecordMapper taskUserRecordMapper;
 
-  public Page<TaskUserRecord> queryUserTaskRecordsByPage(Long userId, int pageNum, int pageSize) {
+  public Page<TaskUserRecord> queryUserTaskRecordsByPage(Integer userId, int pageNum, int pageSize) {
     MPJLambdaWrapper<TaskUserRecord> wrapper = new MPJLambdaWrapper<TaskUserRecord>()
             .selectAll(TaskUserRecord.class)
+            .selectAssociation(TaskUserConfig.class, TaskUserRecord::getTaskUserConfig)
             .innerJoin(TaskUserConfig.class, TaskUserConfig::getId, TaskUserRecord::getTaskConfigId)
             .eq(TaskUserRecord::getUserId, userId)
             .orderByDesc(TaskUserRecord::getCreateTime);

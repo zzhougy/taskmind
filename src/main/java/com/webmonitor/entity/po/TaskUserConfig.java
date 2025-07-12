@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 public class TaskUserConfig {
 
   @PrimaryKey(autoIncrement = true)
-  private Long id;
+  private Integer id;
 
   @AutoColumn(comment = "用户id")
-  private Long userId;
+  private Integer userId;
 
   @AutoColumn(comment = "cron表达式", length = 20, notNull = true)
   private String cronExpression;
@@ -32,6 +32,9 @@ public class TaskUserConfig {
 
   @AutoColumn(comment = "taskTypeCode", length = 10, notNull = true)
   private String taskTypeCode;
+
+  @AutoColumn(comment = "用户的输入", notNull = true)
+  private String userInput;
 
   @AutoColumn(comment = "url")
   private String url;

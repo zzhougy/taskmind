@@ -4,7 +4,6 @@ import lombok.Data;
 
 
 @Data
-public class TaskUserRecordPageBO extends BasePageBO {
-
+public class TaskUserConfigPageBO extends BasePageBO {
 
 }

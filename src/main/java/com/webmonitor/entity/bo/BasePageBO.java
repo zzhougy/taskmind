@@ -1,11 +1,15 @@
 package com.webmonitor.entity.bo;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 public class BasePageBO {
-  @NotNull
-  private String userInput;
+  @Min(value = 1)
+  private Integer pageNum;
+
+  @Min(value = 1)
+  @Max(value = 20)
+  private Integer pageSize;
 }

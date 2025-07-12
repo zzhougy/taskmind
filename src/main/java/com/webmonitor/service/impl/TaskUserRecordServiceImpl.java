@@ -12,6 +12,7 @@ import com.webmonitor.util.UserContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskUserRecordServiceImpl implements TaskUserRecordService {
@@ -35,12 +36,18 @@ public class TaskUserRecordServiceImpl implements TaskUserRecordService {
   @Override
   public PageResult<TaskUserRecordVO> queryUserTaskRecordsByPage(TaskUserRecordPageBO bo) {
 
-    Long userId = UserContext.getUserId();
+    Integer userId = UserContext.getUserId();
     Page<TaskUserRecord> taskUserRecordPage = taskUserRecordProvider.queryUserTaskRecordsByPage(userId, bo.getPageNum(), bo.getPageSize());
 
-    List<TaskUserRecordVO> taskUserRecordVOS = BeanUtil.copyToList(taskUserRecordPage.getRecords(), TaskUserRecordVO.class);
 
-    PageResult<TaskUserRecordVO> result = new PageResult<>(taskUserRecordVOS, taskUserRecordPage.getTotal(),
+    List<TaskUserRecordVO> collect = taskUserRecordPage.getRecords().stream().map(o -> {
+      TaskUserRecordVO taskUserRecordVO = BeanUtil.copyProperties(o, TaskUserRecordVO.class);
+      taskUserRecordVO.setUserInput(o.getTaskUserConfig().getUserInput());
+      return taskUserRecordVO;
+    }).collect(Collectors.toList());
+
+
+    PageResult<TaskUserRecordVO> result = new PageResult<>(collect, taskUserRecordPage.getTotal(),
             taskUserRecordPage.getCurrent(), taskUserRecordPage.getSize());
     return result;
   }

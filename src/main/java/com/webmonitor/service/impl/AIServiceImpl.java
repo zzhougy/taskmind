@@ -1,6 +1,8 @@
 package com.webmonitor.service.impl;
 
 import com.webmonitor.config.WebMonitorFactory;
+import com.webmonitor.config.exception.BusinessException;
+import com.webmonitor.config.exception.SystemException;
 import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
 import com.webmonitor.config.fetcher.SimpleFetcherConfig;
 import com.webmonitor.config.observer.ObserverConfig;
@@ -10,16 +12,19 @@ import com.webmonitor.core.WebMonitor;
 import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserConfigProvider;
 import com.webmonitor.service.AIService;
+import com.webmonitor.util.CronUtil;
 import com.webmonitor.util.JsoupUtil;
 import com.webmonitor.util.UserContext;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class AIServiceImpl implements AIService {
 
+  public static final int INT = 60 * 60;
   @Resource
   private WebMonitor monitor;
   @Resource
@@ -28,9 +33,12 @@ public class AIServiceImpl implements AIService {
   private TaskUserConfigProvider taskUserConfigProvider;
 
 
+  @Transactional
   @Override
-  public boolean setUpTimingTask(String url, String cron, String content) throws Exception {
-
+  public void setUpTimingTask(String userInput, String url, String cron, String content) throws Exception {
+    if (CronUtil.getIntervalInSeconds(cron) < INT && CronUtil.getIntervalInSeconds(cron) > 0) {
+      throw new BusinessException("任务提醒间隔时间过短");
+    }
 
 //    XPathFetcherConfig config = new XPathFetcherConfig();
 //    config.setUrl(url);
@@ -50,6 +58,7 @@ public class AIServiceImpl implements AIService {
     config.setUrl(url);
     config.setTaskContent(content);
     config.setEnable(true);
+    config.setUserInput(userInput);
 
 
     if (url != null) {
@@ -71,7 +80,9 @@ public class AIServiceImpl implements AIService {
       taskUserConfigProvider.save(config);
 
       boolean b = monitor.startMonitoringByUser(config, cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
-      return b;
+      if (!b) {
+        throw new SystemException("任务启动失败");
+      }
     } else {
       // simpleFetch
       simpleFetcherConfig = new SimpleFetcherConfig();
@@ -86,7 +97,9 @@ public class AIServiceImpl implements AIService {
       taskUserConfigProvider.save(config);
 
       boolean b = monitor.startMonitoringByUser(config, simpleFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
-      return b;
+      if (!b) {
+        throw new SystemException("任务启动失败");
+      }
     }
   }
 
