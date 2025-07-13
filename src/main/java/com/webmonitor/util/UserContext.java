@@ -9,9 +9,9 @@ import org.apache.shiro.SecurityUtils;
 @Slf4j
 public class UserContext {
 
-  public static Long getUserId() {
+  public static Integer getUserId() {
     // todo
-    return 3333L;
+    return 3333;
 //    return getUser().getId();
   }
 

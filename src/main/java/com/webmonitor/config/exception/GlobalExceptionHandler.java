@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
   public ResponseVO<String> handleBusinessException(BusinessException ex) {
     log.error("BusinessException:", ex);
     // 返回错误信息给客户端
-    return ResponseVO.error(ex.getCode(), ex.getMsg());
+    return ResponseVO.error(ex.getCode() == null ? ErrorCodeEnum.BUSINESS_ERROR.getCode() : ex.getCode(), ex.getMsg());
   }
 
   @ExceptionHandler(SystemException.class)

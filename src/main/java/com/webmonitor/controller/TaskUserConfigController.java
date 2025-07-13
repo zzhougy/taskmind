@@ -3,7 +3,8 @@ package com.webmonitor.controller;
 import com.webmonitor.config.annotation.GuestAccess;
 import com.webmonitor.entity.ResponseVO;
 import com.webmonitor.entity.bo.TaskUserConfigPageBO;
-import com.webmonitor.entity.bo.UpdateTaskStatusBO;
+import com.webmonitor.entity.bo.TaskUserRecordDeleteBO;
+import com.webmonitor.entity.bo.TaskUserRecordStatusUpdateBO;
 import com.webmonitor.entity.vo.PageResult;
 import com.webmonitor.entity.vo.TaskUserConfigVO;
 import com.webmonitor.service.TaskUserConfigService;
@@ -28,8 +29,15 @@ public class TaskUserConfigController {
 
   @GuestAccess // todo remove
   @PutMapping("/status")
-  public ResponseVO<Boolean> updateTaskStatus(@Validated @RequestBody UpdateTaskStatusBO bo) {
+  public ResponseVO<Boolean> updateTaskStatus(@Validated @RequestBody TaskUserRecordStatusUpdateBO bo) {
     taskUserConfigService.updateTaskStatus(bo);
+    return ResponseVO.success(true);
+  }
+
+  @GuestAccess // todo remove
+  @DeleteMapping
+  public ResponseVO<Boolean> delete(@Validated @RequestBody TaskUserRecordDeleteBO bo) {
+    taskUserConfigService.delete(bo);
     return ResponseVO.success(true);
   }
 }

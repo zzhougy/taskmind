@@ -6,7 +6,8 @@ import com.webmonitor.config.exception.BusinessException;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebMonitor;
 import com.webmonitor.entity.bo.TaskUserConfigPageBO;
-import com.webmonitor.entity.bo.UpdateTaskStatusBO;
+import com.webmonitor.entity.bo.TaskUserRecordDeleteBO;
+import com.webmonitor.entity.bo.TaskUserRecordStatusUpdateBO;
 import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.entity.vo.PageResult;
 import com.webmonitor.entity.vo.TaskUserConfigVO;
@@ -59,7 +60,7 @@ public class TaskUserConfigServiceImpl implements TaskUserConfigService {
 
   @Transactional
   @Override
-  public void updateTaskStatus(UpdateTaskStatusBO bo) {
+  public void updateTaskStatus(TaskUserRecordStatusUpdateBO bo) {
     TaskUserConfig config = taskUserConfigProvider.getById(bo.getId());
     Integer userId = UserContext.getUserId();
     if (config == null || config.getDeleted() || !userId.equals(config.getUserId())) {
@@ -96,5 +97,22 @@ public class TaskUserConfigServiceImpl implements TaskUserConfigService {
     }
   }
 
+  @Transactional
+  @Override
+  public void delete(TaskUserRecordDeleteBO bo) {
+    TaskUserConfig config = taskUserConfigProvider.getById(bo.getId());
+    if (config == null || config.getDeleted() || !UserContext.getUserId().equals(config.getUserId())) {
+      throw new BusinessException("不存在");
+    }
 
+    config.setDeleted(true);
+    boolean updateSuccess = taskUserConfigProvider.updateById(config);
+    if (!updateSuccess) {
+      log.error("删除任务失败，taskId: {}", config.getId());
+      throw new BusinessException("操作失败");
+    }
+    // 禁用任务：取消调度
+    schedulerService.cancelTaskForUser(bo.getId());
+    log.info("已禁用任务，taskId: {}", bo.getId());
+  }
 }

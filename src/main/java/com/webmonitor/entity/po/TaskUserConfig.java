@@ -1,8 +1,6 @@
 package com.webmonitor.entity.po;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import org.dromara.autotable.annotation.AutoColumn;
 import org.dromara.autotable.annotation.AutoTable;
@@ -15,6 +13,7 @@ import java.time.LocalDateTime;
 @TableName("task_user_config")
 public class TaskUserConfig {
 
+  @TableId(type = IdType.AUTO)
   @PrimaryKey(autoIncrement = true)
   private Integer id;
 

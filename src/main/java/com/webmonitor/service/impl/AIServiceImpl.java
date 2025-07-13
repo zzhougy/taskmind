@@ -6,21 +6,31 @@ import com.webmonitor.config.exception.SystemException;
 import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
 import com.webmonitor.config.fetcher.SimpleFetcherConfig;
 import com.webmonitor.config.observer.ObserverConfig;
+import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.constant.TaskTypeEnum;
 import com.webmonitor.constant.WayToGetHtmlEnum;
 import com.webmonitor.core.WebMonitor;
+import com.webmonitor.entity.bo.AIUserInputBO;
 import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserConfigProvider;
 import com.webmonitor.service.AIService;
+import com.webmonitor.service.springai.TaskTools;
 import com.webmonitor.util.CronUtil;
 import com.webmonitor.util.JsoupUtil;
 import com.webmonitor.util.UserContext;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.webmonitor.service.springai.TaskTools.*;
+
+@Slf4j
 @Service
 public class AIServiceImpl implements AIService {
 
@@ -32,6 +42,10 @@ public class AIServiceImpl implements AIService {
   @Resource
   private TaskUserConfigProvider taskUserConfigProvider;
 
+  private final AtomicInteger queueCount = new AtomicInteger(0);
+  private static final int MAX_QUEUE_SIZE = 3;
+  @Resource
+  private TaskTools taskTools;
 
   @Transactional
   @Override
@@ -100,6 +114,37 @@ public class AIServiceImpl implements AIService {
       if (!b) {
         throw new SystemException("任务启动失败");
       }
+    }
+  }
+
+  @Override
+  public String chatWithAI(AIUserInputBO bo) {
+    int currentCount = queueCount.incrementAndGet();
+    if (currentCount > MAX_QUEUE_SIZE) {
+      queueCount.decrementAndGet();
+      log.error("Queue size exceeds maximum limit of " + MAX_QUEUE_SIZE);
+      throw new BusinessException("排队人数较多，请稍后再试");
+    }
+    try {
+      synchronized (this) {
+        // todo
+        String prompt = "你需要判断是否需要知道当前时间用于设置cron定时任务，获取到当前时间之后才去设置cron定时任务，以下是输入：" + bo.getUserInput();
+//        prompt = bo.getUserInput();
+        ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU))
+                .prompt(prompt)
+                .tools(taskTools)
+                .toolContext(Map.of("userInput", bo.getUserInput()))
+                .call();
+
+        String content = call.content();
+        log.info("AI Response: {}", content);
+        if (!TASK_SETTING_SUCCESS2.equals( content)) {
+          return TASK_SETTING_ERROR;
+        }
+        return content;
+      }
+    } finally {
+      queueCount.decrementAndGet();
     }
   }
 
