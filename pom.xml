@@ -229,6 +229,12 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>com.github.houbb</groupId>
+            <artifactId>sensitive-word</artifactId>
+            <version>0.17.0</version>
+        </dependency>
+
     </dependencies>
 
 

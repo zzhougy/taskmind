@@ -15,11 +15,11 @@ import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserConfigProvider;
 import com.webmonitor.service.AIService;
 import com.webmonitor.service.springai.TaskTools;
-import com.webmonitor.util.CronUtil;
-import com.webmonitor.util.JsoupUtil;
-import com.webmonitor.util.UserContext;
+import com.webmonitor.util.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.webmonitor.service.springai.TaskTools.*;
+import static com.webmonitor.service.springai.TaskTools.TASK_SETTING_ERROR;
+import static com.webmonitor.service.springai.TaskTools.TASK_SETTING_SUCCESS2;
 
 @Slf4j
 @Service
@@ -49,7 +50,7 @@ public class AIServiceImpl implements AIService {
 
   @Transactional
   @Override
-  public void setUpTimingTask(String userInput, String url, String cron, String content) throws Exception {
+  public void setUpTimingTask(String userInput, String url, String cron, String target) throws Exception {
     if (CronUtil.getIntervalInSeconds(cron) < INT && CronUtil.getIntervalInSeconds(cron) > 0) {
       throw new BusinessException("任务提醒间隔时间过短");
     }
@@ -70,7 +71,7 @@ public class AIServiceImpl implements AIService {
     config.setUserId(UserContext.getUserId());
     config.setCronExpression(cron);
     config.setUrl(url);
-    config.setTaskContent(content);
+    config.setTaskContent(target);
     config.setEnable(true);
     config.setUserInput(userInput);
 
@@ -83,16 +84,19 @@ public class AIServiceImpl implements AIService {
       cssSelectorFetcherConfig.setName("CssMonitor");
       cssSelectorFetcherConfig.setEnabled(true);
       cssSelectorFetcherConfig.setCron(cron);
-      String cssSelector = JsoupUtil.getXPathFromAI(url, "zhipu", content, webMonitorFactory.loadAIModels());
+
+      Document document = HtmlUtil.getDocumentByWayToGetHtml(url, WayToGetHtmlEnum.SELENIUM);
+      String cleanedHtml = HtmlUtil.cleanHtml(document.html());
+      String keyword = AIUtil.getKeywordFromAI(cleanedHtml, "zhipu", target, webMonitorFactory.loadAIModels());
+      Element contentDocumentByKeyWord = JsoupUtil.getContentDocumentByKeyWord(document, keyword);
+      String cssSelector = contentDocumentByKeyWord.cssSelector();
+//      String cssSelector = JsoupUtil.getXPathFromAI(url, "zhipu", target, webMonitorFactory.loadAIModels());
       cssSelectorFetcherConfig.setCssSelector(cssSelector);
 
-
       config.setWayToGetHtmlCode(WayToGetHtmlEnum.SELENIUM.getCode());
-      // 保存TaskUserConfig到数据库
       config.setTaskTypeCode(TaskTypeEnum.CSS_SELECTOR.getCode());
       config.setCssSelector(cssSelector);
       taskUserConfigProvider.save(config);
-
       boolean b = monitor.startMonitoringByUser(config, cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
       if (!b) {
         throw new SystemException("任务启动失败");
@@ -103,7 +107,7 @@ public class AIServiceImpl implements AIService {
       simpleFetcherConfig.setType("SimpleFetcher");
       simpleFetcherConfig.setName("SimpleMonitor");
       simpleFetcherConfig.setEnabled(true);
-      simpleFetcherConfig.setContent(content);
+      simpleFetcherConfig.setContent(target);
       simpleFetcherConfig.setCron(cron);
 
       // 保存TaskUserConfig到数据库
@@ -119,6 +123,13 @@ public class AIServiceImpl implements AIService {
 
   @Override
   public String chatWithAI(AIUserInputBO bo) {
+
+    // 校验敏感词
+    String filteredContent = SensitiveUtil.filterSensitiveWords(bo.getUserInput());
+    if (filteredContent.contains("*")) {
+      return "请勿输入敏感词";
+    }
+
     int currentCount = queueCount.incrementAndGet();
     if (currentCount > MAX_QUEUE_SIZE) {
       queueCount.decrementAndGet();

@@ -1,6 +1,5 @@
 package com.webmonitor.controller;
 
-import com.webmonitor.config.WebMonitorFactory;
 import com.webmonitor.config.annotation.GuestAccess;
 import com.webmonitor.entity.ResponseVO;
 import com.webmonitor.entity.bo.AIUserInputBO;

@@ -2,6 +2,8 @@ package com.webmonitor.util;
 
 import com.github.javafaker.Faker;
 import com.github.javafaker.Internet;
+import com.webmonitor.config.exception.SystemException;
+import com.webmonitor.constant.WayToGetHtmlEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
@@ -15,6 +17,8 @@ import java.util.Map;
 
 @Slf4j
 public class HtmlUtil {
+
+  public static final int MAX_HTML_SIZE = 300000;
 
   public static Document getDocument(String url, Map<String, String> headers, String cookie) throws IOException {
     log.info("[getHtml] Start");
@@ -49,6 +53,13 @@ public class HtmlUtil {
     return html;
   }
 
+  public static Document getDocumentBySelenium(String url) {
+    String html = getHtmlBySelenium(url);
+    Document parse = Jsoup.parse(html);
+    return parse;
+  }
+
+
 
   /**
    * 使用Jsoup库提取body内容并过滤多余标签
@@ -72,5 +83,27 @@ public class HtmlUtil {
     return "";
   }
 
+  public static String cleanHtml(String html) throws Exception {
+    String cleanedHtml = HtmlUtil.extractBodyByJsoup(html);
+    log.info("[getSelectorFromAI] 原始htmlSize:{}, 截取主要html后的htmlSize:{}", html.length(), cleanedHtml.length());
+    if (cleanedHtml.length() >= MAX_HTML_SIZE) {
+      throw new Exception("网页内容过长，暂不处理");
+    }
+
+    cleanedHtml = SensitiveUtil.filterSensitiveWords(cleanedHtml);
+
+    return cleanedHtml;
+  }
+
+  public static Document getDocumentByWayToGetHtml(String url, WayToGetHtmlEnum wayToGetHtml) throws IOException {
+    log.info("[getDocumentByWayToGetHtml] Start");
+    if (wayToGetHtml == WayToGetHtmlEnum.JSOUP) {
+      return HtmlUtil.getDocument(url, null, null);
+    } else if (wayToGetHtml == WayToGetHtmlEnum.SELENIUM) {
+      return HtmlUtil.getDocumentBySelenium(url);
+    }
+    log.info("[getDocumentByWayToGetHtml] End Success, url: {}, wayToGetHtml: {}", url, wayToGetHtml);
+    throw new SystemException("Invalid wayToGetHtml: " + wayToGetHtml);
+  }
 
 }

@@ -7,5 +7,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class KeywordSelectorFetcherConfig extends FetcherConfig {
   private String keyword;
+  private String wayToGetHtml;
 
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import org.dromara.autotable.annotation.AutoColumn;
 import org.dromara.autotable.annotation.AutoTable;
+import org.dromara.autotable.annotation.Ignore;
 import org.dromara.autotable.annotation.PrimaryKey;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,7 @@ public class TaskUserRecord {
   @TableField(fill = FieldFill.INSERT)
   private LocalDateTime createTime;
 
+  @Ignore
   @TableField(exist = false)
   private TaskUserConfig taskUserConfig;
 

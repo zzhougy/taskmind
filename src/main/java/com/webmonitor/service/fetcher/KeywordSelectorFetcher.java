@@ -1,14 +1,16 @@
 package com.webmonitor.service.fetcher;
 
-import cn.hutool.core.collection.CollectionUtil;
+import com.webmonitor.config.exception.SystemException;
 import com.webmonitor.config.fetcher.KeywordSelectorFetcherConfig;
+import com.webmonitor.constant.WayToGetHtmlEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebContent;
 import com.webmonitor.util.HtmlUtil;
+import com.webmonitor.util.JsoupUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
+import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,19 +35,18 @@ public class KeywordSelectorFetcher implements ContentFetcher {
 
     List<WebContent> currentWeb = new ArrayList<>();
 
+    Document document = HtmlUtil.getDocumentByWayToGetHtml(config.getUrl(), WayToGetHtmlEnum.getByCode(config.getWayToGetHtml()));
 
-    Document document = HtmlUtil.getDocument(config.getUrl(), null, config.getCookie());
-    Elements elements = document.getElementsContainingOwnText(config.getKeyword());
-    if (CollectionUtil.isEmpty(elements)) {
-      throw new RuntimeException(config.getName() + "没有获取到内容，请重试或者联系管理员");
+    Element element = JsoupUtil.getContentDocumentByKeyWord(document, config.getKeyword());
+    if (element == null || StringUtils.isEmpty(element.text())) {
+      throw new SystemException(config.getName() + "没有获取到内容，请重试或者联系管理员");
     }
-    String title = elements.first().text();
-
-    log.info("{}获取到内容：{}", config.getName(), title);
+    String contentByKeyWord = element.text();
+    log.info("{}获取到内容：{}", config.getName(), contentByKeyWord);
     WebContent webContent = WebContent.builder()
-            .id(title)
-            .title(title)
-            .description(title)
+            .id(contentByKeyWord)
+            .title(contentByKeyWord)
+            .description(contentByKeyWord)
             .url(null)
             .source(config.getName())
             .dateStr(null)
