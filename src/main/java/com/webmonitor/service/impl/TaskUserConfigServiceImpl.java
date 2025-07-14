@@ -3,8 +3,11 @@ package com.webmonitor.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webmonitor.config.exception.BusinessException;
+import com.webmonitor.config.exception.SystemException;
+import com.webmonitor.constant.TaskTypeEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebMonitor;
+import com.webmonitor.entity.bo.TaskUserConfigCreateBO;
 import com.webmonitor.entity.bo.TaskUserConfigPageBO;
 import com.webmonitor.entity.bo.TaskUserRecordDeleteBO;
 import com.webmonitor.entity.bo.TaskUserRecordStatusUpdateBO;
@@ -95,6 +98,55 @@ public class TaskUserConfigServiceImpl implements TaskUserConfigService {
       schedulerService.cancelTaskForUser(bo.getId());
       log.info("已禁用任务，taskId: {}", bo.getId());
     }
+  }
+
+  @Transactional
+  @Override
+  public void createTask(TaskUserConfigCreateBO bo) {
+    Integer userId = UserContext.getUserId();
+    if (userId == null) {
+      throw new BusinessException("用户未登录");
+    }
+
+    // 验证时间参数
+    if (bo.getHour() != null && (bo.getHour() < 0 || bo.getHour() > 23)) {
+      throw new BusinessException("小时必须在0-23之间");
+    }
+    if (bo.getMinute() != null && (bo.getMinute() < 0 || bo.getMinute() > 59)) {
+      throw new BusinessException("分钟必须在0-59之间");
+    }
+
+    // 生成cron表达式
+    String cronExpression = CronUtil.generateCronExpression(bo.getFrequency(), bo.getHour(), bo.getMinute(), bo.getMonth(), bo.getDay(), bo.getInterval(), bo.getDayOfWeek());
+    if (cronExpression == null) {
+      throw new SystemException("cron表达式生成失败");
+    }
+
+    // 创建任务配置PO
+    TaskUserConfig config = new TaskUserConfig();
+    config.setTaskContent(bo.getTaskContent());
+    config.setUserId(userId);
+    config.setTaskTypeCode(TaskTypeEnum.SIMPLE.getCode());
+    config.setCronExpression(cronExpression);
+    config.setEnable(true);
+    config.setDeleted(false);
+
+    // 保存到数据库
+    boolean saveSuccess = taskUserConfigProvider.save(config);
+    if (!saveSuccess) {
+      log.error("保存任务配置失败");
+      throw new BusinessException("操作失败");
+    }
+
+    // 创建并调度任务
+    ContentFetcher fetcher = webMonitor.createContentFetcherFromTaskConfig(config);
+    if (fetcher == null) {
+      log.error("创建内容获取器失败，taskId: {}", config.getId());
+      throw new BusinessException("操作失败");
+    }
+    Runnable task = webMonitor.createUserTask(config, fetcher);
+    schedulerService.scheduleTaskForUser(config.getId(), cronExpression, task);
+    log.info("创建并调度任务成功，taskId: {}", config.getId());
   }
 
   @Transactional

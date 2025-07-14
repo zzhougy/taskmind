@@ -6,8 +6,11 @@ import com.webmonitor.entity.vo.PageResult;
 import com.webmonitor.entity.vo.TaskUserConfigVO;
 
 import com.webmonitor.entity.bo.TaskUserRecordStatusUpdateBO;
+import com.webmonitor.entity.bo.TaskUserConfigCreateBO;
 
 public interface TaskUserConfigService {
+
+  void createTask(TaskUserConfigCreateBO bo);
 
   PageResult<TaskUserConfigVO> queryUserTaskConfigsByPage(TaskUserConfigPageBO bo);
 

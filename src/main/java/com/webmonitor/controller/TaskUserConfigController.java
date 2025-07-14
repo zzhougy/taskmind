@@ -5,6 +5,7 @@ import com.webmonitor.entity.ResponseVO;
 import com.webmonitor.entity.bo.TaskUserConfigPageBO;
 import com.webmonitor.entity.bo.TaskUserRecordDeleteBO;
 import com.webmonitor.entity.bo.TaskUserRecordStatusUpdateBO;
+import com.webmonitor.entity.bo.TaskUserConfigCreateBO;
 import com.webmonitor.entity.vo.PageResult;
 import com.webmonitor.entity.vo.TaskUserConfigVO;
 import com.webmonitor.service.TaskUserConfigService;
@@ -31,6 +32,13 @@ public class TaskUserConfigController {
   @PutMapping("/status")
   public ResponseVO<Boolean> updateTaskStatus(@Validated @RequestBody TaskUserRecordStatusUpdateBO bo) {
     taskUserConfigService.updateTaskStatus(bo);
+    return ResponseVO.success(true);
+  }
+
+  @GuestAccess // todo remove
+  @PostMapping("/create")
+  public ResponseVO<Boolean> createTask(@Validated @RequestBody TaskUserConfigCreateBO bo) {
+    taskUserConfigService.createTask(bo);
     return ResponseVO.success(true);
   }
 

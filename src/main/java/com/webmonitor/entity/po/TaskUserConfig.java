@@ -32,7 +32,7 @@ public class TaskUserConfig {
   @AutoColumn(comment = "taskTypeCode", length = 10, notNull = true)
   private String taskTypeCode;
 
-  @AutoColumn(comment = "用户的输入", notNull = true)
+  @AutoColumn(comment = "用户的输入")
   private String userInput;
 
   @AutoColumn(comment = "url")
