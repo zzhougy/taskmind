@@ -131,7 +131,7 @@ public class CronUtil {
       String expected = (String) testCase[6];
 
       try {
-        String cron = generateCronExpression(frequency, hour, minute, month, day, interval, null);
+        String cron = generateCronExpression(frequency, null, hour, minute, month, day, interval, null, null);
         String status = (expected == null || cron.matches(expected.replace("*", ".*"))) ? "PASS" : "FAIL";
         System.out.printf("%-7s | %-7s | H:%02d M:%02d | 月:%2s 日:%2s 间隔:%2s | 生成结果: %-20s | 预期: %s%n",
                 status, frequency, hour, minute, month, day, interval, cron, expected == null ? "(动态匹配)" : expected);
@@ -153,7 +153,7 @@ public class CronUtil {
    * @param minute    分钟 (0-59)
    * @return cron表达式或null
    */
-  public static String generateCronExpression(String frequency, Integer hour, Integer minute, Integer month, Integer day, Integer interval, Integer dayOfWeek) {
+  public static String generateCronExpression(String frequency, Integer second, Integer hour, Integer minute, Integer month, Integer day, Integer interval, Integer dayOfWeek, Integer year) {
 
     // todo 验证参数
     //    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
@@ -161,6 +161,8 @@ public class CronUtil {
 //    }
 
     switch (frequency) {
+      case "perSecond":
+        return String.format("*/%d * * * * ?", second);
       case "minutely":
         return String.format("0 */%d * * * ?", interval);
       case "hourly":
@@ -172,12 +174,15 @@ public class CronUtil {
         // Java的DayOfWeek.getValue()返回1=周一, 7=周日，需要转换为Quartz格式
 //        int javaDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
 //        int quartzDayOfWeek = javaDayOfWeek == 7 ? 1 : javaDayOfWeek + 1;
-        return String.format("0 %d %d ? * %d", minute, hour, dayOfWeek);
+        return String.format("0 %d %d ? * %d", minute == null ? 0 : minute, hour, dayOfWeek);
       case "monthly":
         // 获取当前日期
         return String.format("0 %d %d %d * ?", minute, hour, day);
       case "yearly":
         return String.format("0 %d %d %d %d ?", minute, hour, day, month);
+      case "once":
+//        return String.format("%d %d %d %d %d ? %d", second == null ? 0 : second, minute == null ? 0 : minute, hour, day, month, year);
+        return String.format("%d %d %d %d %d ?", second == null ? 0 : second, minute == null ? 0 : minute, hour, day, month);
       default:
         return null;
     }

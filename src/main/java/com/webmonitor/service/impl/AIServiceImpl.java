@@ -7,6 +7,7 @@ import com.webmonitor.config.fetcher.CssSelectorFetcherConfig;
 import com.webmonitor.config.fetcher.SimpleFetcherConfig;
 import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.constant.AIModelEnum;
+import com.webmonitor.constant.ErrorCodeEnum;
 import com.webmonitor.constant.TaskTypeEnum;
 import com.webmonitor.constant.WayToGetHtmlEnum;
 import com.webmonitor.core.WebMonitor;
@@ -52,7 +53,7 @@ public class AIServiceImpl implements AIService {
   @Override
   public void setUpTimingTask(String userInput, String url, String cron, String target) throws Exception {
     if (CronUtil.getIntervalInSeconds(cron) < INT && CronUtil.getIntervalInSeconds(cron) > 0) {
-      throw new BusinessException("任务提醒间隔时间过短");
+      throw new BusinessException(ErrorCodeEnum.AI_TASK_INTERVAL_TOO_SHORT.getMsg());
     }
 
 //    XPathFetcherConfig config = new XPathFetcherConfig();
@@ -149,7 +150,7 @@ public class AIServiceImpl implements AIService {
 
         String content = call.content();
         log.info("AI Response: {}", content);
-        if (!TASK_SETTING_SUCCESS2.equals( content)) {
+        if (!TASK_SETTING_SUCCESS2.equals(content) || ErrorCodeEnum.AI_TASK_INTERVAL_TOO_SHORT.getMsg().equals(content)) {
           return TASK_SETTING_ERROR;
         }
         return content;

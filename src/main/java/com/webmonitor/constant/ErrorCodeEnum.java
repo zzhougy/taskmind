@@ -10,6 +10,9 @@ public enum ErrorCodeEnum {
   PASSWORD_DEFINED(20010, "密码错误"),
 
   SQL_ERROR_USER_TASK_TOO_MANY(45000, "目前最多只能有3个任务，请先删除任务"),
+
+
+  AI_TASK_INTERVAL_TOO_SHORT(400, "任务提醒间隔时间过短"),
   ;
 
 

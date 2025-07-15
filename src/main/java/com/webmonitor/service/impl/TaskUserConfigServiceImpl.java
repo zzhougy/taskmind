@@ -117,7 +117,7 @@ public class TaskUserConfigServiceImpl implements TaskUserConfigService {
     }
 
     // 生成cron表达式
-    String cronExpression = CronUtil.generateCronExpression(bo.getFrequency(), bo.getHour(), bo.getMinute(), bo.getMonth(), bo.getDay(), bo.getInterval(), bo.getDayOfWeek());
+    String cronExpression = CronUtil.generateCronExpression(bo.getFrequency(), null, bo.getHour(), bo.getMinute(), bo.getMonth(), bo.getDay(), bo.getInterval(), bo.getDayOfWeek(), null);
     if (cronExpression == null) {
       throw new SystemException("cron表达式生成失败");
     }
