@@ -181,8 +181,7 @@ public class CronUtil {
       case "yearly":
         return String.format("0 %d %d %d %d ?", minute, hour, day, month);
       case "once":
-//        return String.format("%d %d %d %d %d ? %d", second == null ? 0 : second, minute == null ? 0 : minute, hour, day, month, year);
-        return String.format("%d %d %d %d %d ?", second == null ? 0 : second, minute == null ? 0 : minute, hour, day, month);
+        return String.format("%d %d %d %d %d ? %d", second == null ? 0 : second, minute == null ? 0 : minute, hour, day, month, year);
       default:
         return null;
     }

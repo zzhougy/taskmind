@@ -235,6 +235,12 @@
             <version>0.17.0</version>
         </dependency>
 
+    <!-- Spring 定时任务 不支持7位，所以使用quartz集成-->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.2</version>
+        </dependency>
     </dependencies>
 
 

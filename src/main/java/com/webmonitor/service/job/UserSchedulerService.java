@@ -3,9 +3,9 @@ package com.webmonitor.service.job;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
-
+import org.quartz.CronExpression;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +22,8 @@ public class UserSchedulerService {
 
   // 存储任务执行状态
   private final Map<Integer, TaskExecutionState> taskStates = new ConcurrentHashMap<>();
+  // 保存下一次调度句柄，方便取消
+  private final Map<Integer, ScheduledFuture<?>> nextFireTasks = new ConcurrentHashMap<>();
 
   private final TaskScheduler taskScheduler;
 
@@ -35,23 +37,44 @@ public class UserSchedulerService {
     // 取消现有任务
     cancelTaskForUser(taskUserConfigId);
 
-    // 创建新的Cron触发器
-    CronTrigger trigger = new CronTrigger(cronExpression);
+    CronExpression expr = null;
+    try {
+      expr = new CronExpression(cronExpression); // 支持 7 位
+    } catch (Exception e) {
+      log.error("cron 表达式非法：{}", cronExpression, e);
+      throw new IllegalArgumentException("Invalid cron: " + cronExpression, e);
+    }
 
-    // 获取或创建任务状态
     TaskExecutionState state = taskStates.computeIfAbsent(taskUserConfigId, k -> new TaskExecutionState());
 
-    // 添加执行状态跟踪和跳过逻辑
     Runnable monitoredTask = createMonitoredTask(taskUserConfigId, task, state);
-
-    // 调度任务
-    ScheduledFuture<?> future = taskScheduler.schedule(monitoredTask, trigger);
-
-    // 存储任务引用
-    userTasks.put(taskUserConfigId, future);
+    scheduleNext(taskUserConfigId, expr, monitoredTask);
 
     log.info("为任务 {} 创建了新的定时任务，Cron表达式: {}", taskUserConfigId, cronExpression);
   }
+
+  /**
+   * 递归调度：算下一次时间 → 提交延时任务 → 任务跑完再算下一次
+   */
+  private void scheduleNext(Integer id, CronExpression expr, Runnable task) {
+    Date next = expr.getNextValidTimeAfter(new Date());
+    if (next == null) {
+      log.warn("任务 {} 无下一次触发时间，停止调度", id);
+      return;
+    }
+
+    ScheduledFuture<?> future = taskScheduler.schedule(() -> {
+      try {
+        task.run();
+      } finally {
+        // 任务结束后继续排下一次
+        scheduleNext(id, expr, task);
+      }
+    }, next);
+
+    nextFireTasks.put(id, future);
+  }
+
 
   private Runnable createMonitoredTask(Integer taskUserConfigId, Runnable originalTask, TaskExecutionState state) {
     return () -> {
@@ -79,21 +102,27 @@ public class UserSchedulerService {
     };
   }
 
+  /**
+   * 取消任务：同时取消当前等待的 future
+   */
   public void cancelTaskForUser(Integer taskUserConfigId) {
-    ScheduledFuture<?> future = userTasks.get(taskUserConfigId);
+    ScheduledFuture<?> future = nextFireTasks.remove(taskUserConfigId);
     if (future != null) {
-        future.cancel(true);
-        userTasks.remove(taskUserConfigId);
-
-        // 重置任务状态
-        TaskExecutionState state = taskStates.get(taskUserConfigId);
-        if (state != null) {
-            state.reset();
-        }
-
-        log.info("已取消任务 {} 的定时任务", taskUserConfigId);
+      future.cancel(true);
     }
-}
+
+    future = userTasks.remove(taskUserConfigId);
+    if (future != null) {
+      future.cancel(true);
+    }
+
+    TaskExecutionState state = taskStates.get(taskUserConfigId);
+    if (state != null) {
+      state.reset();
+    }
+    log.info("已取消任务 {} 的定时任务", taskUserConfigId);
+  }
+
 
   public Map<Integer, String> getActiveTasks() {
     Map<Integer, String> activeTasks = new HashMap<>();

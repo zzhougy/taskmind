@@ -60,10 +60,10 @@ public class ShiroConfig {
     // *匹配0个或多个字符
     // **匹配0个或多个目录
     filterRuleMap.put("/**", "jwt");
-    filterRuleMap.put("/sysUser/**", "anon");
-    filterRuleMap.put("/userPortal/login", "anon");//设置不需要携带token
     filterRuleMap.put("/user/login", "anon");//设置不需要携带token
 
+    // todo remove!!!!!!!!!!!!!!!!!!
+    filterRuleMap.put("/test/**", "anon");
 
     // 访问401和404页面不通过我们的Filter
 //        filterRuleMap.put("/**","anon");
