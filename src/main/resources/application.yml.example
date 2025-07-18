@@ -28,6 +28,12 @@ spring:
       embedding:
         enabled: false
 
+    mcp:
+      client:
+        stdio:
+          servers-configuration: classpath:/mcp-server.json
+
+
 web-monitor:
   configs:
     - type: AIFetcher
@@ -103,3 +109,11 @@ web-monitor:
       webhookBaseUrl:
       webhookKey:
 
+// todo
+logging:
+  level:
+    io:
+      modelcontextprotocol:
+        client: DEBUG
+        spec: DEBUG
+        server: DEBUG

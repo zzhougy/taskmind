@@ -23,14 +23,14 @@ public class WebMonitorFactory {
   @Resource
   @Qualifier("zhiPuAiChatModel")
   private ChatModel zhiPuAiChatModel;
-  @Resource
-  @Qualifier("deepSeekChatModel")
+//  @Resource
+//  @Qualifier("deepSeekChatModel")
   private ChatModel deepSeekChatModel;
-  @Resource
-  @Qualifier("kimiChatModel")
+//  @Resource
+//  @Qualifier("kimiChatModel")
   private ChatModel kimiChatModel;
-  @Resource
-  @Qualifier("customChatModel")
+//  @Resource
+//  @Qualifier("customChatModel")
   private ChatModel customChatModel;
 //  @Resource
 //  @Qualifier("vertexAiGeminiChat")
