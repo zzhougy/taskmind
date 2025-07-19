@@ -56,13 +56,14 @@ public class JWTUtils {
    * @param secret   用户的密码
    * @return 加密的token
    */
-  public static String sign(String username, String secret) {
+  public static String sign(String username, String password, String secret) {
     try {
       Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
       Algorithm algorithm = Algorithm.HMAC256(secret);
       // 附带username信息
       return JWT.create()
               .withClaim("username", username)
+              .withClaim("password", password)
               // todo 永久
 //              .withExpiresAt(date)
               .sign(algorithm);

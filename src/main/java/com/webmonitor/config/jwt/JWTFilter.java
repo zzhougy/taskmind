@@ -83,7 +83,7 @@ public class JWTFilter extends AccessControlFilter {
     //2. 如果客户端没有携带token，拦下请求
     if (null == token || "".equals(token)) {
       log.error("token 无效，无权访问接口");
-      responseTokenError(response, "Token无效，您无权访问该接口");
+      responseTokenError(response, ErrorCodeEnum.TOKEN_EXPIRED);
       return false;
     }
     //3. 如果有，对进行进行token验证
@@ -93,7 +93,7 @@ public class JWTFilter extends AccessControlFilter {
       SecurityUtils.getSubject().login(jwtToken);
     } catch (AuthenticationException e) {
       log.error(e.getMessage());
-      responseTokenError(response, e.getMessage());
+      responseTokenError(response, ErrorCodeEnum.TOKEN_EXPIRED);
       return false;
     }
 
@@ -121,13 +121,13 @@ public class JWTFilter extends AccessControlFilter {
   /**
    * 无需转发，直接返回Response信息 Token认证错误
    */
-  private void responseTokenError(ServletResponse response, String msg) {
+  private void responseTokenError(ServletResponse response, ErrorCodeEnum errorCodeEnum) {
     HttpServletResponse httpServletResponse = WebUtils.toHttp(response);
     httpServletResponse.setStatus(HttpStatus.OK.value());
     httpServletResponse.setCharacterEncoding("UTF-8");
     httpServletResponse.setContentType("application/json; charset=utf-8");
     try (PrintWriter out = httpServletResponse.getWriter()) {
-      String data = JSONUtil.toJsonStr(ResponseVO.error(ErrorCodeEnum.SYS_PERMISSION.getCode(), ErrorCodeEnum.SYS_PERMISSION.getMsg()));
+      String data = JSONUtil.toJsonStr(ResponseVO.error(errorCodeEnum.getCode(), errorCodeEnum.getMsg()));
       out.append(data);
     } catch (IOException e) {
       e.printStackTrace();

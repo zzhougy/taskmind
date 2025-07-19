@@ -8,8 +8,11 @@ public interface UserService {
 
   public LoginVO login(String code);
 
-  public User selectUserByName(String username);
+  public LoginVO loginByUsernamePassword(String username, String password);
 
+  public Boolean register(String username, String password);
+
+  public User selectUser(String username, Boolean enable, Boolean deleted);
 
   UserVO userInfo();
 }

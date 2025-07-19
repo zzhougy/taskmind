@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
       userProvider.save(user);
     }
     //生成Token
-    String token = JWTUtils.sign(user.getUsername(), jwtSecret);
+    String token = JWTUtils.sign(user.getUsername(), null, jwtSecret);
     JWTToken jwtToken = new JWTToken(token);
     try {
       SecurityUtils.getSubject().login(jwtToken);
@@ -85,8 +85,41 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User selectUserByName(String username) {
-    return userProvider.getOne(new QueryWrapper<User>().lambda().eq(User::getUsername, username));
+  public LoginVO loginByUsernamePassword(String username, String password) {
+    User user = userProvider.selectOne(username, true, false);
+    if (user == null) {
+      throw new BusinessException(ErrorCodeEnum.USER_ACCOUNT_NOT_FOUND.getCode(), ErrorCodeEnum.USER_ACCOUNT_NOT_FOUND.getMsg());
+    }
+//    if (!BCrypt.checkpw(password, user.getPassword())) {
+//      throw new BusinessException(ErrorCodeEnum.PASSWORD_DEFINED.getCode(), ErrorCodeEnum.PASSWORD_DEFINED.getMsg());
+//    }
+    String token = JWTUtils.sign(user.getUsername(), password, jwtSecret);
+    JWTToken jwtToken = new JWTToken(token);
+    try {
+      SecurityUtils.getSubject().login(jwtToken);
+    } catch (AuthenticationException e) {
+      throw new BusinessException(ErrorCodeEnum.PASSWORD_DEFINED.getCode(), ErrorCodeEnum.PASSWORD_DEFINED.getMsg());
+    }
+    return LoginVO.builder().token(token).build();
+  }
+
+  @Override
+  public Boolean register(String username, String password) {
+    User existingUser = userProvider.selectOne(username, null, null);
+    if (existingUser != null) {
+      throw new BusinessException(ErrorCodeEnum.USER_ALREADY_EXISTS.getCode(), ErrorCodeEnum.USER_ALREADY_EXISTS.getMsg());
+    }
+    User user = new User();
+    user.setUsername(username);
+//    user.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+    user.setPassword(password);
+    userProvider.save(user);
+    return true;
+  }
+
+  @Override
+  public User selectUser(String username, Boolean enable, Boolean deleted) {
+    return userProvider.selectOne(username, enable, deleted);
   }
 
   @Override

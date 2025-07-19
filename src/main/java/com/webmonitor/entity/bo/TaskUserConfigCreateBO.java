@@ -12,7 +12,7 @@ public class TaskUserConfigCreateBO {
   private String taskContent;
 
   @NotBlank(message = "频率类型不能为空")
-  @Pattern(regexp = "minutely|hourly|daily|weekly|monthly|yearly", message = "频率类型错误")
+  @Pattern(regexp = "once|minutely|hourly|daily|weekly|monthly|yearly", message = "频率类型错误")
   private String frequency;
 
   private Integer hour;
@@ -22,8 +22,22 @@ public class TaskUserConfigCreateBO {
   private Integer day;   // 1-31，monthly/yearly频率需要
   private Integer interval; // 间隔时间，hourly(1-23)或minutely(1-59)频率需要
 
+  // once频率需要指定完整日期时间
+  public boolean isOnceDateValid() {
+    if ("once".equals(frequency)) {
+      return year != null && year > 2000 && year <= 2100 &&
+             month != null && month >= 1 && month <= 12 &&
+             day != null && day >= 1 && day <= 31 &&
+             hour != null && hour >= 0 && hour <= 23 &&
+             minute != null && minute >= 0 && minute <= 59;
+    }
+    return true;
+  }
+
   // todo 加校验
   private Integer dayOfWeek;
+
+  private Integer year; // 年份，仅once频率需要
 
 
   //    @AssertTrue(message = "monthly频率需要指定日期(1-31)")

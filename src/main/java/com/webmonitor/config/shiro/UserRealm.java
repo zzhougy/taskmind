@@ -68,7 +68,7 @@ public class UserRealm extends AuthorizingRealm {
       throw new AuthenticationException(" token错误，请重新登入！");
     }
 
-    User userBean = userService.selectUserByName(username);
+    User userBean = userService.selectUser(username, true, false);
 
     if (userBean == null) {
       throw new AccountException("账号不存在!");

@@ -23,6 +23,9 @@ public class User {
   @AutoColumn(length = 50)
   private String username;
 
+  @AutoColumn(value = "password", comment = "用户密码", length = 100)
+  private String password;
+
   @AutoColumn(comment = "是否启用", notNull = true, defaultValue = "true")
   private Boolean enable;
 

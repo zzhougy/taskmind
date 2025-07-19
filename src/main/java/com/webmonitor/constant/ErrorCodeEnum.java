@@ -6,8 +6,12 @@ public enum ErrorCodeEnum {
   BUSINESS_ERROR(400, "业务异常"),
   SYS_ERROR(500, "系统异常，请联系管理员"),
   SYS_PERMISSION(403, "无权限"),
-  USER_ACCOUNT_NOT_FOUND(20020, "账号不存在"),
-  PASSWORD_DEFINED(20010, "密码错误"),
+  USER_ACCOUNT_NOT_FOUND(400, "账号不存在"),
+  USER_ALREADY_EXISTS(400, "账号已存在"),
+  PASSWORD_DEFINED(400, "密码错误"),
+  PASSWORD_NOT_MATCH(400, "两次密码输入不一致"),
+
+  TOKEN_EXPIRED(400, "过期，请重新登录"),
 
   SQL_ERROR_USER_TASK_TOO_MANY(45000, "目前最多只能有3个任务，请先删除任务"),
 
