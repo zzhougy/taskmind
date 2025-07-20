@@ -23,13 +23,13 @@ public class TaskUserConfig {
   @AutoColumn(comment = "cron表达式", length = 20, notNull = true)
   private String cronExpression;
 
-  @AutoColumn(comment = "wayToGetHtmlCode", length = 10)
+  @AutoColumn(comment = "wayToGetHtmlCode", length = 50)
   private String wayToGetHtmlCode;
 
 //  @AutoColumn(comment = "任务执行间隔时间（秒），只执行", length = 10)
 //  private String executionIntervalTime;
 
-  @AutoColumn(comment = "taskTypeCode", length = 10, notNull = true)
+  @AutoColumn(comment = "taskTypeCode", length = 50, notNull = true)
   private String taskTypeCode;
 
   @AutoColumn(comment = "用户的输入")

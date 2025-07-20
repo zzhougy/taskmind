@@ -68,6 +68,7 @@ public class WebMonitor {
         cssConfig.setCron(config.getCronExpression());
         cssConfig.setEnabled(true);
         cssConfig.setCssSelector(config.getCssSelector());
+        cssConfig.setWayToGetHtml(config.getWayToGetHtmlCode());
         fetcherConfig = cssConfig;
         break;
       case XPATH_SELECTOR:
@@ -197,9 +198,12 @@ public class WebMonitor {
       }
       if (config != null) {
         try {
-          fetcher.fetch() ;
+          List<WebContent> webContents = fetcher.fetch();
+          if (webContents != null && !webContents.isEmpty()) {
+            notifyObservers(config, webContents);
+          }
         } catch (Exception e) {
-          log.error("任务测试执行时出现异常，请重试，用户 " + config.getUserId());
+          log.error("任务测试执行时出现异常，请重试，用户 " + config.getUserId(), e);
           return false;
         }
         doStartMonitoring2(config, fetcher, fetcherConfig);
@@ -268,7 +272,7 @@ public class WebMonitor {
       } catch (Exception e) {
         // 错误处理 - 取消该用户的任务
         schedulerService.cancelTaskForUser(config.getUserId());
-        log.error("任务移除，用户 " + config.getUserId() + " 的任务执行失败: " + e.getMessage());
+        log.error("任务移除，用户 " + config.getUserId() + " 的任务执行失败: ", e);
       }
     };
   }

@@ -13,10 +13,28 @@ public class SeleniumUtil {
   public static ChromeDriver getChromeDriver() {
     // 初始化WebDriver
     ChromeOptions options = new ChromeOptions();
-//      options.addArguments("--headless=new");
+    // Chrome 112+ 引入的“新版”无头模式
+      options.addArguments("--headless=new");
+    // 旧版无头模式（Chrome 109 及以前）
 //      options.addArguments("--headless");
     // 禁用GPU加速，解决无头模式渲染问题
     options.addArguments("--disable-gpu");
+    // ============ Start 连续获取同一页面两次，第一次正常，第二次拿到的是很久之前的数据
+    options.addArguments("--disable-application-cache"); // 禁用应用缓存
+    options.addArguments("--disable-cache");             // 禁用内存/磁盘缓存
+    options.addArguments("--disk-cache-size=0");         // 磁盘缓存大小设为 0
+
+    // 在 URL 加时间戳或随机数，时间戳每次不同，浏览器/代理都会认为是“新”请求，强制回源。
+//    String url = "https://example.com/page?_t=" + System.currentTimeMillis();
+
+//    用 DevTools 指令清空缓存
+//    driver.getDevTools().createSession();
+//    driver.getDevTools().send(Network.clearBrowserCookies()); // 清 Cookie
+//    driver.getDevTools().send(Network.clearBrowserCache());   // 清缓存
+//（需 Selenium 4 + Chrome DevTools 支持）
+    // =============== End
+
+
     String userAgent = new Faker().internet().userAgent(Internet.UserAgent.CHROME);
     options.addArguments("--user-agent=" + userAgent);
     // 禁用沙箱。适用场景：Linux服务器环境

@@ -1,10 +1,13 @@
 package com.webmonitor.config.shiro;
 
+import com.webmonitor.config.exception.BusinessException;
 import com.webmonitor.config.jwt.JWTToken;
 import com.webmonitor.config.jwt.JWTUtils;
+import com.webmonitor.constant.ErrorCodeEnum;
 import com.webmonitor.entity.base.ActiveUser;
 import com.webmonitor.entity.po.User;
 import com.webmonitor.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -12,13 +15,18 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
+@Slf4j
 @Service
 public class UserRealm extends AuthorizingRealm {
   @Autowired
   private UserService userService;
+
+  @Value("${jwt.secret}")
+  private String jwtSecret;
 
   /**
    * 必须重写此方法，不然Shiro会报错
@@ -77,10 +85,11 @@ public class UserRealm extends AuthorizingRealm {
 //      throw new AuthenticationException(" token过期，请重新登入！");
 //    }
 
-//    if (!JWTUtils.verify(token, username, userBean.getPassword())) {
-//      throw new CredentialsException("密码错误!");
-//    }
-//
+    if (!JWTUtils.verify(token, jwtSecret, username, userBean.getPassword())) {
+      log.info("JWTUtils.verify错误!");
+      throw new BusinessException(ErrorCodeEnum.TOKEN_EXPIRED);
+    }
+
 //    if (userBean.getStatus() == UserStatusEnum.DISABLE.getStatusCode()) {
 //      throw new LockedAccountException("账号已被锁定!");
 //    }

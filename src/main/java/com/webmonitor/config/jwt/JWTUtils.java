@@ -18,15 +18,16 @@ public class JWTUtils {
   /**
    * 校验token是否正确
    *
-   * @param token  密钥
-   * @param secret 用户的密码
+   * @param secret  密钥
+   * @param password 用户的密码
    * @return 是否正确
    */
-  public static boolean verify(String token, String username, String secret) {
+  public static boolean verify(String token, String secret, String username, String password) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
       JWTVerifier verifier = JWT.require(algorithm)
               .withClaim("username", username)
+              .withClaim("password", password)
               .build();
       DecodedJWT jwt = verifier.verify(token);
       return true;

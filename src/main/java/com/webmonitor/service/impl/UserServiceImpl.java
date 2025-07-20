@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
   public LoginVO loginByUsernamePassword(String username, String password) {
     User user = userProvider.selectOne(username, true, false);
     if (user == null) {
-      throw new BusinessException(ErrorCodeEnum.USER_ACCOUNT_NOT_FOUND.getCode(), ErrorCodeEnum.USER_ACCOUNT_NOT_FOUND.getMsg());
+      throw new BusinessException(ErrorCodeEnum.PASSWORD_DEFINED);
     }
 //    if (!BCrypt.checkpw(password, user.getPassword())) {
 //      throw new BusinessException(ErrorCodeEnum.PASSWORD_DEFINED.getCode(), ErrorCodeEnum.PASSWORD_DEFINED.getMsg());
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
     try {
       SecurityUtils.getSubject().login(jwtToken);
     } catch (AuthenticationException e) {
-      throw new BusinessException(ErrorCodeEnum.PASSWORD_DEFINED.getCode(), ErrorCodeEnum.PASSWORD_DEFINED.getMsg());
+      throw new BusinessException(ErrorCodeEnum.PASSWORD_DEFINED);
     }
     return LoginVO.builder().token(token).build();
   }

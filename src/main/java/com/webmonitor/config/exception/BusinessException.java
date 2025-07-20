@@ -1,5 +1,6 @@
 package com.webmonitor.config.exception;
 
+import com.webmonitor.constant.ErrorCodeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +24,13 @@ public class BusinessException extends RuntimeException {
     super(msg);
     this.msg = msg;
   }
+
+
+  public BusinessException(ErrorCodeEnum errorCodeEnum) {
+    super(errorCodeEnum.getMsg());
+    this.code = errorCodeEnum.getCode();
+    this.msg = errorCodeEnum.getMsg();
+  }
+
 
 }

@@ -3,7 +3,6 @@ package com.webmonitor.service.springai;
 import com.webmonitor.config.exception.BusinessException;
 import com.webmonitor.service.AIService;
 import com.webmonitor.util.CronUtil;
-import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
@@ -33,12 +32,13 @@ public class TaskTools {
     return LocalDateTime.now().toString();
   }
 
-  @Tool(name = "设置定时提醒或者执行任务",
-          description = "触发条件：输入内容包含“提醒”关键词。设置定时提醒或者执行任务：1) 简单提醒任务 2) 动态获取任务。对于网页内容获取任务，需在content参数中明确指定操作指令",
+  @Tool(name = "设置定时提醒或者执行任务。注意：当频率为minutely时，必须提供interval参数表示间隔分钟数（1-59）",
+          description = "触发条件：输入内容包含“提醒”关键词。设置定时提醒或者执行任务：1) 简单提醒任务 2) 动态获取任务。对于网页内容获取任务，需在content参数中明确指定操作指令。" +
+                  "注意：当频率为minutely时，必须提供interval参数表示间隔分钟数（1-59）",
           returnDirect = true)
   String setTimingTask(ToolContext toolContext,
 
-          @ToolParam(description = "仅动态获取任务需要，如'https://top.baidu.com/board?tab=realtime'。简单提醒任务留空", required = false)
+          @ToolParam(description = "仅动态获取任务需要，如'https://www.xxx.com/board?tab=realtime'。简单提醒任务留空", required = false)
           String url,
 
 //                       @Pattern(regexp = "once|perSecond|minutely|hourly|daily|weekly|monthly|yearly", message = "频率类型错误")
@@ -54,23 +54,18 @@ public class TaskTools {
                        @ToolParam(description = "小时(0-23)，once/daily/weekly/monthly/yearly 频率时必须", required = false)
                        Integer hour,
 
-                       @Nullable
                        @ToolParam(description = "分钟(0-59)，once/daily/weekly/monthly/yearly 频率时必须", required = false)
                        Integer minute,
 
-                       @Nullable
                        @ToolParam(description = "日期(1-31)，once/monthly/yearly 频率时必须", required = false)
                        Integer day,
 
-                       @Nullable
                        @ToolParam(description = "月份(1-12)，once/yearly 频率时必须", required = false)
                        Integer month,
 
-                       @Nullable
                        @ToolParam(description = "星期几(1-7)，weekly 频率时必须", required = false)
                        Integer dayOfWeek,
 
-                       @Nullable
                        @ToolParam(description = "间隔分钟(1-59)，minutely/perSecond 频率时必须；或间隔小时(1-23)，hourly 频率时必须", required = false)
                        Integer interval,
 
@@ -81,10 +76,10 @@ public class TaskTools {
   ) {
     String userInput = (String) toolContext.getContext().get("userInput");
 
-    log.info("setTimingTask invoked: " +
+    log.info("setTimingTask invoked: userInput={}, " +
                     "url={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
                     "dayOfWeek={}, interval={}, content={}",
-            url, frequency, year, second, hour, minute, day, month, dayOfWeek, interval, content);
+            userInput, url, frequency, year, second, hour, minute, day, month, dayOfWeek, interval, content);
     try {
       // 验证perSecond频率的second参数
       if ("perSecond".equals(frequency)) {
@@ -94,10 +89,10 @@ public class TaskTools {
       }
       // 验证once频率的参数
       String cron = CronUtil.generateCronExpression(frequency, second, hour, minute, month, day, interval, dayOfWeek, year);
-      log.info("setTimingTask invoked: " +
+      log.info("setTimingTask invoked: userInput={}, " +
                       "url={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
                       "dayOfWeek={}, interval={}, content={}, cron={}",
-              url, frequency, year, second, hour, minute, day, month, dayOfWeek, interval, content, cron);
+              userInput, url, frequency, year, second, hour, minute, day, month, dayOfWeek, interval, content, cron);
       aiService.setUpTimingTask(userInput, url, cron, content);
     } catch (BusinessException e) {
       log.error("[setTimingTask] error: ", e);

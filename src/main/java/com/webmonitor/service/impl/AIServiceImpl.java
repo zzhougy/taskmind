@@ -85,18 +85,25 @@ public class AIServiceImpl implements AIService {
       cssSelectorFetcherConfig.setName("CssMonitor");
       cssSelectorFetcherConfig.setEnabled(true);
       cssSelectorFetcherConfig.setCron(cron);
+      cssSelectorFetcherConfig.setWayToGetHtml(WayToGetHtmlEnum.SELENIUM.getCode());
 
       Document document = HtmlUtil.getDocumentByWayToGetHtml(url, WayToGetHtmlEnum.SELENIUM);
       String cleanedHtml = HtmlUtil.cleanHtml(document.html());
       String keyword = AIUtil.getKeywordFromAI(cleanedHtml, "zhipu", target, webMonitorFactory.loadAIModels());
+      log.info("ai返回的关键词：{}", keyword);
+      keyword = keyword.replace("`",   "");
+      keyword = keyword.replace("xpath",   "");
+      // 去掉换行
+      keyword = keyword.replace("\n", "");
+      log.info("处理通过ai获取关键词后: {}", keyword);
       Element contentDocumentByKeyWord = JsoupUtil.getContentDocumentByKeyWord(document, keyword);
       String cssSelector = contentDocumentByKeyWord.cssSelector();
 //      String cssSelector = JsoupUtil.getXPathFromAI(url, "zhipu", target, webMonitorFactory.loadAIModels());
-      cssSelectorFetcherConfig.setCssSelector(cssSelector);
+      cssSelectorFetcherConfig.setCssSelector(cssSelector + "|text");
 
       config.setWayToGetHtmlCode(WayToGetHtmlEnum.SELENIUM.getCode());
       config.setTaskTypeCode(TaskTypeEnum.CSS_SELECTOR.getCode());
-      config.setCssSelector(cssSelector);
+      config.setCssSelector(cssSelector + "|text");
       taskUserConfigProvider.save(config);
       boolean b = monitor.startMonitoringByUser(config, cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
       if (!b) {

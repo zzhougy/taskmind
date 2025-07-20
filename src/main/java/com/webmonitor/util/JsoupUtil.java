@@ -62,7 +62,7 @@ public class JsoupUtil {
       }
 
     } catch (Exception e) {
-      throw new RuntimeException("css 解析失败: " + e.getMessage());
+      throw new RuntimeException("css 解析失败: " + e);
     }
   }
 
