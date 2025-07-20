@@ -1,0 +1,11 @@
+jwt:
+  secret: "xxx"
+
+
+logging:
+  level:
+    io:
+      modelcontextprotocol:
+        client: DEBUG
+        spec: DEBUG
+        server: DEBUG

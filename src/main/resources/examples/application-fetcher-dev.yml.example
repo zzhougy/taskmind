@@ -1,0 +1,53 @@
+web-monitor:
+  configs:
+    - type: AIFetcher
+      name: AIMonitor
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: 0
+      userQuery: 获取第一个热搜的标题
+      modelName: kimi
+
+    - type: ZzFetcher
+      name: 1111
+      url:
+      intervalSeconds: 600
+      enabled: 0
+
+    - type: CssSelectorFetcher
+      name: CssSelector
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: 0
+      cssSelector: "#hotsearch-content-wrapper > li:nth-child(1) > a > span.title-content-title|text"
+#      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|text"
+#      cssSelector: "*[id=\"lg\"] > map > area[shape='rect']|attr(title)"
+
+    - type: XPathFetcher
+      name: XPathMonitor
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: 0
+      xPath: "//*[@id=\"hotsearch-content-wrapper\"]/li[3]/a/span[2]|text"
+
+    - type: SeleniumFetcher
+      name: SeleniumMonitor
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: 0
+      cssSelector: "#hotsearch-content-wrapper > li:nth-child(1) > a > span.title-content-title|text"
+      xPath: "/html/body/div[3]/div[4]/div[1]/div[3]/div[3]/div/div/div/div[1]/div/h3/a/div/div/p/span/span/span|text"
+      driverPath: "src/main/resources/chromedriver"
+      timeout: 10
+
+    - type: KeywordSelectorFetcher
+      name: KeywordSelectorFetcher
+      url: https://www.baidu.com
+      intervalSeconds: 600
+      enabled: 0
+      keyword: "（这里填写关键词用于定位页面标签）"
+
+    - type: SimpleFetcher
+      name: SimpleFetcher
+      enabled: 0
+      content:

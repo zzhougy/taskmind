@@ -1,0 +1,26 @@
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    threads:
+      max: 200
+      min-spare: 30
+    connection-timeout: 5000ms
+  port: 10086
+  servlet:
+    context-path: /api
+
+spring:
+  profiles:
+    active: dev
+  config:
+    import:
+      - optional:classpath:application-observer-${spring.profiles.active}.yml
+      - optional:classpath:application-fetcher-${spring.profiles.active}.yml
+      - optional:classpath:application-ai-${spring.profiles.active}.yml
+      - optional:classpath:application-db-${spring.profiles.active}.yml
+
+wx:
+  app-id: ${WX_APPID}
+  app-secret: ${WX_APPSECRET}
+
+

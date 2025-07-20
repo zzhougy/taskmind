@@ -1,0 +1,29 @@
+web-monitor:
+  observers:
+    # 控制台log
+    - type: ConsoleObserver
+      enabled: true
+
+    # 邮件配置（QQ邮箱）
+    - type: EmailObserver
+      enabled: false
+      host: smtp.example.com
+      port: 587
+      username: your-email@example.com
+      password: your-email-password
+      from: your-email@example.com
+      to: recipient@example.com
+
+    # Slack机器人配置
+    - type: SlackObserver
+      enabled: false
+      webhookBaseUrl:
+
+    # 企业微信机器人配置
+    - type: QyWeixinObserver
+      enabled: false
+      webhookBaseUrl:
+      webhookKey:
+
+    - type: DBObserver
+      enabled: 1

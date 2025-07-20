@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+      url: jdbc:mysql://127.0.0.1:3306/web_monitor_dev
+      username: root
+      password: root
+      initial-size: 8
+      max-active: 16
+      min-idle: 8
+      max-wait: 60000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+
+# 配置mybatis-plus
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    global-config:
+      db-config:
+        logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+        logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+        id-type: auto
+    mapper-locations: classpath*:mapper/*.xml
+
+
+
+auto-table:
+  # 开启自动建表
+  enable: true
+  strict-extends: false
+#  record-sql:
+#    # 开启SQL记录
+#    enable: true
+#    # 当前版本（此处可保持与计划上线的版本号一致，方便管理SQL文件）
+#    version: 1.0.0
+#    # 记录到数据库（如果是多数据源，则会根据不同数据源，记录到不同的库）
+#    record-type: db

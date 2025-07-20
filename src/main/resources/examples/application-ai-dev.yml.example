@@ -1,0 +1,54 @@
+spring:
+  ai:
+#    tools:
+#      throw-exception-on-error: true # true 表示工具调用错误将作为异常抛出供调用方处理；若为 false，错误将转为消息返回 AI 模型由其处理响应。
+
+    zhipuai:
+      api-key: ${ZHIPUAI_API_KEY}
+      base-url: "https://open.bigmodel.cn/api/paas"
+      chat:
+        options:
+          model: GLM-4-Flash-250414
+#          model: GLM-4-PLUS
+#          model: glm-z1-air、glm-z1-airx、glm-z1-flash；
+      embedding:
+        enabled: false
+
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}
+      base-url: "https://api.deepseek.com"
+      chat:
+        options:
+          model: deepseek-chat1
+      embedding:
+        enabled: false
+
+    vertex:
+      ai:
+        gemini:
+          project-id: ${GEMINI_PROJECT_ID}
+          chat:
+            options:
+              model: gemini-2.5-flash
+          api-endpoint: "https://generativelanguage.googleapis.com"
+          location: us-central1
+    #          em
+#
+#    vertexai:
+#      gemini:
+#        api-key: ${GEMINI_API_KEY}
+#        base-url: "https://generativelanguage.googleapis.com"
+#        chat:
+#          options:
+#            model: gemini-2.5-flash
+#        embedding:
+#          enabled: false
+
+    kimi:
+      api-key: ${KIMI_API_KEY}
+      base-url: "https://api.moonshot.cn/v1/chat/completions"
+      chat:
+        options:
+          model: moonshot-v1-8k
+      embedding:
+        enabled: false
