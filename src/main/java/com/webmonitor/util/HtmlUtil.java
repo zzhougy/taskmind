@@ -13,15 +13,19 @@ import org.jsoup.nodes.Element;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Map;
 
 @Slf4j
 public class HtmlUtil {
 
   public static final int MAX_HTML_SIZE = 300000;
+  public static final long INTERVAL_MS = 60000;
 
   public static Document getDocument(String url, Map<String, String> headers, String cookie) throws IOException {
-    log.info("[getHtml] Start");
+    log.info("===== [getHtml] Waiting.....");
+    IntervalLimiter.awaitNext(StringUtil.getHost(url), INTERVAL_MS);
+    log.info("===== [getHtml] Start");
     Connection connect = Jsoup.connect(url).timeout(10000);
     if (headers != null) {
       connect.headers(headers);
@@ -32,28 +36,29 @@ public class HtmlUtil {
     if (!StringUtils.isEmpty(cookie)) {
       connect.cookie("Cookie", cookie);
     }
-    log.info("[getDocument] End Success, {}", url);
+    log.info("===== [getDocument] End Success, {}", url);
     return connect.get();
   }
 
   public static String getHtml(String url, Map<String, String> headers, String cookie) throws IOException {
-    log.info("[getHtml] Start");
     String html = getDocument(url, headers, cookie).html();
-    log.info("[getHtml] End Success, url: {}, htmlSize: {}", url, html.length());
+    log.info("===== [getHtml] End Success, url: {}, htmlSize: {}", url, html.length());
     return html;
   }
 
-  public static String getHtmlBySelenium(String url) {
-    log.info("[getHtmlBySelenium] Start");
+  public static String getHtmlBySelenium(String url) throws MalformedURLException {
+    log.info("===== [getHtmlBySelenium] Waiting.....");
+    IntervalLimiter.awaitNext(StringUtil.getHost(url), INTERVAL_MS);
+    log.info("===== [getHtmlBySelenium] Start");
     ChromeDriver driver = SeleniumUtil.getChromeDriver();
     // 打开目标网页
     driver.get(url);
     String html = driver.getPageSource();
-    log.info("[getHtmlBySelenium] End Success, url: {}, htmlSize: {}", url, html.length());
+    log.info("===== [getHtmlBySelenium] End Success, url: {}, htmlSize: {}", url, html.length());
     return html;
   }
 
-  public static Document getDocumentBySelenium(String url) {
+  public static Document getDocumentBySelenium(String url) throws MalformedURLException {
     String html = getHtmlBySelenium(url);
     Document parse = Jsoup.parse(html);
     return parse;
@@ -96,13 +101,12 @@ public class HtmlUtil {
   }
 
   public static Document getDocumentByWayToGetHtml(String url, WayToGetHtmlEnum wayToGetHtml) throws IOException {
-    log.info("[getDocumentByWayToGetHtml] Start");
     if (wayToGetHtml == WayToGetHtmlEnum.JSOUP) {
       return HtmlUtil.getDocument(url, null, null);
     } else if (wayToGetHtml == WayToGetHtmlEnum.SELENIUM) {
       return HtmlUtil.getDocumentBySelenium(url);
     }
-    log.info("[getDocumentByWayToGetHtml] End Success, url: {}, wayToGetHtml: {}", url, wayToGetHtml);
+    log.info("===== [getDocumentByWayToGetHtml] End Success, url: {}, wayToGetHtml: {}", url, wayToGetHtml);
     throw new SystemException("Invalid wayToGetHtml: " + wayToGetHtml);
   }
 

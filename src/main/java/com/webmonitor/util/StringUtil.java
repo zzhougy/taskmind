@@ -2,6 +2,9 @@ package com.webmonitor.util;
 
 import io.micrometer.common.util.StringUtils;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class StringUtil {
 
   public static String[] splitAndCheckSelectorStr(String selectorStr) {
@@ -25,4 +28,16 @@ public class StringUtil {
     return attrStr.substring(5, attrStr.length() - 1);
   }
 
+
+  public static String getHost(String url) throws MalformedURLException {
+    URL urlObj = new URL(url);
+    return urlObj.getHost();
+  }
+
+  public static void main(String[] args) throws Exception {
+    String urlString = "https://sub.example.com:8080/path/page?query=123#fragment";
+    URL url = new URL(urlString);
+    String host = url.getHost(); // 返回域名，不含端口
+    System.out.println("域名: " + host); // 输出: sub.example.com
+  }
 }
