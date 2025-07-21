@@ -52,3 +52,13 @@ spring:
           model: moonshot-v1-8k
       embedding:
         enabled: false
+
+
+    mcp:
+      client:
+        enabled: true
+        name: call-mcp-server
+        stdio:
+          servers-configuration: classpath:/mcp-server.json
+#        type: async
+#        connections-timeout: 60s

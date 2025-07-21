@@ -7,7 +7,6 @@ import ch.qos.logback.core.AppenderBase;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.webmonitor.config.WebMonitorFactory;
 import com.webmonitor.config.fetcher.FetcherConfig;
-import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.core.ContentFetcher;
 import com.webmonitor.core.WebMonitor;
 import com.webmonitor.entity.po.TaskUserConfig;
@@ -15,9 +14,6 @@ import com.webmonitor.provider.TaskUserConfigProvider;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -42,9 +38,6 @@ public class Main {
   @Resource
   private TaskUserConfigProvider taskUserConfigProvider;
 
-  // todo test
-  @Resource
-  private ToolCallbackProvider tools;
 
 //  public static void main(String[] args) {
 //    start();
@@ -53,20 +46,6 @@ public class Main {
   public void start(WebMonitor monitor) {
     log.info("程序启动");
 
-    // todo start ======
-    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU));
-    var chatClient = builder
-            .defaultToolCallbacks(tools)
-            .build();
-
-    String userInput = "北京天气";
-    System.out.println(" QUESTION: " + userInput);
-
-    ChatClient.CallResponseSpec call = chatClient.prompt(userInput).call();
-    ChatResponse chatResponse = call.chatResponse();
-    System.out.println(" ASSISTANT: " +
-            chatClient.prompt(userInput).call().content());
-    // todo end ======
 
     // 设置允许图形界面，解决java.awt.HeadlessException
     System.setProperty("java.awt.headless", "false");
