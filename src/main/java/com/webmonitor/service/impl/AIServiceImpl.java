@@ -52,9 +52,10 @@ public class AIServiceImpl implements AIService {
   @Transactional
   @Override
   public void setUpTimingTask(String userInput, String url, String cron, String target) throws Exception {
-    if (CronUtil.getIntervalInSeconds(cron) < INT && CronUtil.getIntervalInSeconds(cron) > 0) {
-      throw new BusinessException(ErrorCodeEnum.AI_TASK_INTERVAL_TOO_SHORT.getMsg());
-    }
+    // todo
+//    if (CronUtil.getIntervalInSeconds(cron) < INT && CronUtil.getIntervalInSeconds(cron) > 0) {
+//      throw new BusinessException(ErrorCodeEnum.AI_TASK_INTERVAL_TOO_SHORT.getMsg());
+//    }
 
 //    XPathFetcherConfig config = new XPathFetcherConfig();
 //    config.setUrl(url);

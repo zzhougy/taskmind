@@ -1,6 +1,7 @@
 package com.webmonitor.service.springai;
 
 import com.webmonitor.config.exception.BusinessException;
+import com.webmonitor.constant.FrequencyEnum;
 import com.webmonitor.service.AIService;
 import com.webmonitor.util.CronUtil;
 import jakarta.annotation.Resource;
@@ -26,24 +27,23 @@ public class TaskTools {
   private AIService aiService;
 
 
-  @Tool(name = "获取当前时间。触发条件：输入内容包含“后”关键词", description = "触发条件：输入内容包含“后”")
+  @Tool(name = "获取当前时间", description = "获取当前时间")
   String getCurrentTime() {
-    log.info("[getCurrentTime]");
+    log.info("====[getCurrentTime]");
     return LocalDateTime.now().toString();
   }
 
-  @Tool(name = "设置定时提醒或者执行任务。注意：当频率为minutely时，必须提供interval参数表示间隔分钟数（1-59）",
-          description = "触发条件：输入内容包含“提醒”关键词。设置定时提醒或者执行任务：1) 简单提醒任务 2) 动态获取任务。对于网页内容获取任务，需在content参数中明确指定操作指令。" +
-                  "注意：当频率为minutely时，必须提供interval参数表示间隔分钟数（1-59）",
+  @Tool(name = "设置定时提醒或者执行任务",
+          description = "支持3种模式：1) 周期性任务 2) 绝对时间一次性任务 3) 相对时间一次性任务（如'X分钟后'）",
           returnDirect = true)
   String setTimingTask(ToolContext toolContext,
 
-          @ToolParam(description = "仅动态获取任务需要，如'https://www.xxx.com/board?tab=realtime'。简单提醒任务留空", required = false)
+          @ToolParam(description = "任务URL（如有）", required = false)
           String url,
 
-//                       @Pattern(regexp = "once|perSecond|minutely|hourly|daily|weekly|monthly|yearly", message = "频率类型错误")
-                       @ToolParam(description = "任务执行频率：once|perSecond|minutely|hourly|daily|weekly|monthly|yearly。有明确的年月日的，该值是once说明只执行一次")
-                       String frequency,
+                       @ToolParam(description = "任务执行频率可选值:ONCE|PERSECOND|MINUTELY|HOURLY|DAILY|WEEKLY|MONTHLY|YEARLY。" +
+                               "1) 周期性任务:PERSECOND|MINUTELY|HOURLY|DAILY|WEEKLY|MONTHLY|YEARLY 2) 绝对时间一次性任务/相对时间一次性任务:ONCE")
+                       FrequencyEnum frequency,
 
                        @ToolParam(description = "年，once 频率时必须", required = false)
                        Integer year,
@@ -69,6 +69,18 @@ public class TaskTools {
                        @ToolParam(description = "间隔分钟(1-59)，minutely/perSecond 频率时必须；或间隔小时(1-23)，hourly 频率时必须", required = false)
                        Integer interval,
 
+                       @ToolParam(description = "x秒后", required = false)
+                       Integer afterSeconds,
+
+                       @ToolParam(description = "x分钟后", required = false)
+                       Integer afterMinutes,
+
+                       @ToolParam(description = "x小时后", required = false)
+                       Integer afterHours,
+
+                       @ToolParam(description = "x天后", required = false)
+                       Integer afterDays,
+
                        @ToolParam(description = "任务内容描述："
                   + "1) 简单提醒任务 - 直接填写提醒内容（如'吃药'）"
                   + "2) 动态获取任务 - 填写操作指令格式：'描述'，如'获取热搜标题'")
@@ -88,7 +100,7 @@ public class TaskTools {
         }
       }
       // 验证once频率的参数
-      String cron = CronUtil.generateCronExpression(frequency, second, hour, minute, month, day, interval, dayOfWeek, year);
+      String cron = CronUtil.generateCronExpression(frequency.getCode(), second, hour, minute, month, day, interval, dayOfWeek, year);
       log.info("setTimingTask invoked: userInput={}, " +
                       "url={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
                       "dayOfWeek={}, interval={}, content={}, cron={}",
