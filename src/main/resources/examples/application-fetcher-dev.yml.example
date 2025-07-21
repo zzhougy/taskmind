@@ -7,6 +7,7 @@ web-monitor:
       enabled: 0
       userQuery: 获取第一个热搜的标题
       modelName: kimi
+      selectorType: css
 
     - type: ZzFetcher
       name: 1111
@@ -50,4 +51,5 @@ web-monitor:
     - type: SimpleFetcher
       name: SimpleFetcher
       enabled: 0
+      intervalSeconds: 600
       content:

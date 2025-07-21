@@ -19,7 +19,7 @@ spring:
       base-url: "https://api.deepseek.com"
       chat:
         options:
-          model: deepseek-chat1
+          model: deepseek-chat
       embedding:
         enabled: false
 

@@ -1,7 +1,7 @@
 .idea
 target
 out
-/src/main/resources/application.properties
-/src/main/resources/application.yml
+/src/main/resources/*.properties
+/src/main/resources/*.yml
 /dependency-reduced-pom.xml
 /src/main/resources/chromedriver
