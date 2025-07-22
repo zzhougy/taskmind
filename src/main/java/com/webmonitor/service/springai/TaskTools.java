@@ -12,7 +12,12 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -33,8 +38,8 @@ public class TaskTools {
     return LocalDateTime.now().toString();
   }
 
-  @Tool(name = "设置定时提醒或者执行任务",
-          description = "支持3种模式：1) 周期性任务 2) 绝对时间一次性任务 3) 相对时间一次性任务（如'X分钟后'）",
+  @Tool(name = "设置定时提醒或者执行任务。重点注意: 1) 周期性任务一定不是ONCE 2) 绝对时间一次性任务/相对时间一次性任务一定是ONCE",
+          description = "支持3种模式：1) 周期性任务 2) 绝对时间一次性任务 3) 相对时间一次性任务（如'X分钟后'），注意frequency一定是ONCE",
           returnDirect = true)
   String setTimingTask(ToolContext toolContext,
 
@@ -42,7 +47,7 @@ public class TaskTools {
           String url,
 
                        @ToolParam(description = "任务执行频率可选值:ONCE|PERSECOND|MINUTELY|HOURLY|DAILY|WEEKLY|MONTHLY|YEARLY。" +
-                               "1) 周期性任务:PERSECOND|MINUTELY|HOURLY|DAILY|WEEKLY|MONTHLY|YEARLY 2) 绝对时间一次性任务/相对时间一次性任务:ONCE")
+                               "重点注意: 1) 周期性任务一定不是ONCE 2) 绝对时间一次性任务/相对时间一次性任务一定是ONCE")
                        FrequencyEnum frequency,
 
                        @ToolParam(description = "年，once 频率时必须", required = false)
@@ -90,9 +95,53 @@ public class TaskTools {
 
     log.info("setTimingTask invoked: userInput={}, " +
                     "url={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
-                    "dayOfWeek={}, interval={}, content={}",
-            userInput, url, frequency, year, second, hour, minute, day, month, dayOfWeek, interval, content);
+                    "dayOfWeek={}, interval={}, afterSeconds={}, afterMinutes={}, afterHours={}, afterDays={}, content={}",
+            userInput, url, frequency, year, second, hour, minute, day, month,
+            dayOfWeek, interval, afterSeconds, afterMinutes, afterHours, afterDays, content);
     try {
+
+
+      /* ----------------- 相对时间转绝对时间 ----------------- */
+      if (FrequencyEnum.ONCE == frequency) {
+        // 只有一次性任务才需要相对时间计算
+        if (Stream.of(afterSeconds, afterMinutes, afterHours, afterDays)
+                .anyMatch(Objects::nonNull)) {
+
+          // 1. 计算总偏移毫秒
+          long shiftMs = 0L;
+          if (afterSeconds  != null) shiftMs += afterSeconds  * 1_000L;
+          if (afterMinutes  != null) shiftMs += afterMinutes  * 60_000L;
+          if (afterHours    != null) shiftMs += afterHours    * 3_600_000L;
+          if (afterDays     != null) shiftMs += afterDays     * 86_400_000L;
+
+          if (shiftMs <= 0) {
+            throw new BusinessException("相对时间必须大于 0");
+          }
+
+          // 2. 得到未来的绝对时间
+          ZonedDateTime future = ZonedDateTime.now(ZoneId.systemDefault())
+                  .plus(Duration.ofMillis(shiftMs));
+
+          // 3. 回填绝对时间字段
+          year   = year == null ? future.getYear() : year;
+          month  = month == null ? future.getMonthValue() : month;
+          day    = day == null ? future.getDayOfMonth() : day;
+          // 适配5天后的下午3点
+          if (hour != null && minute == null) {
+            minute = 0;
+          } else {
+            minute = future.getMinute();
+          }
+          if (hour != null && second == null) {
+            second = 0;
+          } else {
+            second = future.getSecond();
+          }
+          hour = hour == null ? future.getHour() : hour;
+        }
+      }
+      /* ------------------------------------------------------ */
+
       // 验证perSecond频率的second参数
       if ("perSecond".equals(frequency)) {
         if (second == null || second < 1 || second > 59) {
@@ -103,8 +152,10 @@ public class TaskTools {
       String cron = CronUtil.generateCronExpression(frequency.getCode(), second, hour, minute, month, day, interval, dayOfWeek, year);
       log.info("setTimingTask invoked: userInput={}, " +
                       "url={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
-                      "dayOfWeek={}, interval={}, content={}, cron={}",
-              userInput, url, frequency, year, second, hour, minute, day, month, dayOfWeek, interval, content, cron);
+                      "dayOfWeek={}, interval={}, afterSeconds={}, afterMinutes={}, afterHours={}, afterDays={}, content={}, " +
+                      "cron={}",
+              userInput, url, frequency, year, second, hour, minute, day, month,
+              dayOfWeek, interval, afterSeconds, afterMinutes, afterHours, afterDays, content, cron);
       aiService.setUpTimingTask(userInput, url, cron, content);
     } catch (BusinessException e) {
       log.error("[setTimingTask] error: ", e);
