@@ -8,7 +8,6 @@ import io.modelcontextprotocol.spec.McpSchema;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,23 +54,38 @@ public class AITestController {
 
   // todo  remove
   @GuestAccess
-  @RequestMapping("/mcp")
+  @RequestMapping("/mcp/stdio")
   public void tes2t() {
+//    String userInput = "{\n" +
+//            "  \"cityName\": \"北京市\",\n" +
+//            "  \"forecastType\": \"current\"\n" +
+//            "}";
+
+    String prompt = "北京未来7天的天气";
+//        ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU))
+//                .prompt(prompt)
+//                .toolCallbacks(tools)
+//                .toolContext(Map.of("userInput", bo.getUserInput()))
+//                .call();
+
     ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU));
     var chatClient = builder
             .defaultToolCallbacks(tools)
             .build();
+    ChatClient.CallResponseSpec call = chatClient.prompt(prompt).call();
 
-    String userInput = "{\n" +
-            "  \"cityName\": \"北京市\",\n" +
-            "  \"forecastType\": \"current\"\n" +
-            "}";
-    System.out.println(" QUESTION: " + userInput);
 
-    ChatClient.CallResponseSpec call = chatClient.prompt(userInput).call();
-    ChatResponse chatResponse = call.chatResponse();
-    System.out.println(" ASSISTANT: " +
-            chatClient.prompt(userInput).call().content());
+//        ToolCallback[] dateTimeTools = ToolCallbacks.from(new TaskTools());
+//        ChatOptions chatOptions = ToolCallingChatOptions.builder()
+//                .toolCallbacks(dateTimeTools)
+//                .build():
+//        SyncMcpToolCallbackProvider syncMcpToolCallbackProvider = new SyncMcpToolCallbackProvider();
+
+//    ChatClientResponse chatClientResponse = call.chatClientResponse();
+//    ChatResponse chatResponse = call.chatResponse();
+    String content = call.content();
+    log.info("AI Response: {}", content);
+
   }
 
 

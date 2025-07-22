@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -147,9 +148,7 @@ public class AIServiceImpl implements AIService {
     }
     try {
       synchronized (this) {
-        // todo
-        String prompt = "你需要判断是否需要知道当前时间用于设置cron定时任务，获取到当前时间之后才去设置cron定时任务，以下是输入：" + bo.getUserInput();
-//        prompt = bo.getUserInput();
+        String prompt = bo.getUserInput();
         ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU))
                 .prompt(prompt)
                 .tools(taskTools)

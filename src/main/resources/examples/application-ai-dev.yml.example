@@ -60,5 +60,5 @@ spring:
         name: call-mcp-server
         stdio:
           servers-configuration: classpath:/mcp-server.json
-#        type: async
-#        connections-timeout: 60s
+        type: async
+        connections-timeout: 60s
