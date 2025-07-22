@@ -71,7 +71,7 @@ public class TaskTools {
                        @ToolParam(description = "星期几(1-7)，weekly 频率时必须", required = false)
                        Integer dayOfWeek,
 
-                       @ToolParam(description = "间隔分钟(1-59)，minutely/perSecond 频率时必须；或间隔小时(1-23)，hourly 频率时必须", required = false)
+                       @ToolParam(description = "重点注意: minutely(1-59) 或者 perSecond(1-59) 或者 hourly(1-23) 频率时必填", required = false)
                        Integer interval,
 
                        @ToolParam(description = "x秒后", required = false)

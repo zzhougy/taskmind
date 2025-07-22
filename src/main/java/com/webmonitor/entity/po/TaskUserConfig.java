@@ -20,7 +20,7 @@ public class TaskUserConfig {
   @AutoColumn(comment = "用户id")
   private Integer userId;
 
-  @AutoColumn(comment = "cron表达式", length = 20, notNull = true)
+  @AutoColumn(comment = "cron表达式", length = 50, notNull = true)
   private String cronExpression;
 
   @AutoColumn(comment = "wayToGetHtmlCode", length = 50)

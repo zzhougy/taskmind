@@ -177,7 +177,7 @@ public class CronUtil {
         return String.format("0 %d %d ? * %d", minute == null ? 0 : minute, hour, dayOfWeek);
       case "monthly":
         // 获取当前日期
-        return String.format("0 %d %d %d * ?", minute, hour, day);
+        return String.format("0 %d %d %d * ?", minute == null ? 0 : minute, hour, day);
       case "yearly":
         return String.format("0 %d %d %d %d ?", minute, hour, day, month);
       case "once":
@@ -203,6 +203,12 @@ public class CronUtil {
 
     // 获取中文描述
     String description = descriptor.describe(cron);
+    description = description.replace(" 月 ", " ");
+    if (description.contains("星期")) {
+      description = description.replace(" 天", "");
+    } else {
+      description = description.replace("天", " 号 ");
+    }
 
     // 输出结果
     log.info("Cron表达式: " + cronExpression);

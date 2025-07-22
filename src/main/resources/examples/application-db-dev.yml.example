@@ -4,7 +4,7 @@ spring:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
 
-      url: jdbc:mysql://127.0.0.1:3306/web_monitor_dev
+      url: jdbc:mysql://127.0.0.1:3306/web_monitor_dev?characterEncoding=utf8&serverTimezone=GMT%2B8
       username: root
       password: root
       initial-size: 8
