@@ -142,7 +142,7 @@ public class WebMonitor {
       try {
         List<WebContent> webContents = fetcher.fetch();
         if (webContents != null && !webContents.isEmpty()) {
-          notifyObservers(null, webContents);
+          notifyObservers(webContents);
         }
       } catch (Exception e) {
         log.error("监控任务执行失败: {}", fetcherConfig.getName(), e);
@@ -160,7 +160,6 @@ public class WebMonitor {
   }
 
   public boolean startMonitoringByUser(TaskUserConfig config, FetcherConfig fetcherConfig, List<ObserverConfig> observerConfigs,  Map<AIModelEnum, ChatModel> aiModelMap) {
-    observerConfigs.forEach(this::doMonitorConfig);
     return doFetcherConfig(config, aiModelMap, fetcherConfig);
   }
 
@@ -200,7 +199,7 @@ public class WebMonitor {
         try {
           List<WebContent> webContents = fetcher.fetch();
           if (webContents != null && !webContents.isEmpty()) {
-            notifyObservers(config, webContents);
+            notifyObserversByUser(config, webContents);
           }
         } catch (Exception e) {
           log.error("任务测试执行时出现异常，请重试，用户 " + config.getUserId(), e);
@@ -244,7 +243,16 @@ public class WebMonitor {
     }
   }
 
-  private void notifyObservers(TaskUserConfig config, List<WebContent> webContents) {
+  private void notifyObservers(List<WebContent> webContents) {
+    doNotifyObservers(observers, null, webContents);
+  }
+
+  private void notifyObserversByUser(TaskUserConfig config, List<WebContent> webContents) {
+    // todo 建表从db查询observers
+    doNotifyObservers(observers, config, webContents);
+  }
+
+  private void doNotifyObservers(List<WebObserver> observers, TaskUserConfig config, List<WebContent> webContents) {
     // 通知观察者
     for (WebObserver observer : observers) {
       try {
@@ -267,7 +275,7 @@ public class WebMonitor {
         List<WebContent> webContents = fetcher.fetch();
 
         if (webContents != null && !webContents.isEmpty()) {
-          notifyObservers(config, webContents);
+          notifyObserversByUser(config, webContents);
         }
       } catch (Exception e) {
         // 错误处理 - 取消该用户的任务
