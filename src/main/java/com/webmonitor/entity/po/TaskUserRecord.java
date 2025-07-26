@@ -24,10 +24,10 @@ public class TaskUserRecord {
   @AutoColumn
   private Integer taskConfigId;
 
-  @AutoColumn(length = 50)
+  @AutoColumn(length = 1000)
   private String contentTitle;
 
-  @AutoColumn(length = 50)
+  @AutoColumn(length = 1000)
   private String contentDetail;
 
   @AutoColumn(comment = "链接（如有）", length = 50)

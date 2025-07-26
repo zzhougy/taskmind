@@ -1,16 +1,18 @@
 package com.webmonitor.entity.po;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Data;
 import org.dromara.autotable.annotation.AutoColumn;
 import org.dromara.autotable.annotation.AutoTable;
 import org.dromara.autotable.annotation.PrimaryKey;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AutoTable(comment = "任务配置表")
-@TableName("task_user_config")
+@TableName(value = "task_user_config", autoResultMap = true)
 public class TaskUserConfig {
 
   @TableId(type = IdType.AUTO)
@@ -38,13 +40,18 @@ public class TaskUserConfig {
   @AutoColumn(comment = "url")
   private String url;
 
-  @AutoColumn(comment = "cssSelector")
-  private String cssSelector;
+  @TableField(typeHandler = JacksonTypeHandler.class)
+  @AutoColumn(comment = "cssSelectors", type = "JSON")
+  private List<String> cssSelectors;
+
+  @TableField(typeHandler = JacksonTypeHandler.class)
+  @AutoColumn(comment = "keywords", type = "JSON")
+  private List<String> keywords;
 
   @AutoColumn(comment = "xpathSelector")
   private String xpathSelector;
 
-  @AutoColumn(comment = "taskContent", length = 50, notNull = true)
+  @AutoColumn(comment = "taskContent", length = 255, notNull = true)
   private String taskContent;
 
   @AutoColumn(comment = "是否启用", notNull = true, defaultValue = "true")

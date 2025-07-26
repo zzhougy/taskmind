@@ -156,6 +156,9 @@ public class TaskTools {
                       "cron={}",
               userInput, url, frequency, year, second, hour, minute, day, month,
               dayOfWeek, interval, afterSeconds, afterMinutes, afterHours, afterDays, content, cron);
+      if (!CronUtil.validateCronExpression(cron)) {
+        return TASK_SETTING_ERROR;
+      }
       aiService.setUpTimingTask(userInput, url, cron, content);
     } catch (BusinessException e) {
       log.error("[setTimingTask] error: ", e);

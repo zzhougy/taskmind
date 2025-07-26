@@ -47,6 +47,7 @@ web-monitor:
       intervalSeconds: 600
       enabled: 0
       keyword: "（这里填写关键词用于定位页面标签）"
+      wayToGetHtml: "jsoup"
 
     - type: SimpleFetcher
       name: SimpleFetcher

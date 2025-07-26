@@ -37,24 +37,27 @@ public class KeywordSelectorFetcher implements ContentFetcher {
 
     Document document = HtmlUtil.getDocumentByWayToGetHtml(config.getUrl(), WayToGetHtmlEnum.getByCode(config.getWayToGetHtml()));
 
-    Element element = JsoupUtil.getContentDocumentByKeyWord(document, config.getKeyword());
-    if (element == null || StringUtils.isEmpty(element.text())) {
-      throw new SystemException(config.getName() + "没有获取到内容，请重试或者联系管理员");
+    for (String keyword : config.getKeywords().values()) {
+      Element element = JsoupUtil.getContentDocumentByKeyWord(document, keyword);
+      if (element != null && StringUtils.isNotEmpty(element.text())) {
+        String contentByKeyWord = element.text();
+        log.info("{}获取到关键词[{}]的内容：{}", config.getName(), keyword, contentByKeyWord);
+        WebContent webContent = WebContent.builder()
+                .id(contentByKeyWord)
+                .title(contentByKeyWord)
+                .description(contentByKeyWord)
+                .url(null)
+                .source(config.getName())
+                .dateStr(null)
+                .category(config.getName())
+                .build();
+        currentWeb.add(webContent);
+      }
     }
-    String contentByKeyWord = element.text();
-    log.info("{}获取到内容：{}", config.getName(), contentByKeyWord);
-    WebContent webContent = WebContent.builder()
-            .id(contentByKeyWord)
-            .title(contentByKeyWord)
-            .description(contentByKeyWord)
-            .url(null)
-            .source(config.getName())
-            .dateStr(null)
-            .category(config.getName())
-            .build();
 
-    currentWeb.add(webContent);
-
+    if (currentWeb.isEmpty()) {
+      throw new SystemException(config.getName() + "没有获取到任何关键词的内容，请重试或者联系管理员");
+    }
 
     List<WebContent> newWeb = new ArrayList<>();
     if (!isFirstLoad) {

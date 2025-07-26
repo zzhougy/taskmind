@@ -8,6 +8,7 @@ import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.support.CronExpression;
 
 import java.time.ZonedDateTime;
 import java.util.Locale;
@@ -164,6 +165,10 @@ public class CronUtil {
       case "perSecond":
         return String.format("*/%d * * * * ?", second);
       case "minutely":
+        if (interval == null) {
+          // 适配”每分钟”的情况
+          interval = 1;
+        }
         return String.format("0 */%d * * * ?", interval);
       case "hourly":
         return String.format("0 0 */%d * * ?", interval);
@@ -181,7 +186,10 @@ public class CronUtil {
       case "yearly":
         return String.format("0 %d %d %d %d ?", minute, hour, day, month);
       case "once":
-        return String.format("%d %d %d %d %d ? %d", second == null ? 0 : second, minute == null ? 0 : minute, hour, day, month, year);
+        return String.format("%d %d %d %d %d ? %d",
+                second == null ? 0 : second,
+                minute == null ? 0 : minute,
+                hour, day, month, year);
       default:
         return null;
     }
@@ -214,5 +222,10 @@ public class CronUtil {
     log.info("Cron表达式: " + cronExpression);
     log.info("中文描述: " + description);
     return description;
+  }
+
+  // 校验cron表达式
+  public static boolean validateCronExpression(String cronExpression) {
+    return CronExpression.isValidExpression(cronExpression);
   }
 }

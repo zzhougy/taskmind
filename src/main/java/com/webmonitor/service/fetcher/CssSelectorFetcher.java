@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class CssSelectorFetcher implements ContentFetcher {
@@ -32,18 +33,25 @@ public class CssSelectorFetcher implements ContentFetcher {
 
     List<WebContent> currentWeb = new ArrayList<>();
 
-    String title = null;
+    String description = null;
+
     if (cssSelectorFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.JSOUP.getCode())) {
       Document document = HtmlUtil.getDocument(cssSelectorFetcherConfig.getUrl(), null, cssSelectorFetcherConfig.getCookie());
-      title = JsoupUtil.cssParse(document.html(), cssSelectorFetcherConfig.getCssSelector());
+      List<String> collect = cssSelectorFetcherConfig.getCssSelectors().values().stream()
+              .map(cssSelector -> JsoupUtil.cssParse(document.html(), cssSelector)).collect(Collectors.toList());
+      description = String.join("、", collect);
     } else if (cssSelectorFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.SELENIUM.getCode())) {
-      title = JsoupUtil.cssParse(HtmlUtil.getHtmlBySelenium(cssSelectorFetcherConfig.getUrl()), cssSelectorFetcherConfig.getCssSelector());
+      String htmlBySelenium = HtmlUtil.getHtmlBySelenium(cssSelectorFetcherConfig.getUrl());
+      List<String> collect = cssSelectorFetcherConfig.getCssSelectors().values().stream()
+              .map(cssSelector -> JsoupUtil.cssParse(htmlBySelenium, cssSelector)).collect(Collectors.toList());
+      description = String.join("、", collect);
     }
 
+
     WebContent webContent = WebContent.builder()
-            .id(title)
-            .title(title)
-            .description(title)
+            .id(description)
+            .title(cssSelectorFetcherConfig.getName())
+            .description(description)
             .url(null)
             .source(cssSelectorFetcherConfig.getName())
             .dateStr(null)
@@ -62,7 +70,7 @@ public class CssSelectorFetcher implements ContentFetcher {
 
     lastWeb = currentWeb;
     isFirstLoad = false;
-    return newWeb;
+    return currentWeb;
   }
 
 }

@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 @Slf4j
@@ -67,7 +69,11 @@ public class WebMonitor {
         cssConfig.setUrl(config.getUrl());
         cssConfig.setCron(config.getCronExpression());
         cssConfig.setEnabled(true);
-        cssConfig.setCssSelector(config.getCssSelector());
+        // List<String> 转 hashmap<String, String>
+        Map<String, String> keywordMap = IntStream.range(0, config.getCssSelectors().size())
+                .boxed()
+                .collect(Collectors.toMap(String::valueOf, config.getCssSelectors()::get));
+        cssConfig.setCssSelectors(keywordMap);
         cssConfig.setWayToGetHtml(config.getWayToGetHtmlCode());
         fetcherConfig = cssConfig;
         break;

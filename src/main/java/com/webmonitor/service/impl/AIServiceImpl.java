@@ -22,10 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -98,14 +99,25 @@ public class AIServiceImpl implements AIService {
       // 去掉换行
       keyword = keyword.replace("\n", "");
       log.info("处理通过ai获取关键词后: {}", keyword);
-      Element contentDocumentByKeyWord = JsoupUtil.getContentDocumentByKeyWord(document, keyword);
-      String cssSelector = contentDocumentByKeyWord.cssSelector();
+      String[] split = keyword.split("\\|");
+      Map<String, String> stringStringHashMap = new HashMap<>();
+      for (String s : split) {
+        stringStringHashMap.put(s, s);
+      }
+      Map<String, String> stringStringHashMap1 = new LinkedHashMap<>();
+      for (String value : stringStringHashMap.values()) {
+        Element contentDocumentByKeyWord = JsoupUtil.getContentDocumentByKeyWord(document, value);
+        String cssSelector = contentDocumentByKeyWord.cssSelector();
 //      String cssSelector = JsoupUtil.getXPathFromAI(url, "zhipu", target, webMonitorFactory.loadAIModels());
-      cssSelectorFetcherConfig.setCssSelector(cssSelector + "|text");
+        stringStringHashMap1.put(cssSelector, cssSelector + "|text");
+      }
+      cssSelectorFetcherConfig.setCssSelectors(stringStringHashMap1);
+
 
       config.setWayToGetHtmlCode(WayToGetHtmlEnum.SELENIUM.getCode());
       config.setTaskTypeCode(TaskTypeEnum.CSS_SELECTOR.getCode());
-      config.setCssSelector(cssSelector + "|text");
+      config.setCssSelectors(stringStringHashMap1.values().stream().toList());
+      config.setKeywords(stringStringHashMap.values().stream().toList());
       taskUserConfigProvider.save(config);
       boolean b = monitor.startMonitoringByUser(config, cssSelectorFetcherConfig, observerConfigs, webMonitorFactory.loadAIModels());
       if (!b) {
