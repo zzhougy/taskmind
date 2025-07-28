@@ -90,16 +90,10 @@ public class AIServiceImpl implements AIService {
       cssSelectorFetcherConfig.setCron(cron);
       cssSelectorFetcherConfig.setWayToGetHtml(WayToGetHtmlEnum.SELENIUM.getCode());
 
-      Document document = HtmlUtil.getDocumentByWayToGetHtml(url, WayToGetHtmlEnum.SELENIUM);
+      Document document = HtmlUtil.getDocumentByWayToGetHtml(url, WayToGetHtmlEnum.JSOUP);
       String cleanedHtml = HtmlUtil.cleanHtml(document.html());
-      String keyword = AIUtil.getKeywordFromAI(cleanedHtml, "zhipu", target, webMonitorFactory.loadAIModels());
-      log.info("ai返回的关键词：{}", keyword);
-      keyword = keyword.replace("`",   "");
-      keyword = keyword.replace("xpath",   "");
-      // 去掉换行
-      keyword = keyword.replace("\n", "");
-      log.info("处理通过ai获取关键词后: {}", keyword);
-      String[] split = keyword.split("\\|");
+      List<String> split = AIUtil.getKeywordsFromAIByOutputConverter(cleanedHtml, "zhipu", target, webMonitorFactory.loadAIModels());
+      log.info("=== 关键词：{}", split);
       Map<String, String> stringStringHashMap = new HashMap<>();
       for (String s : split) {
         stringStringHashMap.put(s, s);

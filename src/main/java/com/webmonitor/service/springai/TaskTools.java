@@ -86,7 +86,7 @@ public class TaskTools {
                        @ToolParam(description = "x天后", required = false)
                        Integer afterDays,
 
-                       @ToolParam(description = "任务内容描述："
+                       @ToolParam(description = "任务内容描述(注意：禁止删减用户表达的意思)："
                   + "1) 简单提醒任务 - 直接填写提醒内容（如'吃药'）"
                   + "2) 动态获取任务 - 填写操作指令格式：'描述'，如'获取热搜标题'")
           String content

@@ -88,8 +88,19 @@ public class AITestController {
 
   }
 
-
-
+  // todo  remove
+  @GuestAccess
+  @GetMapping("/outputConverter")
+  public List<String> chatList(@RequestParam(value = "query", defaultValue = "请为我描述下影子的特性") String query) {
+    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU));
+    var chatClient = builder
+            .build();
+    ListOutputConverter listConverter = new ListOutputConverter(new DefaultConversionService());
+    return chatClient.prompt(query)
+            .advisors(
+                    a -> a.param(ChatClientAttributes.OUTPUT_FORMAT.getKey(), listConverter.getFormat())
+            ).call().entity(listConverter);
+  }
 
 
 }

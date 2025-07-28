@@ -171,6 +171,10 @@ public class CronUtil {
         }
         return String.format("0 */%d * * * ?", interval);
       case "hourly":
+        if (interval == null) {
+          // 适配”每小时”的情况
+          interval = 1;
+        }
         return String.format("0 0 */%d * * ?", interval);
       case "daily":
         return String.format("0 %d %d * * ?", minute, hour);

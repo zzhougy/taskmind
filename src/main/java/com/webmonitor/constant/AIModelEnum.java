@@ -19,4 +19,13 @@ public enum AIModelEnum {
     return name;
   }
 
+  public static AIModelEnum getByName(String name) {
+    for (AIModelEnum value : values()) {
+      if (value.getName().equals(name)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
 }
