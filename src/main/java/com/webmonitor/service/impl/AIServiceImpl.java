@@ -39,6 +39,8 @@ import static com.webmonitor.service.springai.TaskTools.TASK_SETTING_SUCCESS2;
 public class AIServiceImpl implements AIService {
 
   public static final int INT = 60 * 60;
+  public static final WayToGetHtmlEnum WAY_TO_GET_HTML = WayToGetHtmlEnum.SELENIUM;
+  public static final AIModelEnum MODEL = AIModelEnum.ZHIPU;
   @Resource
   private WebMonitor monitor;
   @Resource
@@ -88,11 +90,12 @@ public class AIServiceImpl implements AIService {
       cssSelectorFetcherConfig.setName("CssMonitor");
       cssSelectorFetcherConfig.setEnabled(true);
       cssSelectorFetcherConfig.setCron(cron);
-      cssSelectorFetcherConfig.setWayToGetHtml(WayToGetHtmlEnum.SELENIUM.getCode());
+      cssSelectorFetcherConfig.setWayToGetHtml(WAY_TO_GET_HTML.getCode());
 
-      Document document = HtmlUtil.getDocumentByWayToGetHtml(url, WayToGetHtmlEnum.JSOUP);
+      Document document = HtmlUtil.getDocumentByWayToGetHtml(url, WAY_TO_GET_HTML);
       String cleanedHtml = HtmlUtil.cleanHtml(document.html());
-      List<String> split = AIUtil.getKeywordsFromAIByOutputConverter(cleanedHtml, "zhipu", target, webMonitorFactory.loadAIModels());
+      List<String> split = AIUtil.getKeywordsFromAIByOutputConverter(cleanedHtml, MODEL.getName(),
+              target, webMonitorFactory.loadAIModels());
       log.info("=== 关键词：{}", split);
       Map<String, String> stringStringHashMap = new HashMap<>();
       for (String s : split) {
@@ -108,7 +111,7 @@ public class AIServiceImpl implements AIService {
       cssSelectorFetcherConfig.setCssSelectors(stringStringHashMap1);
 
 
-      config.setWayToGetHtmlCode(WayToGetHtmlEnum.SELENIUM.getCode());
+      config.setWayToGetHtmlCode(WAY_TO_GET_HTML.getCode());
       config.setTaskTypeCode(TaskTypeEnum.CSS_SELECTOR.getCode());
       config.setCssSelectors(stringStringHashMap1.values().stream().toList());
       config.setKeywords(stringStringHashMap.values().stream().toList());
@@ -155,7 +158,7 @@ public class AIServiceImpl implements AIService {
     try {
       synchronized (this) {
         String prompt = bo.getUserInput();
-        ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU))
+        ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(MODEL))
                 .prompt(prompt)
                 .tools(taskTools)
                 .toolContext(Map.of("userInput", bo.getUserInput()))
