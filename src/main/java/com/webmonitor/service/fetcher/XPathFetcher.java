@@ -35,7 +35,7 @@ public class XPathFetcher implements ContentFetcher {
 
     String title = null;
     if (xPathFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.JSOUP.getCode())) {
-      Document document = HtmlUtil.getDocument(xPathFetcherConfig.getUrl(), null, xPathFetcherConfig.getCookie());
+      Document document = HtmlUtil.getDocumentByJsoup(xPathFetcherConfig.getUrl(), null, xPathFetcherConfig.getCookie());
       title = JsoupUtil.xpathParse(document.html(), xPathFetcherConfig.getXPath());
     } else if (xPathFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.SELENIUM.getCode())) {
       title = JsoupUtil.xpathParse(HtmlUtil.getHtmlBySelenium(xPathFetcherConfig.getUrl()), xPathFetcherConfig.getXPath());

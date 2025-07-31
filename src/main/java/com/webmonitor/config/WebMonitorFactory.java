@@ -26,8 +26,8 @@ public class WebMonitorFactory {
 //  @Resource
 //  @Qualifier("deepSeekChatModel")
   private ChatModel deepSeekChatModel;
-//  @Resource
-//  @Qualifier("kimiChatModel")
+  @Resource
+  @Qualifier("kimiChatModel")
   private ChatModel kimiChatModel;
 //  @Resource
 //  @Qualifier("customChatModel")

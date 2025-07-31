@@ -36,7 +36,7 @@ public class CssSelectorFetcher implements ContentFetcher {
     String description = null;
 
     if (cssSelectorFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.JSOUP.getCode())) {
-      Document document = HtmlUtil.getDocument(cssSelectorFetcherConfig.getUrl(), null, cssSelectorFetcherConfig.getCookie());
+      Document document = HtmlUtil.getDocumentByJsoup(cssSelectorFetcherConfig.getUrl(), null, cssSelectorFetcherConfig.getCookie());
       List<String> collect = cssSelectorFetcherConfig.getCssSelectors().values().stream()
               .map(cssSelector -> JsoupUtil.cssParse(document.html(), cssSelector)).collect(Collectors.toList());
       description = String.join("、", collect);

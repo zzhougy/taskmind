@@ -50,7 +50,7 @@ public class AIFetcher implements ContentFetcher {
       }
     }
 
-    Document document = HtmlUtil.getDocument(aiFetcherConfig.getUrl(), null, aiFetcherConfig.getCookie());
+    Document document = HtmlUtil.getDocumentByJsoup(aiFetcherConfig.getUrl(), null, aiFetcherConfig.getCookie());
     String html = document.html();
 
     String title = "";

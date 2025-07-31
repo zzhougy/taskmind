@@ -22,7 +22,7 @@ public class HtmlUtil {
   public static final int MAX_HTML_SIZE = 300000;
   public static final long INTERVAL_MS = 60000;
 
-  public static Document getDocument(String url, Map<String, String> headers, String cookie) throws IOException {
+  public static Document getDocumentByJsoup(String url, Map<String, String> headers, String cookie) throws IOException {
     log.info("===== [getHtml] Waiting.....");
     IntervalLimiter.awaitNext(StringUtil.getHost(url), INTERVAL_MS);
     log.info("===== [getHtml] Start");
@@ -40,8 +40,8 @@ public class HtmlUtil {
     return connect.get();
   }
 
-  public static String getHtml(String url, Map<String, String> headers, String cookie) throws IOException {
-    String html = getDocument(url, headers, cookie).html();
+  public static String getHtmlByJsoup(String url, Map<String, String> headers, String cookie) throws IOException {
+    String html = getDocumentByJsoup(url, headers, cookie).html();
     log.info("===== [getHtml] End Success, url: {}, htmlSize: {}", url, html.length());
     return html;
   }
@@ -58,13 +58,26 @@ public class HtmlUtil {
     return html;
   }
 
+  public static String getHtmlByPlaywright(String url) throws MalformedURLException {
+    log.info("===== [getHtmlByPlaywright] Waiting.....");
+    IntervalLimiter.awaitNext(StringUtil.getHost(url), INTERVAL_MS);
+    log.info("===== [getHtmlByPlaywright] Start");
+    String htmlContent = PlaywrightUtil.getHtml(url);
+    log.info("===== [getHtmlByPlaywright] End Success, url: {}, htmlSize: {}", url, htmlContent.length());
+    return htmlContent;
+  }
+
   public static Document getDocumentBySelenium(String url) throws MalformedURLException {
     String html = getHtmlBySelenium(url);
     Document parse = Jsoup.parse(html);
     return parse;
   }
 
-
+  public static Document getDocumentByPlaywright(String url) throws MalformedURLException {
+    String html = getHtmlByPlaywright(url);
+    Document parse = Jsoup.parse(html);
+    return parse;
+  }
 
   /**
    * 使用Jsoup库提取body内容并过滤多余标签
@@ -102,9 +115,11 @@ public class HtmlUtil {
 
   public static Document getDocumentByWayToGetHtml(String url, WayToGetHtmlEnum wayToGetHtml) throws IOException {
     if (wayToGetHtml == WayToGetHtmlEnum.JSOUP) {
-      return HtmlUtil.getDocument(url, null, null);
+      return HtmlUtil.getDocumentByJsoup(url, null, null);
     } else if (wayToGetHtml == WayToGetHtmlEnum.SELENIUM) {
       return HtmlUtil.getDocumentBySelenium(url);
+    } else if (wayToGetHtml == WayToGetHtmlEnum.PLAYWRIGHT) {
+      return HtmlUtil.getDocumentByPlaywright(url);
     }
     log.info("===== [getDocumentByWayToGetHtml] End Success, url: {}, wayToGetHtml: {}", url, wayToGetHtml);
     throw new SystemException("Invalid wayToGetHtml: " + wayToGetHtml);

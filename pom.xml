@@ -242,6 +242,14 @@
             <artifactId>quartz</artifactId>
             <version>2.3.2</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>1.51.0</version>
+        </dependency>
+
     </dependencies>
 
 

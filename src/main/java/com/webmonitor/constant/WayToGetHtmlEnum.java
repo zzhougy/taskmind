@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum WayToGetHtmlEnum {
   JSOUP("jsoup"),
   SELENIUM("selenium"),
+  PLAYWRIGHT("playwright"),
   ;
 
   private String code;

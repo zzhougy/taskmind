@@ -23,8 +23,7 @@ public class JsoupUtil {
 
   public static Map<String, String> getByCssSelector(String url, Map<String, String> selectorDict,
                                                      Map<String, String> headers, String cookie) throws IOException {
-    String html = HtmlUtil.getHtml(url, headers,  cookie);
-    System.out.println( html);
+    String html = HtmlUtil.getHtmlByJsoup(url, headers,  cookie);
     Map<String, String> result = new LinkedHashMap<>();
 
     for (Map.Entry<String, String> entry : selectorDict.entrySet()) {
@@ -40,7 +39,8 @@ public class JsoupUtil {
 
   public static String cssParse(String html, String cssSelectorFull) {
     try {
-      System.out.println("html is " + html);
+
+      System.out.println(HtmlUtil.cleanHtml( html));
       Document document = Jsoup.parse(html);
 
       // 分割自定义选择器
@@ -106,7 +106,7 @@ public class JsoupUtil {
   private static String getSelectorFromAI(String url, String modelName, String userQuery,
                                           Map<AIModelEnum, ChatModel> aiModelMap, SelectorTypeEnum typeEnum) throws Exception {
     // 获取网页内容
-    String html = HtmlUtil.getHtml(url, null, null);
+    String html = HtmlUtil.getHtmlByJsoup(url, null, null);
     // todo
     html = HtmlUtil.getHtmlBySelenium(url);
     String cleanedHtml = HtmlUtil.cleanHtml(html);

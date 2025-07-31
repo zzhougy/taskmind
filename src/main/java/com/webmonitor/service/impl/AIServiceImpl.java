@@ -39,7 +39,7 @@ import static com.webmonitor.service.springai.TaskTools.TASK_SETTING_SUCCESS2;
 public class AIServiceImpl implements AIService {
 
   public static final int INT = 60 * 60;
-  public static final WayToGetHtmlEnum WAY_TO_GET_HTML = WayToGetHtmlEnum.SELENIUM;
+  public static final WayToGetHtmlEnum WAY_TO_GET_HTML = WayToGetHtmlEnum.PLAYWRIGHT;
   public static final AIModelEnum MODEL = AIModelEnum.ZHIPU;
   @Resource
   private WebMonitor monitor;

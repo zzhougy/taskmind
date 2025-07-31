@@ -8,9 +8,14 @@ import io.modelcontextprotocol.spec.McpSchema;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.ChatClientAttributes;
+import org.springframework.ai.converter.ListOutputConverter;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -100,6 +105,20 @@ public class AITestController {
             .advisors(
                     a -> a.param(ChatClientAttributes.OUTPUT_FORMAT.getKey(), listConverter.getFormat())
             ).call().entity(listConverter);
+  }
+
+  // todo
+  @GuestAccess
+  @RequestMapping("/simple/chat")
+  public void testModel() {
+    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory
+            .loadAIModels().get(AIModelEnum.KIMI));
+    var chatClient = builder.build();
+    String userInput = "https://baijiahao.baidu.com/s?id=1838712933161907631&wfr=spider&for=pc   " +
+            "总结";
+    System.out.println(" QUESTION: " + userInput);
+    System.out.println(" ASSISTANT: " +
+            chatClient.prompt(userInput).call().content());
   }
 
 
