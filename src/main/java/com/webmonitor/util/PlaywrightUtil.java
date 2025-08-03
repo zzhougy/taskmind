@@ -1,9 +1,9 @@
 package com.webmonitor.util;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.Internet;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.LoadState;
+import net.datafaker.Faker;
+import net.datafaker.Internet;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ public class PlaywrightUtil {
 
     // 有头模式-false查看调试
     // 无头模式-true节省资源
-    BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions().setHeadless(false);
+    BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions().setHeadless(true);
 
     try (Playwright playwright = Playwright.create();
          Browser browser = playwright.chromium().launch(launchOptions);

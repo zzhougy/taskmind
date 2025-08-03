@@ -21,7 +21,6 @@ public class TaskUserConfigController {
   private TaskUserConfigService taskUserConfigService;
 
 
-  @GuestAccess // todo remove
   @PostMapping("/page")
   public ResponseVO<PageResult<TaskUserConfigVO>> getUserTaskRecords(@Validated @RequestBody TaskUserConfigPageBO bo) {
     PageResult<TaskUserConfigVO> result = taskUserConfigService.queryUserTaskConfigsByPage(bo);

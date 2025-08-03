@@ -7,6 +7,7 @@ public enum TaskTypeEnum {
   SIMPLE("simple", "简单任务"),
   XPATH_SELECTOR("xpathSelector", "xpathSelector"),
   CSS_SELECTOR("cssSelector", "cssSelector"),
+  AI_MCP("ai_mcp", "ai_mcp"),
   ;
 
   private String code;

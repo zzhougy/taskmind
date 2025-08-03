@@ -1,7 +1,6 @@
 package com.webmonitor.controller.test;
 
 import com.webmonitor.config.WebMonitorFactory;
-import com.webmonitor.config.annotation.GuestAccess;
 import com.webmonitor.constant.AIModelEnum;
 import io.modelcontextprotocol.client.McpAsyncClient;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -19,12 +18,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import static com.webmonitor.util.AIUtil.getPrompt;
 
 @Slf4j
 @RestController("/test/ai")
 public class AITestController {
+
+  public static final String PLAYWRIGHT_PROMPT_TXT = "prompts/playwright_generator_prompt.txt";
 
   @Autowired
   List<McpAsyncClient> mcpAsyncClients;
@@ -34,8 +38,6 @@ public class AITestController {
   @Resource
   private WebMonitorFactory webMonitorFactory;
 
-  // todo remove
-  @GuestAccess
   @RequestMapping("/mcp/sse")
   public void test() {
     var mcpClient = mcpAsyncClients.get(0);
@@ -57,8 +59,6 @@ public class AITestController {
 
 
 
-  // todo  remove
-  @GuestAccess
   @RequestMapping("/mcp/stdio")
   public void tes2t() {
 //    String userInput = "{\n" +
@@ -73,7 +73,7 @@ public class AITestController {
 //                .toolContext(Map.of("userInput", bo.getUserInput()))
 //                .call();
 
-    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU));
+    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU_GLM4_FLASH));
     var chatClient = builder
             .defaultToolCallbacks(tools)
             .build();
@@ -93,11 +93,28 @@ public class AITestController {
 
   }
 
-  // todo  remove
-  @GuestAccess
+  /**
+   * 测试playwright
+   * @param userQuery
+   * @throws IOException
+   */
+  @RequestMapping("/mcp/stdio/playwright")
+  public void tes2t(@RequestParam(value = "userQuery", defaultValue = "打开b站然后搜索java，点击第一个视频播放") String userQuery) throws IOException {
+    ListOutputConverter listConverter = new ListOutputConverter(new DefaultConversionService());
+    String prompt = getPrompt(userQuery, PLAYWRIGHT_PROMPT_TXT);
+    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU_GLM45_FLASH));
+    var chatClient = builder
+            .defaultToolCallbacks(tools)
+            .build();
+    List<String> entity = chatClient.prompt(prompt).call().entity(listConverter);
+
+    log.info("AI Response: {}", entity);
+
+  }
+
   @GetMapping("/outputConverter")
   public List<String> chatList(@RequestParam(value = "query", defaultValue = "请为我描述下影子的特性") String query) {
-    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU));
+    ChatClient.Builder builder = ChatClient.builder(webMonitorFactory.loadAIModels().get(AIModelEnum.ZHIPU_GLM45_FLASH));
     var chatClient = builder
             .build();
     ListOutputConverter listConverter = new ListOutputConverter(new DefaultConversionService());
@@ -107,8 +124,6 @@ public class AITestController {
             ).call().entity(listConverter);
   }
 
-  // todo
-  @GuestAccess
   @RequestMapping("/simple/chat")
   public void testModel() {
     ChatClient.Builder builder = ChatClient.builder(webMonitorFactory

@@ -23,8 +23,10 @@ public class AIUtil {
 
   public static String callAI(String modelName, Map<AIModelEnum, ChatModel> aiModelMap, String prompt) throws Exception {
     log.info("[callAI] modelName: {}, prompt: {}", modelName, prompt);
-    if (AIModelEnum.ZHIPU.getName().equals(modelName) && aiModelMap.get(AIModelEnum.ZHIPU) != null) {
-      return aiModelMap.get(AIModelEnum.ZHIPU).call(new Prompt(prompt)).getResult().getOutput().getText();
+    if (AIModelEnum.ZHIPU_GLM4_FLASH.getName().equals(modelName) && aiModelMap.get(AIModelEnum.ZHIPU_GLM4_FLASH) != null) {
+      return aiModelMap.get(AIModelEnum.ZHIPU_GLM4_FLASH).call(new Prompt(prompt)).getResult().getOutput().getText();
+    } else if (AIModelEnum.ZHIPU_GLM45_FLASH.getName().equals(modelName) && aiModelMap.get(AIModelEnum.ZHIPU_GLM45_FLASH) != null) {
+      return aiModelMap.get(AIModelEnum.ZHIPU_GLM45_FLASH).call(new Prompt(prompt)).getResult().getOutput().getText();
     } else if (AIModelEnum.KIMI.getName().equals(modelName) && aiModelMap.get(AIModelEnum.KIMI) != null) {
       return aiModelMap.get(AIModelEnum.KIMI).call(new Prompt(prompt)).getResult().getOutput().getText();
     } else if (AIModelEnum.CUSTOM.getName().equals(modelName) && aiModelMap.get(AIModelEnum.CUSTOM) != null) {
@@ -80,6 +82,17 @@ public class AIUtil {
     return prompt;
   }
 
+
+  public static String getPrompt(String userQuery, String promptTxtPath) throws IOException {
+    // 读取prompt模板
+    InputStream inputStream = JsoupUtil.class.getClassLoader()
+            .getResourceAsStream(promptTxtPath);
+    if (inputStream == null) {
+      throw new IOException("Prompt file not found");
+    }
+    String promptTemplate = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+    return promptTemplate + " " + userQuery;
+  }
 
 
 

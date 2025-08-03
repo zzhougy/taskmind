@@ -1,6 +1,8 @@
 package com.webmonitor.config.shiro;
 
 import com.webmonitor.config.jwt.JWTFilter;
+import jakarta.servlet.Filter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -8,15 +10,16 @@ import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSource
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import jakarta.servlet.Filter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
+@Slf4j
 @Configuration
 public class ShiroConfig {
 
@@ -40,7 +43,7 @@ public class ShiroConfig {
   }
 
   @Bean("shiroFilter")
-  public ShiroFilterFactoryBean factory(DefaultWebSecurityManager securityManager) {
+  public ShiroFilterFactoryBean factory(DefaultWebSecurityManager securityManager, @Value("${spring.profiles.active}") String active) {
     ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 
     // 添加自己的过滤器并且取名为jwt
@@ -56,15 +59,18 @@ public class ShiroConfig {
     Map<String, String> filterRuleMap = new HashMap<>();
     //所有请求通过我们自己的JWT Filter
 
-    //？匹配一个字符
-    // *匹配0个或多个字符
-    // **匹配0个或多个目录
-    filterRuleMap.put("/**", "jwt");
-    filterRuleMap.put("/**/login", "anon");//设置不需要携带token
+    if ("dev".equals( active)) {
+      filterRuleMap.put("/**", "anon");
+    } else {
+      //？匹配一个字符
+      // *匹配0个或多个字符
+      // **匹配0个或多个目录
+      filterRuleMap.put("/**", "jwt");
+      filterRuleMap.put("/**/login", "anon");//设置不需要携带token
 
-    // todo remove!!!!!!!!!!!!!!!!!!
-    filterRuleMap.put("/test/**", "anon");
-    // 访问401和404页面不通过我们的Filter
+      // todo remove!!!!!!!!!!!!!!!!!!
+      filterRuleMap.put("/test/**", "anon");
+      // 访问401和404页面不通过我们的Filter
 //        filterRuleMap.put("/**","anon");
 //        filterRuleMap.put("/sysUser/**", "anon");
 //        //开放API文档接口
@@ -75,6 +81,7 @@ public class ShiroConfig {
 //        filterRuleMap.put("/**","anon");
 //        //sql监控
 //        filterRuleMap.put("/druid/**","anon");
+    }
     factoryBean.setFilterChainDefinitionMap(filterRuleMap);
     return factoryBean;
   }

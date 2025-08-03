@@ -1,5 +1,6 @@
 package com.webmonitor.core;
 
+import com.webmonitor.config.WebMonitorFactory;
 import com.webmonitor.config.fetcher.*;
 import com.webmonitor.config.observer.ConsoleObserverConfig;
 import com.webmonitor.config.observer.DBObserverConfig;
@@ -7,6 +8,7 @@ import com.webmonitor.config.observer.EmailObserverConfig;
 import com.webmonitor.config.observer.ObserverConfig;
 import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.constant.TaskTypeEnum;
+import com.webmonitor.constant.WayToGetHtmlEnum;
 import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserRecordProvider;
 import com.webmonitor.service.TaskUserRecordService;
@@ -19,6 +21,7 @@ import com.webmonitor.service.observer.WebObserver;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,9 @@ import java.util.stream.IntStream;
 @Component
 @Slf4j
 public class WebMonitor {
+  public static final AIModelEnum MODEL_FOR_HANDLE_TASK = AIModelEnum.ZHIPU_GLM45_FLASH;
+  public static final WayToGetHtmlEnum WAY_TO_GET_HTML = WayToGetHtmlEnum.PLAYWRIGHT;
+
   private final List<WebObserver> observers = new CopyOnWriteArrayList<>();
   private final ScheduledExecutorService scheduler;
   @Resource
@@ -41,6 +47,10 @@ public class WebMonitor {
   private TaskUserRecordProvider taskUserRecordProvider;
   @Autowired
   private TaskUserRecordService taskUserRecordService;
+  @Resource
+  private ToolCallbackProvider tools;
+  @Resource
+  private WebMonitorFactory webMonitorFactory;
 
   public WebMonitor() {
     this.scheduler = Executors.newScheduledThreadPool(
@@ -93,6 +103,17 @@ public class WebMonitor {
         simpleConfig.setContent(config.getTaskContent());
         fetcherConfig = simpleConfig;
         break;
+      case AI_MCP:
+        AIMcpFetcherConfig aiMcpConfig = new AIMcpFetcherConfig();
+        aiMcpConfig.setUrl(config.getUrl());
+        aiMcpConfig.setCron(config.getCronExpression());
+        aiMcpConfig.setEnabled(true);
+        aiMcpConfig.setModelName(MODEL_FOR_HANDLE_TASK.getName());
+        aiMcpConfig.setWayToGetHtml(config.getWayToGetHtmlCode());
+        aiMcpConfig.setUserQuery((config.getUrl() == null ? "" : config.getUrl()) + config.getUserInput());
+        aiMcpConfig.setWayToGetHtml(WAY_TO_GET_HTML.getCode());
+        fetcherConfig = aiMcpConfig;
+        break;
       default:
         log.error("不支持的任务类型: {}", config.getTaskTypeCode());
     }
@@ -124,6 +145,9 @@ public class WebMonitor {
         break;
       case CSS_SELECTOR:
         fetcher = new CssSelectorFetcher((CssSelectorFetcherConfig) fetcherConfig);
+        break;
+      case AI_MCP:
+        fetcher = new AIMcpFetcher((AIMcpFetcherConfig) fetcherConfig, webMonitorFactory.loadAIModels(), tools);
         break;
       default:
         log.error("不支持的方式: {}", config.getTaskTypeCode());
@@ -194,6 +218,8 @@ public class WebMonitor {
         fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, aiModelMap);
       }  else if (fetcherConfig instanceof SimpleFetcherConfig) {
         fetcher = new SimpleFetcher((SimpleFetcherConfig) fetcherConfig);
+      } else if (fetcherConfig instanceof AIMcpFetcherConfig) {
+        fetcher = new AIMcpFetcher((AIMcpFetcherConfig) fetcherConfig, aiModelMap, tools);
       } else {
         fetcher = null;
       }

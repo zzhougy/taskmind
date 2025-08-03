@@ -54,3 +54,10 @@ web-monitor:
       enabled: 0
       intervalSeconds: 600
       content:
+
+    - type: AIMcpFetcher
+      name: AIMcpFetcher
+      intervalSeconds: 5233
+      enabled: 0
+      userQuery: 打开https://www.zhihu.com/hot，告诉第一条和第二条热搜的标题是什么
+      modelName: ""

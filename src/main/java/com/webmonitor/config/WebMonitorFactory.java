@@ -21,8 +21,23 @@ public class WebMonitorFactory {
   @Autowired
   private WebMonitorProperties webMonitorProperties;
   @Resource
-  @Qualifier("zhiPuAiChatModel")
-  private ChatModel zhiPuAiChatModel;
+  @Qualifier("zhiPuAiChatModelGlm4Flash")
+  private ChatModel zhiPuAiChatModelGlm4Flash;
+  @Resource
+  @Qualifier("zhiPuAiChatModelGlm45Flash")
+  private ChatModel zhiPuAiChatModelGlm45Flash;
+  @Resource
+  @Qualifier("zhiPuAiChatModelGlm4Plus")
+  private ChatModel zhiPuAiChatModelGlm4Plus;
+  @Resource
+  @Qualifier("zhiPuAiChatModelGlm4Air")
+  private ChatModel zhiPuAiChatModelGlm4Air;
+  @Resource
+  @Qualifier("zhiPuAiChatModelGlm4FlashX")
+  private ChatModel zhiPuAiChatModelGlm4FlashX;
+  @Resource
+  @Qualifier("zhiPuAiChatModelGlmZ1Flash")
+  private ChatModel zhiPuAiChatModelGlmZ1Flash;
 //  @Resource
 //  @Qualifier("deepSeekChatModel")
   private ChatModel deepSeekChatModel;
@@ -62,6 +77,9 @@ public class WebMonitorFactory {
             break;
           case "SimpleFetcher":
             configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), SimpleFetcherConfig.class));
+            break;
+          case "AIMcpFetcher":
+            configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), AIMcpFetcherConfig.class));
             break;
           default:
             throw new IllegalArgumentException("Unknown fetcher type: " + configMap.get("type"));
@@ -107,7 +125,12 @@ public class WebMonitorFactory {
 
   public Map<AIModelEnum, ChatModel> loadAIModels() {
     Map<AIModelEnum, ChatModel> chatModels = new HashMap<>();
-    chatModels.put(AIModelEnum.ZHIPU, zhiPuAiChatModel);
+    chatModels.put(AIModelEnum.ZHIPU_GLM4_FLASH, zhiPuAiChatModelGlm4Flash);
+    chatModels.put(AIModelEnum.ZHIPU_GLM45_FLASH, zhiPuAiChatModelGlm45Flash);
+    chatModels.put(AIModelEnum.ZHIPU_GLM4_PLUS, zhiPuAiChatModelGlm4Plus);
+    chatModels.put(AIModelEnum.ZHIPU_GLM4_AIR, zhiPuAiChatModelGlm4Air);
+    chatModels.put(AIModelEnum.ZHIPU_GLM4_FLASH_X, zhiPuAiChatModelGlm4FlashX);
+    chatModels.put(AIModelEnum.ZHIPU_GLMZ1_FLASH, zhiPuAiChatModelGlmZ1Flash);
     chatModels.put(AIModelEnum.KIMI, kimiChatModel);
     chatModels.put(AIModelEnum.DEEPSEEK, deepSeekChatModel);
     chatModels.put(AIModelEnum.CUSTOM, customChatModel);

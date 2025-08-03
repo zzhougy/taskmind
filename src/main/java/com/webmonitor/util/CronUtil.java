@@ -8,7 +8,6 @@ import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.support.CronExpression;
 
 import java.time.ZonedDateTime;
 import java.util.Locale;
@@ -230,6 +229,16 @@ public class CronUtil {
 
   // 校验cron表达式
   public static boolean validateCronExpression(String cronExpression) {
-    return CronExpression.isValidExpression(cronExpression);
+    // 创建Cron定义
+    CronDefinition cronDefinition = CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ);
+    // 创建Cron解析器
+    CronParser parser = new CronParser(cronDefinition);
+    try {
+      // 解析Cron表达式
+      com.cronutils.model.Cron cron = parser.parse(cronExpression);
+    } catch (Exception e) {
+      return false;
+    }
+    return true;
   }
 }

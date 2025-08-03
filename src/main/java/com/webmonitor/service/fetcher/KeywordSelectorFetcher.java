@@ -8,9 +8,9 @@ import com.webmonitor.core.WebContent;
 import com.webmonitor.util.HtmlUtil;
 import com.webmonitor.util.JsoupUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class KeywordSelectorFetcher implements ContentFetcher {
 
     for (String keyword : config.getKeywords().values()) {
       Element element = JsoupUtil.getContentDocumentByKeyWord(document, keyword);
-      if (element != null && StringUtils.isNotEmpty(element.text())) {
+      if (element != null && !StringUtils.isEmpty(element.text())) {
         String contentByKeyWord = element.text();
         log.info("{}获取到关键词[{}]的内容：{}", config.getName(), keyword, contentByKeyWord);
         WebContent webContent = WebContent.builder()

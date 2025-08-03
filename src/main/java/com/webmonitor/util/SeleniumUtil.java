@@ -1,7 +1,8 @@
 package com.webmonitor.util;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.Internet;
+import lombok.extern.slf4j.Slf4j;
+import net.datafaker.Faker;
+import net.datafaker.Internet;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -9,6 +10,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
+@Slf4j
 public class SeleniumUtil {
   public static ChromeDriver getChromeDriver() {
     // 初始化WebDriver

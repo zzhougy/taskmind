@@ -6,11 +6,11 @@ import com.webmonitor.core.WebContent;
 import com.webmonitor.util.SeleniumUtil;
 import com.webmonitor.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

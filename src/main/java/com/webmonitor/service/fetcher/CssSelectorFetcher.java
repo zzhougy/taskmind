@@ -45,6 +45,11 @@ public class CssSelectorFetcher implements ContentFetcher {
       List<String> collect = cssSelectorFetcherConfig.getCssSelectors().values().stream()
               .map(cssSelector -> JsoupUtil.cssParse(htmlBySelenium, cssSelector)).collect(Collectors.toList());
       description = String.join("、", collect);
+    } else if (cssSelectorFetcherConfig.getWayToGetHtml().equals(WayToGetHtmlEnum.PLAYWRIGHT.getCode())) {
+      String htmlByPlaywright = HtmlUtil.getHtmlByPlaywright(cssSelectorFetcherConfig.getUrl());
+      List<String> collect = cssSelectorFetcherConfig.getCssSelectors().values().stream()
+              .map(cssSelector -> JsoupUtil.cssParse(htmlByPlaywright, cssSelector)).collect(Collectors.toList());
+      description = String.join("、", collect);
     }
 
 

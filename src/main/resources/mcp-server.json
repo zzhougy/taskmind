@@ -1,16 +1,11 @@
 {
   "mcpServers": {
-    "amap-maps": {
-      "command": "cmd",
+    "playwright": {
+      "command": "npx",
       "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@amap/amap-maps-mcp-server"
-      ],
-      "env": {
-        "AMAP_MAPS_API_KEY": "您在高德官网上申请的key"
-      }
+        "@playwright/mcp@latest",
+        "--browser=chrome"
+      ]
     }
   }
 }

@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -32,19 +31,22 @@ public class TaskTools {
   private AIService aiService;
 
 
-  @Tool(name = "获取当前时间", description = "获取当前时间")
-  String getCurrentTime() {
-    log.info("====[getCurrentTime]");
-    return LocalDateTime.now().toString();
-  }
+//  @Tool(name = "获取当前时间", description = "获取当前时间")
+//  String getCurrentTime() {
+//    log.info("====[getCurrentTime]");
+//    return LocalDateTime.now().toString();
+//  }
 
   @Tool(name = "设置定时提醒或者执行任务。重点注意: 1) 周期性任务一定不是ONCE 2) 绝对时间一次性任务/相对时间一次性任务一定是ONCE",
           description = "支持3种模式：1) 周期性任务 2) 绝对时间一次性任务 3) 相对时间一次性任务（如'X分钟后'），注意frequency一定是ONCE",
           returnDirect = true)
   String setTimingTask(ToolContext toolContext,
 
-          @ToolParam(description = "任务URL（如有）", required = false)
-          String url,
+//          @ToolParam(description = "不为空的场景：如果用户输入包含url或者用户提到已知站点。你需要找到能获取到目标的url", required = true)
+//          String url,
+
+                       @ToolParam(description = "是否需要联网获取网站的实时数据", required = true)
+                       boolean isNeedNetData,
 
                        @ToolParam(description = "任务执行频率可选值:ONCE|PERSECOND|MINUTELY|HOURLY|DAILY|WEEKLY|MONTHLY|YEARLY。" +
                                "重点注意: 1) 周期性任务一定不是ONCE 2) 绝对时间一次性任务/相对时间一次性任务一定是ONCE")
@@ -86,17 +88,15 @@ public class TaskTools {
                        @ToolParam(description = "x天后", required = false)
                        Integer afterDays,
 
-                       @ToolParam(description = "任务内容描述(注意：禁止删减用户表达的意思)："
-                  + "1) 简单提醒任务 - 直接填写提醒内容（如'吃药'）"
-                  + "2) 动态获取任务 - 填写操作指令格式：'描述'，如'获取热搜标题'")
+                       @ToolParam(description = "不含执行时间或者执行频率的任务内容描述(注意：禁止删减用户表达的意思)：")
           String content
   ) {
     String userInput = (String) toolContext.getContext().get("userInput");
 
     log.info("setTimingTask invoked: userInput={}, " +
-                    "url={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
+                    "isNeedNetData={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
                     "dayOfWeek={}, interval={}, afterSeconds={}, afterMinutes={}, afterHours={}, afterDays={}, content={}",
-            userInput, url, frequency, year, second, hour, minute, day, month,
+            userInput, isNeedNetData, frequency, year, second, hour, minute, day, month,
             dayOfWeek, interval, afterSeconds, afterMinutes, afterHours, afterDays, content);
     try {
 
@@ -151,15 +151,15 @@ public class TaskTools {
       // 验证once频率的参数
       String cron = CronUtil.generateCronExpression(frequency.getCode(), second, hour, minute, month, day, interval, dayOfWeek, year);
       log.info("setTimingTask invoked: userInput={}, " +
-                      "url={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
+                      "isNeedNetData={}, frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
                       "dayOfWeek={}, interval={}, afterSeconds={}, afterMinutes={}, afterHours={}, afterDays={}, content={}, " +
                       "cron={}",
-              userInput, url, frequency, year, second, hour, minute, day, month,
+              userInput, isNeedNetData, frequency, year, second, hour, minute, day, month,
               dayOfWeek, interval, afterSeconds, afterMinutes, afterHours, afterDays, content, cron);
       if (!CronUtil.validateCronExpression(cron)) {
         return TASK_SETTING_ERROR;
       }
-      aiService.setUpTimingTask(userInput, url, cron, content);
+      aiService.setUpTimingTask(userInput, isNeedNetData, cron, content);
     } catch (BusinessException e) {
       log.error("[setTimingTask] error: ", e);
       return e.getMessage();
