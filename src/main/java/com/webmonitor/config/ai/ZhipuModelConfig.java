@@ -67,4 +67,24 @@ public class ZhipuModelConfig {
             .build());
     return chatModel;
   }
+
+  // GLM-4V-Flash 模型配置
+  @Bean(name = "zhiPuAiChatModelGlm4VFlash")
+  public ZhiPuAiChatModel zhiPuAiChatModelGlm4VFlash(ZhiPuAiChatProperties properties) {
+    var zhiPuAiApi = new ZhiPuAiApi(properties.getApiKey());
+    var chatModel = new ZhiPuAiChatModel(zhiPuAiApi, ZhiPuAiChatOptions.builder()
+            .model("GLM-4V-Flash")
+            .build());
+    return chatModel;
+  }
+
+  // GLM-4.1V-Thinking-Flash 模型配置
+  @Bean(name = "zhiPuAiChatModelGlm41VThinkingFlash")
+  public ZhiPuAiChatModel zhiPuAiChatModelGlm41VThinkingFlash(ZhiPuAiChatProperties properties) {
+    var zhiPuAiApi = new ZhiPuAiApi(properties.getApiKey());
+    var chatModel = new ZhiPuAiChatModel(zhiPuAiApi, ZhiPuAiChatOptions.builder()
+            .model("GLM-4.1V-Thinking-Flash")
+            .build());
+    return chatModel;
+  }
 }

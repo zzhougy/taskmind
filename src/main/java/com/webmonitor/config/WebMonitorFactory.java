@@ -38,6 +38,13 @@ public class WebMonitorFactory {
   @Resource
   @Qualifier("zhiPuAiChatModelGlmZ1Flash")
   private ChatModel zhiPuAiChatModelGlmZ1Flash;
+  @Resource
+  @Qualifier("zhiPuAiChatModelGlm4VFlash")
+  private ChatModel zhiPuAiChatModelGlm4VFlash;
+  @Resource
+  @Qualifier("zhiPuAiChatModelGlm41VThinkingFlash")
+  private ChatModel zhiPuAiChatModelGlm41VThinkingFlash;
+
 //  @Resource
 //  @Qualifier("deepSeekChatModel")
   private ChatModel deepSeekChatModel;
@@ -131,6 +138,8 @@ public class WebMonitorFactory {
     chatModels.put(AIModelEnum.ZHIPU_GLM4_AIR, zhiPuAiChatModelGlm4Air);
     chatModels.put(AIModelEnum.ZHIPU_GLM4_FLASH_X, zhiPuAiChatModelGlm4FlashX);
     chatModels.put(AIModelEnum.ZHIPU_GLMZ1_FLASH, zhiPuAiChatModelGlmZ1Flash);
+    chatModels.put(AIModelEnum.ZHIPU_GLM4V_FLASH, zhiPuAiChatModelGlm4VFlash);
+    chatModels.put(AIModelEnum.ZHIPU_GLM41V_THINKING_FLASH, zhiPuAiChatModelGlm41VThinkingFlash);
     chatModels.put(AIModelEnum.KIMI, kimiChatModel);
     chatModels.put(AIModelEnum.DEEPSEEK, deepSeekChatModel);
     chatModels.put(AIModelEnum.CUSTOM, customChatModel);

@@ -5,7 +5,7 @@ jwt:
 logging:
   level:
     io:
-      modelcontextprotocol:
-        client: DEBUG
-        spec: DEBUG
-        server: DEBUG
+      modelcontextprotocol: trace
+    org.springframework.ai.mcp: trace
+    org.springframework.ai.chat.client: trace
+    org.springframework.ai.model: trace
