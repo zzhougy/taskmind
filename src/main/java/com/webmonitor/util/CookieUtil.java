@@ -22,9 +22,10 @@ import java.util.concurrent.TimeUnit;
 public class CookieUtil {
 
   static String COOKIE_PATH = "./cookie.json";
-  static ChromeDriver CHROME_DRIVER = SeleniumUtil.getChromeDriver();
+  static ChromeDriver CHROME_DRIVER = null;
 
   public static void main(String[] args) {
+    CHROME_DRIVER = SeleniumUtil.getChromeDriver();
     CHROME_DRIVER.get("https://www.zhihu.com/hot");
     if (isCookieValid(COOKIE_PATH)) {
       loadCookie(COOKIE_PATH);

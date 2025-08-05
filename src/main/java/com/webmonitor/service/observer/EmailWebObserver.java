@@ -85,11 +85,38 @@ public class EmailWebObserver implements WebObserver {
     }
   }
 
-  private String formatMessage(List<WebContent> webContents) {
+  public static void main(String[] args) {
+    // 测试formatMessage方法
+    List<WebContent> webContents = List.of(
+//            Builder
+            WebContent.builder()
+                    .title("测试标题")
+                    .description("测试描述")
+                    .url("https://www.baidu.com")
+                    .source("百度")
+                    .dateStr("2023-05-05")
+                    .category("测试分类")
+                    .build(),
+
+            WebContent.builder()
+                    .title("测试标题2")
+                    .description("测试描述2")
+                    .url("https://www.baidu.com")
+                    .source("百度")
+                    .dateStr("2023-05-05")
+                    .category("测试分类")
+                    .build()
+    );
+    // formatMessage
+    String s = formatMessage(webContents);
+    log.info("格式化后的消息：{}", s);
+  }
+
+  private static String formatMessage(List<WebContent> webContents) {
     StringBuilder messageBuilder = new StringBuilder();
-    messageBuilder.append("🔔 网站内容更新通知\n\n");
+    messageBuilder.append("🔔 网站内容通知\n\n");
     messageBuilder.append("📅 时间：").append(LocalDateTime.now().format(AbstractMessageObserver.DATE_FORMATTER)).append("\n\n");
-    messageBuilder.append("📝 更新内容：\n");
+    messageBuilder.append("📝 内容：\n");
 
     for (WebContent content : webContents) {
       messageBuilder.append("\n来源：").append(content.getSource());

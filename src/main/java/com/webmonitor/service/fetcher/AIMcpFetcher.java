@@ -63,12 +63,12 @@ public class AIMcpFetcher implements ContentFetcher {
     log.info("{}获取到内容：{}", config.getName(), entity);
     WebContent webContent = WebContent.builder()
             .id(join)
-            .title(join)
+            .source("")
+            .title(config.getUserQuery())
             .description(join)
-            .url(null)
-            .source(config.getName())
-            .dateStr(null)
-            .category(config.getName())
+            .url("")
+            .dateStr("")
+            .category("")
             .build();
 
     List<WebContent> currentWeb = new ArrayList<>();
