@@ -1,16 +1,24 @@
-# Web Monitor
+# ☕️ taskmind-一句话就能指挥它定时完成自动化网页操作
 
-一个通用的网站内容监控工具，支持监控多个网站的内容更新。
+🌐网站🤖自动化👀监控🚨通知
+**像大脑一样完成你的任务，你可以把它当做你的私人助理，指挥它什么时候去执行任务，并在完成后提醒你**
 
 ## 功能特性
 
-- 支持监控多个网站的内容更新
+- 网站内容监控工具，支持监控多个网站的内容更新（webMonitor）
 - 灵活的内容解析机制（CSS选择器、XPath、AI分析等）
-- 可自定义监控间隔
 - 支持多种通知方式（邮件、Slack、企业微信）
 - 支持自定义内容过滤规则
 - AI辅助内容分析（基于Spring AI）
-- Spring Boot自动配置，简化部署
+
+## 效果演示
+
+<img width="200" height="300" alt="Image" content="聊天" src="https://github.com/user-attachments/assets/baf92a41-5fae-4058-a64e-97e47f8e673e" />
+<img width="200" height="300" alt="Image" content="任务管理" src="https://github.com/user-attachments/assets/23f66d7c-8a5b-47c6-8fef-758ddca233c4" />
+<img width="200" height="300" alt="Image" content="任务结果" src="https://github.com/user-attachments/assets/817e300e-5215-4934-adee-03f9fdac98a9" />
+<img width="200" height="300" alt="Image" content="美团微博" src="https://github.com/user-attachments/assets/7e1f19ab-0ae5-47d3-93b8-5b904a8c825b" />
+
+https://github.com/user-attachments/assets/858f8425-8fb2-4c8f-9999-755523f6ae67
 
 ## 技术栈
 
@@ -150,14 +158,8 @@ public class CustomObserver implements WebObserver {
 
 ## 常见问题
 
-1. **如何处理需要登录的网站？**
-
-   - 可以在配置中添加headers和cookies信息
-   - 支持自定义请求拦截器
-2. **如何避免内容重复通知？**
-
-   - 系统会自动记录已通知的内容
-   - 可以配置去重策略
+1. **xxxx？**
+    - xxxx
 
 ## 贡献指南
 
