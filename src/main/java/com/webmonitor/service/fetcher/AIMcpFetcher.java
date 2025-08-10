@@ -84,7 +84,7 @@ public class AIMcpFetcher implements ContentFetcher {
 
     lastWeb = currentWeb;
     isFirstLoad = false;
-    return newWeb;
+    return currentWeb;
   }
 
 

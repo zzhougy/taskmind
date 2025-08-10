@@ -22,8 +22,8 @@ public class ZzConfig {
   @Bean
   RestClient.Builder restClientBuilder(RestClientBuilderConfigurer restClientBuilderConfigurer) {
     RestClient.Builder builder = RestClient.builder()
-            .requestFactory(ClientHttpRequestFactories.get(new ClientHttpRequestFactorySettings(Duration.ofMillis(60),
-                    Duration.ofSeconds(600), (SslBundle)null)));
+            .requestFactory(ClientHttpRequestFactories.get(new ClientHttpRequestFactorySettings(Duration.ofMillis(10),
+                    Duration.ofSeconds(60), (SslBundle)null)));
     return restClientBuilderConfigurer.configure(builder);
   }
 

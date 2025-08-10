@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 @Component
 public class TaskTools {
 
-  public static final String TASK_SETTING_SUCCESS = "设置成功";
-  public static final String TASK_SETTING_SUCCESS2 = "\"设置成功\"";
+  public static final String TASK_SETTING_SUCCESS = "操作完成，请前往查看结果";
+  public static final String TASK_SETTING_SUCCESS2 = "\"操作完成，请前往查看结果\"";
   public static final String TASK_SETTING_ERROR = "失败请修改描述重试或者联系管理员";
   @Resource
   @Lazy

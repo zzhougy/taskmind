@@ -9,6 +9,7 @@ import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.Optional;
@@ -191,8 +192,12 @@ public class CronUtil {
       case "once":
         return String.format("%d %d %d %d %d ? %d",
                 second == null ? 0 : second,
-                minute == null ? 0 : minute,
-                hour, day, month, year);
+                // 适配没有指定时间的任务时，默认设置为当前时间
+                minute == null ? LocalDateTime.now().getMinute() : minute,
+                hour == null ? LocalDateTime.now().getHour() : hour,
+                day == null ? LocalDateTime.now().getDayOfMonth() : day,
+                month == null ? LocalDateTime.now().getMonthValue() : month,
+                year == null ? LocalDateTime.now().getYear() : year);
       default:
         return null;
     }

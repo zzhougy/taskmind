@@ -1,16 +1,16 @@
 package com.webmonitor.util;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.Internet;
 import com.webmonitor.config.exception.SystemException;
 import com.webmonitor.constant.WayToGetHtmlEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import net.datafaker.Faker;
+import net.datafaker.Internet;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class HtmlUtil {
 
   public static final int MAX_HTML_SIZE = 300000;
-  public static final long INTERVAL_MS = 60000;
+  public static final long INTERVAL_MS = 15000;
 
   public static Document getDocumentByJsoup(String url, Map<String, String> headers, String cookie) throws IOException {
     log.info("===== [getHtml] Waiting.....");

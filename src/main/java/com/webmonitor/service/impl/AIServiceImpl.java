@@ -14,11 +14,15 @@ import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserConfigProvider;
 import com.webmonitor.service.AIService;
 import com.webmonitor.service.springai.TaskTools;
-import com.webmonitor.util.SensitiveUtil;
 import com.webmonitor.util.UserContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.ChatClientResponse;
+import org.springframework.ai.chat.metadata.ChatGenerationMetadata;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +38,7 @@ public class AIServiceImpl implements AIService {
 
   public static final int INT = 60 * 60;
   public static final AIModelEnum MODEL_FOR_SET_UP_TIMING_TASK = AIModelEnum.ZHIPU_GLM4_FLASH;
+  public static final String TASK_HANDLE_SUCCESS = "任务执行完成，请前往查看结果";
   @Resource
   private WebMonitor monitor;
   @Resource
@@ -45,6 +50,9 @@ public class AIServiceImpl implements AIService {
   private static final int MAX_QUEUE_SIZE = 3;
   @Resource
   private TaskTools taskTools;
+  @Resource
+  @Lazy
+  private AIService self;
 
   @Transactional
   @Override
@@ -155,10 +163,10 @@ public class AIServiceImpl implements AIService {
   public String chatWithAI(AIUserInputBO bo) {
 
     // 校验敏感词
-    String filteredContent = SensitiveUtil.filterSensitiveWords(bo.getUserInput());
-    if (filteredContent.contains("*")) {
-      return "请勿输入敏感词";
-    }
+//    String filteredContent = SensitiveUtil.filterSensitiveWords(bo.getUserInput());
+//    if (filteredContent.contains("*")) {
+//      return "请勿输入敏感词";
+//    }
 
     int currentCount = queueCount.incrementAndGet();
     if (currentCount > MAX_QUEUE_SIZE) {
@@ -175,13 +183,27 @@ public class AIServiceImpl implements AIService {
                 .toolContext(Map.of("userInput", bo.getUserInput()))
                 .call();
 
-        String content = call.content();
+        ChatClientResponse chatClientResponse = call.chatClientResponse();
+        ChatResponse chatResponse = chatClientResponse.chatResponse();
+        Generation result = chatResponse.getResult();
+        String content = result.getOutput().getText();
         log.info("AI Response: {}", content);
+        // 没有用工具直接立马执行任务
+        ChatGenerationMetadata metadata = result.getMetadata();
+        if (metadata.isEmpty()) {
+
+          self.setUpTimingTask(bo.getUserInput(), true, "0 0 0 1 1 ? 2022", bo.getUserInput());
+
+          return TASK_HANDLE_SUCCESS;
+        }
+
         if (!TASK_SETTING_SUCCESS2.equals(content) || ErrorCodeEnum.AI_TASK_INTERVAL_TOO_SHORT.getMsg().equals(content)) {
           return TASK_SETTING_ERROR;
         }
         return content;
       }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     } finally {
       queueCount.decrementAndGet();
     }

@@ -228,14 +228,16 @@ public class WebMonitor {
         return false;
       }
       if (config != null) {
-        try {
-          List<WebContent> webContents = fetcher.fetch();
-          if (webContents != null && !webContents.isEmpty()) {
-            notifyObserversByUser(config, webContents);
+        if (fetcherConfig instanceof AIMcpFetcherConfig) {
+          try {
+            List<WebContent> webContents = fetcher.fetch();
+//            if (webContents != null && !webContents.isEmpty()) {
+              notifyObserversByUser(config, webContents);
+//            }
+          } catch (Exception e) {
+            log.error("任务测试执行时出现异常，请重试，用户 " + config.getUserId(), e);
+            return false;
           }
-        } catch (Exception e) {
-          log.error("任务测试执行时出现异常，请重试，用户 " + config.getUserId(), e);
-          return false;
         }
         doStartMonitoring2(config, fetcher, fetcherConfig);
       } else {
