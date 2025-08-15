@@ -23,6 +23,6 @@ public class AIController {
   @GuestAccess // todo remove
   @PostMapping("/chat")
   public ResponseVO<String> chatWithAI(@RequestBody AIUserInputBO bo) {
-    return ResponseVO.success( aiService.chatWithAI(bo));
+    return ResponseVO.success( aiService.chatWithAIEntrance(bo));
   }
 }

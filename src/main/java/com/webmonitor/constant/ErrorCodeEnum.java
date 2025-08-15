@@ -16,6 +16,18 @@ public enum ErrorCodeEnum {
 
 
   AI_TASK_INTERVAL_TOO_SHORT(400, "任务提醒间隔时间过短"),
+
+
+  /**
+   * System Error
+   */
+  SYSTEM_ELEMENT_NOT_FOUND(500, "未找到指定元素")
+
+
+
+
+
+
   ;
 
 

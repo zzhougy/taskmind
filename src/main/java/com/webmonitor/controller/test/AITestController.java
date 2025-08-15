@@ -198,6 +198,17 @@ public class AITestController {
 
   }
 
+  @RequestMapping("/image/generate")
+  public void tes23tcreate(@RequestParam(value = "userInput", defaultValue = "画一朵花") String userInput) {
+    ImageModel imageModel = webMonitorFactory.loadAIImageModels().get(AIModelEnum.ZHIPU_COGVIEW3_FLASH);
+    ImageResponse response = imageModel.call(
+            new ImagePrompt(userInput, null));
+    for (ImageGeneration result : response.getResults()) {
+      Image output = result.getOutput();
+      System.out.println("Image URL: " + output.getUrl());
+    }
+  }
+
 
   @GetMapping("/outputConverter")
   public List<String> chatList(@RequestParam(value = "query", defaultValue = "请为我描述下影子的特性") String query) {

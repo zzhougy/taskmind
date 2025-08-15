@@ -3,9 +3,13 @@ package com.webmonitor.config.ai;
 import org.springframework.ai.model.zhipuai.autoconfigure.ZhiPuAiChatProperties;
 import org.springframework.ai.zhipuai.ZhiPuAiChatModel;
 import org.springframework.ai.zhipuai.ZhiPuAiChatOptions;
+import org.springframework.ai.zhipuai.ZhiPuAiImageModel;
+import org.springframework.ai.zhipuai.ZhiPuAiImageOptions;
 import org.springframework.ai.zhipuai.api.ZhiPuAiApi;
+import org.springframework.ai.zhipuai.api.ZhiPuAiImageApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
 public class ZhipuModelConfig {
@@ -87,4 +91,16 @@ public class ZhipuModelConfig {
             .build());
     return chatModel;
   }
+
+  // Cogview-3-Flash
+  @Bean(name = "zhiPuAiChatModelCogview3Flash")
+  public ZhiPuAiImageModel zhiPuAiChatModelCogview3Flash(ZhiPuAiChatProperties properties) {
+    var zhiPuAiImageApi = new ZhiPuAiImageApi(properties.getApiKey());
+    var aiImageModel = new ZhiPuAiImageModel(zhiPuAiImageApi, ZhiPuAiImageOptions.builder()
+            .model("CogView-3-Flash")
+            .build(),
+            RetryTemplate.builder().build());
+    return aiImageModel;
+  }
+
 }

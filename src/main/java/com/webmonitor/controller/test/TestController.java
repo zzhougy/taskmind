@@ -1,4 +1,4 @@
-package com.webmonitor.controller;
+package com.webmonitor.controller.test;
 
 import com.webmonitor.config.WebMonitorProperties;
 import org.springframework.beans.factory.annotation.Autowired;

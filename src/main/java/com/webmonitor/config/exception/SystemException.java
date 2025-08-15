@@ -1,5 +1,6 @@
 package com.webmonitor.config.exception;
 
+import com.webmonitor.constant.ErrorCodeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,12 @@ public class SystemException extends RuntimeException {
   public SystemException(String msg) {
     super(msg);
     this.msg = msg;
+  }
+
+  public SystemException(ErrorCodeEnum errorCodeEnum) {
+    super(errorCodeEnum.getMsg());
+    this.code = errorCodeEnum.getCode();
+    this.msg = errorCodeEnum.getMsg();
   }
 
 }

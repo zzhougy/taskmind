@@ -1,7 +1,9 @@
 package com.webmonitor.util;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.webmonitor.config.exception.SystemException;
 import com.webmonitor.constant.AIModelEnum;
+import com.webmonitor.constant.ErrorCodeEnum;
 import com.webmonitor.constant.SelectorTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -58,7 +60,7 @@ public class JsoupUtil {
           return first.attr(StringUtil.getAttribute(attributePart)); // 获取指定属性值
         }
       } else {
-        throw new RuntimeException("未找到指定元素");
+        throw new SystemException(ErrorCodeEnum.SYSTEM_ELEMENT_NOT_FOUND);
       }
 
     } catch (Exception e) {

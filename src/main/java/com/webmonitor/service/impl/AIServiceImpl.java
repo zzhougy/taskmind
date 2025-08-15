@@ -8,12 +8,15 @@ import com.webmonitor.config.fetcher.SimpleFetcherConfig;
 import com.webmonitor.constant.AIModelEnum;
 import com.webmonitor.constant.ErrorCodeEnum;
 import com.webmonitor.constant.TaskTypeEnum;
+import com.webmonitor.constant.WayToGetHtmlEnum;
 import com.webmonitor.core.WebMonitor;
 import com.webmonitor.entity.bo.AIUserInputBO;
 import com.webmonitor.entity.po.TaskUserConfig;
 import com.webmonitor.provider.TaskUserConfigProvider;
 import com.webmonitor.service.AIService;
-import com.webmonitor.service.springai.TaskTools;
+import com.webmonitor.service.springai.TaskAssignTools;
+import com.webmonitor.service.springai.TaskForWebMonitorTools;
+import com.webmonitor.service.springai.TaskForAIMcpTools;
 import com.webmonitor.util.UserContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +28,14 @@ import org.springframework.ai.chat.model.Generation;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.webmonitor.service.springai.TaskTools.TASK_SETTING_ERROR;
-import static com.webmonitor.service.springai.TaskTools.TASK_SETTING_SUCCESS2;
+import static com.webmonitor.service.springai.TaskForAIMcpTools.TASK_SETTING_ERROR;
+import static com.webmonitor.service.springai.TaskForAIMcpTools.TASK_SETTING_SUCCESS2;
 
 @Slf4j
 @Service
@@ -49,7 +54,12 @@ public class AIServiceImpl implements AIService {
   private final AtomicInteger queueCount = new AtomicInteger(0);
   private static final int MAX_QUEUE_SIZE = 3;
   @Resource
-  private TaskTools taskTools;
+  private TaskForAIMcpTools taskForAIMcpTools;
+  @Resource
+  private TaskAssignTools taskAssignTools;
+  @Resource
+  private TaskForWebMonitorTools taskForWebMonitorTools;
+
   @Resource
   @Lazy
   private AIService self;
@@ -160,7 +170,7 @@ public class AIServiceImpl implements AIService {
   }
 
   @Override
-  public String chatWithAI(AIUserInputBO bo) {
+  public String chatWithAIMcp(AIUserInputBO bo) {
 
     // 校验敏感词
 //    String filteredContent = SensitiveUtil.filterSensitiveWords(bo.getUserInput());
@@ -179,8 +189,8 @@ public class AIServiceImpl implements AIService {
         String prompt = bo.getUserInput();
         ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(MODEL_FOR_SET_UP_TIMING_TASK))
                 .prompt(prompt)
-                .tools(taskTools)
-                .toolContext(Map.of("userInput", bo.getUserInput()))
+                .tools(taskForAIMcpTools)
+                .toolContext(Map.of("userInput", bo.getUserInput(), "cron", bo.getCron()))
                 .call();
 
         ChatClientResponse chatClientResponse = call.chatClientResponse();
@@ -209,4 +219,122 @@ public class AIServiceImpl implements AIService {
     }
   }
 
+
+  @Override
+  public String chatWithAIEntrance(AIUserInputBO bo) {
+
+    // 校验敏感词
+//    String filteredContent = SensitiveUtil.filterSensitiveWords(bo.getUserInput());
+//    if (filteredContent.contains("*")) {
+//      return "请勿输入敏感词";
+//    }
+
+    int currentCount = queueCount.incrementAndGet();
+    if (currentCount > MAX_QUEUE_SIZE) {
+      queueCount.decrementAndGet();
+      log.error("Queue size exceeds maximum limit of " + MAX_QUEUE_SIZE);
+      throw new BusinessException("排队人数较多，请稍后再试");
+    }
+    try {
+      synchronized (this) {
+        String prompt = "使用tool分析用户输入：" + bo.getUserInput();
+        ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(MODEL_FOR_SET_UP_TIMING_TASK))
+                .prompt(prompt)
+                .tools(taskAssignTools)
+                .toolContext(Map.of("userInput", bo.getUserInput()))
+                .call();
+
+        ChatClientResponse chatClientResponse = call.chatClientResponse();
+        ChatResponse chatResponse = chatClientResponse.chatResponse();
+        Generation result = chatResponse.getResult();
+        String content = result.getOutput().getText();
+        log.info("AI Response: {}", content);
+
+        if (!TASK_SETTING_SUCCESS2.equals(content) || ErrorCodeEnum.AI_TASK_INTERVAL_TOO_SHORT.getMsg().equals(content)) {
+          return TASK_SETTING_ERROR;
+        }
+        return content;
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      queueCount.decrementAndGet();
+    }
+  }
+
+  @Override
+  public String chatWithAIForMonitor(AIUserInputBO bo) {
+
+    // 校验敏感词
+//    String filteredContent = SensitiveUtil.filterSensitiveWords(bo.getUserInput());
+//    if (filteredContent.contains("*")) {
+//      return "请勿输入敏感词";
+//    }
+
+    int currentCount = queueCount.incrementAndGet();
+    if (currentCount > MAX_QUEUE_SIZE) {
+      queueCount.decrementAndGet();
+      log.error("Queue size exceeds maximum limit of " + MAX_QUEUE_SIZE);
+      throw new BusinessException("排队人数较多，请稍后再试");
+    }
+    try {
+      synchronized (this) {
+        String prompt = bo.getUserInput();
+        ChatClient.CallResponseSpec call = ChatClient.create(webMonitorFactory.loadAIModels().get(MODEL_FOR_SET_UP_TIMING_TASK))
+                .prompt(prompt)
+                .tools(taskForWebMonitorTools)
+                .toolContext(Map.of("userInput", bo.getUserInput(), "cron", bo.getCron()))
+                .call();
+
+        ChatClientResponse chatClientResponse = call.chatClientResponse();
+        ChatResponse chatResponse = chatClientResponse.chatResponse();
+        Generation result = chatResponse.getResult();
+        String content = result.getOutput().getText();
+        log.info("AI Response: {}", content);
+
+        if (!TASK_SETTING_SUCCESS2.equals(content) || ErrorCodeEnum.AI_TASK_INTERVAL_TOO_SHORT.getMsg().equals(content)) {
+          return TASK_SETTING_ERROR;
+        }
+        return content;
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      queueCount.decrementAndGet();
+    }
+  }
+
+  @Override
+  public String setUpTimingTaskWebMonitor(String cron, String url, String cssSelector, String xPath) throws Exception {
+    TaskUserConfig config = new TaskUserConfig();
+    config.setUserId(UserContext.getUserId());
+    config.setCronExpression(cron);
+    config.setUrl(url);
+    config.setTaskContent("target");
+    config.setEnable(true);
+    config.setUserInput("userInput");
+    config.setCssSelectors(List.of(cssSelector + "|text"));
+    config.setXpathSelector(xPath + "|text");
+    config.setTaskTypeCode(StringUtils.hasText(cssSelector) ? TaskTypeEnum.CSS_SELECTOR.getCode() : TaskTypeEnum.XPATH_SELECTOR.getCode());
+
+    /**
+     * 先尝试jsoup获取
+     */
+    config.setWayToGetHtmlCode(WayToGetHtmlEnum.JSOUP.getCode());
+    FetcherConfig mcpFetcherConfig = monitor.createFetcherConfigFromTaskConfig(config);
+    boolean b = monitor.startMonitoringByUser(config, mcpFetcherConfig, webMonitorFactory.loadObserverConfigs(), webMonitorFactory.loadAIModels());
+    if (!b) {
+      // 尝试play获取
+      config.setWayToGetHtmlCode(WayToGetHtmlEnum.PLAYWRIGHT.getCode());
+      mcpFetcherConfig = monitor.createFetcherConfigFromTaskConfig(config);
+      boolean b2 = monitor.startMonitoringByUser(config, mcpFetcherConfig, webMonitorFactory.loadObserverConfigs(), webMonitorFactory.loadAIModels());
+      if (!b2) {
+        throw new SystemException("任务启动失败");
+      }
+    }
+    taskUserConfigProvider.save(config);
+
+
+    return "";
+  }
 }

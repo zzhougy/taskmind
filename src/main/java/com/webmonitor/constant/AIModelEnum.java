@@ -9,7 +9,8 @@ public enum AIModelEnum {
   ZHIPU_GLM4_FLASH_X("zhipuGlm4FlashX"), // 处理mcp-playwright效果一般
   ZHIPU_GLMZ1_FLASH("zhipuGlmZ1Flash"), // GLM-Z1-Flash：免费的推理模型。无法使用mcp-playwright
   ZHIPU_GLM4V_FLASH("zhipuGlm4VFlash"), // GLM-4V-Flash：免费，无法使用mcp-playwright。图像理解模型
-  ZHIPU_GLM41V_THINKING_FLASH("zhipuGlm41VThinkingFlash"), // GLM-4.1V-Thinking-Flash：免费，无法使用mcp-playwright
+  ZHIPU_GLM41V_THINKING_FLASH("zhipuGlm41VThinkingFlash"), // GLM-4.1V-Thinking-Flash：免费视觉推理模型，无法使用mcp-playwright
+  ZHIPU_COGVIEW3_FLASH("zhipuCogview3Flash"), // cogview-3-flash：免费图像生成模型
   KIMI("kimi"),
   DEEPSEEK("deepseek"),
   CUSTOM("custom"),

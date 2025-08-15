@@ -8,4 +8,7 @@ import javax.validation.constraints.NotNull;
 public class AIUserInputBO {
   @NotNull
   private String userInput;
+
+  // todo remove
+  private String cron;
 }

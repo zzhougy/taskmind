@@ -6,6 +6,7 @@ import com.webmonitor.config.observer.*;
 import com.webmonitor.constant.AIModelEnum;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.image.ImageModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,9 @@ public class WebMonitorFactory {
   @Resource
   @Qualifier("zhiPuAiChatModelGlm41VThinkingFlash")
   private ChatModel zhiPuAiChatModelGlm41VThinkingFlash;
+  @Resource
+  @Qualifier("zhiPuAiChatModelCogview3Flash")
+  private ImageModel zhiPuAiChatModelCogview3Flash;
 
 //  @Resource
 //  @Qualifier("deepSeekChatModel")
@@ -146,6 +150,15 @@ public class WebMonitorFactory {
 //    chatModels.put(AIModelEnum.GEMINI, vertexAiGeminiChat);
     return chatModels;
   }
+
+
+  public Map<AIModelEnum, ImageModel> loadAIImageModels() {
+    Map<AIModelEnum, ImageModel> imageModelHashMap = new HashMap<>();
+    imageModelHashMap.put(AIModelEnum.ZHIPU_COGVIEW3_FLASH, zhiPuAiChatModelCogview3Flash);
+    return imageModelHashMap;
+  }
+
+
 
 
 
