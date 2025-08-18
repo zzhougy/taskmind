@@ -20,7 +20,7 @@ import java.util.Map;
 public class HtmlUtil {
 
   public static final int MAX_HTML_SIZE = 300000;
-  public static final long INTERVAL_MS = 15000;
+  public static final long INTERVAL_MS = 3000;
 
   public static Document getDocumentByJsoup(String url, Map<String, String> headers, String cookie) throws IOException {
     log.info("===== [getHtml] Waiting.....");

@@ -147,7 +147,7 @@ public class TaskAssignTools {
       }
       // 验证once频率的参数
       String cron = CronUtil.generateCronExpression(frequency.getCode(), second, hour, minute, month, day, interval, dayOfWeek, year);
-      log.info("setTimingTask invoked: userInput={}, " +
+      log.info("analyzeInput invoked: userInput={}, " +
                       "frequency={}, year={}, second={}, hour={}, minute={}, day={}, month={}, " +
                       "dayOfWeek={}, interval={}, afterSeconds={}, afterMinutes={}, afterHours={}, afterDays={}, " +
                       "cron={}",

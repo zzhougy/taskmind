@@ -1,7 +1,7 @@
 package com.webmonitor.util;
 
 import com.microsoft.playwright.*;
-import com.microsoft.playwright.options.LoadState;
+import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import net.datafaker.Internet;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Objects;
 
+@Slf4j
 public class PlaywrightUtil {
 
   public static String getHtml(String url) {
@@ -24,17 +25,19 @@ public class PlaywrightUtil {
     // 无头模式-true节省资源
     BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions().setHeadless(true);
 
+    String content = null;
+
     try (Playwright playwright = Playwright.create();
          Browser browser = playwright.chromium().launch(launchOptions);
          BrowserContext context = browser.newContext(contextOptions);
+         Page page = context.newPage();
     ) {
-      System.out.println("百度开始 " + url);
-      Page page = context.newPage();
+      log.info("开始 {}", url);
       page.navigate(url, new Page.NavigateOptions().setTimeout(10000));
-      page.waitForLoadState(LoadState.NETWORKIDLE);
+//      page.waitForLoadState(LoadState.NETWORKIDLE);
 
-      System.out.println("标题 " + page.title());
-      System.out.println("当前链接 " + page.url());
+      log.info("标题 {}", page.title());
+      log.info("当前链接 {}", page.url());
 
 
 
@@ -60,14 +63,14 @@ public class PlaywrightUtil {
 //      Locator images = page.locator("img");
 //      System.out.println("页面图片数量: " + images.count());
 
-      System.out.println("页面操作完成");
+      log.info("页面操作完成");
 
       // 等待一段时间以便观察
       page.waitForTimeout(5000);
 
-
-      return page.content();
+      content = page.content();
     }
+    return content;
 
   }
 

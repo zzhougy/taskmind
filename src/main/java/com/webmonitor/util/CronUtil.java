@@ -163,7 +163,7 @@ public class CronUtil {
 
     switch (frequency) {
       case "perSecond":
-        return String.format("*/%d * * * * ?", second);
+        return String.format("*/%d * * * * ?", interval);
       case "minutely":
         if (interval == null) {
           // 适配”每分钟”的情况

@@ -313,7 +313,7 @@ public class WebMonitor {
         }
       } catch (Exception e) {
         // 错误处理 - 取消该用户的任务
-        schedulerService.cancelTaskForUser(config.getUserId());
+        schedulerService.cancelTaskForUser(config.getId());
         log.error("任务移除，用户 " + config.getUserId() + " 的任务执行失败: ", e);
       }
     };

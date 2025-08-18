@@ -42,7 +42,6 @@ public class JsoupUtil {
   public static String cssParse(String html, String cssSelectorFull) {
     try {
 
-      System.out.println(HtmlUtil.cleanHtml( html));
       Document document = Jsoup.parse(html);
 
       // 分割自定义选择器

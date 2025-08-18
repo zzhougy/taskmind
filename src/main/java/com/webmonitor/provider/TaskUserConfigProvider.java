@@ -36,6 +36,11 @@ public class TaskUserConfigProvider extends ServiceImpl<TaskUserConfigMapper, Ta
     return true;
   }
 
+  public boolean updateTaskUserConfigById(TaskUserConfig taskUserConfig) {
+    taskUserConfigMapper.updateById(taskUserConfig);
+    return true;
+  }
+
 
 
   public Page<TaskUserConfig> queryUserTaskConfigsByPage(Integer userId, Integer pageNum, Integer pageSize) {

@@ -304,6 +304,7 @@ public class AIServiceImpl implements AIService {
     }
   }
 
+  @Transactional
   @Override
   public String setUpTimingTaskWebMonitor(String cron, String url, String cssSelector, String xPath) throws Exception {
     TaskUserConfig config = new TaskUserConfig();
@@ -314,25 +315,26 @@ public class AIServiceImpl implements AIService {
     config.setEnable(true);
     config.setUserInput("userInput");
     config.setCssSelectors(List.of(cssSelector + "|text"));
-    config.setXpathSelector(xPath + "|text");
+    config.setXpathSelector(StringUtils.hasText(xPath) ? (xPath + "|text") : null);
     config.setTaskTypeCode(StringUtils.hasText(cssSelector) ? TaskTypeEnum.CSS_SELECTOR.getCode() : TaskTypeEnum.XPATH_SELECTOR.getCode());
 
     /**
      * 先尝试jsoup获取
      */
     config.setWayToGetHtmlCode(WayToGetHtmlEnum.JSOUP.getCode());
+    taskUserConfigProvider.save(config);
     FetcherConfig mcpFetcherConfig = monitor.createFetcherConfigFromTaskConfig(config);
     boolean b = monitor.startMonitoringByUser(config, mcpFetcherConfig, webMonitorFactory.loadObserverConfigs(), webMonitorFactory.loadAIModels());
     if (!b) {
       // 尝试play获取
       config.setWayToGetHtmlCode(WayToGetHtmlEnum.PLAYWRIGHT.getCode());
+      taskUserConfigProvider.updateTaskUserConfigById(config);
       mcpFetcherConfig = monitor.createFetcherConfigFromTaskConfig(config);
       boolean b2 = monitor.startMonitoringByUser(config, mcpFetcherConfig, webMonitorFactory.loadObserverConfigs(), webMonitorFactory.loadAIModels());
       if (!b2) {
         throw new SystemException("任务启动失败");
       }
     }
-    taskUserConfigProvider.save(config);
 
 
     return "";
