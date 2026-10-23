@@ -216,7 +216,9 @@ public class WebMonitor {
         fetcher = new KeywordSelectorFetcher((KeywordSelectorFetcherConfig) fetcherConfig);
       } else if (fetcherConfig instanceof AIFetcherConfig) {
         fetcher = new AIFetcher((AIFetcherConfig) fetcherConfig, aiModelMap);
-      }  else if (fetcherConfig instanceof SimpleFetcherConfig) {
+      } else if (fetcherConfig instanceof ApiFetcherConfig) {
+        fetcher = new ApiFetcher((ApiFetcherConfig) fetcherConfig);
+      } else if (fetcherConfig instanceof SimpleFetcherConfig) {
         fetcher = new SimpleFetcher((SimpleFetcherConfig) fetcherConfig);
       } else if (fetcherConfig instanceof AIMcpFetcherConfig) {
         fetcher = new AIMcpFetcher((AIMcpFetcherConfig) fetcherConfig, aiModelMap, tools);

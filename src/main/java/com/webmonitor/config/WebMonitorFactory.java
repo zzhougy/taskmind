@@ -89,6 +89,9 @@ public class WebMonitorFactory {
           case "SimpleFetcher":
             configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), SimpleFetcherConfig.class));
             break;
+          case "ApiFetcher":
+            configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), ApiFetcherConfig.class));
+            break;
           case "AIMcpFetcher":
             configs.add(JSONUtil.toBean(JSONUtil.parseObj(configMap), AIMcpFetcherConfig.class));
             break;
