@@ -15,12 +15,17 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Component
@@ -61,15 +66,20 @@ public class Main {
             webMonitorFactory.loadAIModels());
 
     // 从数据库查询有效任务配置并启动监控（DBObserver只控制结果是否记录到DB）
-    // DB未启动时查询失败不中断启动，只是本次不加载已有任务
+    // 先TCP探测数据库是否可达：DB未启动时跳过查询，避免触发Druid连接池后台不停重试刷错误日志
     List<TaskUserConfig> configs = new ArrayList<>();
-    try {
-      configs = taskUserConfigProvider.list(new QueryWrapper<TaskUserConfig>().lambda()
-                      .eq(TaskUserConfig::getEnable, true)
-              .eq(TaskUserConfig::getDeleted, false));
-      log.info("查找到 {} 个有效的任务配置", configs.size());
-    } catch (Exception e) {
-      log.error("查询任务配置失败（数据库可能未启动），跳过数据库任务加载", e);
+    if (isDbReachable(context.getEnvironment())) {
+      try {
+        configs = taskUserConfigProvider.list(new QueryWrapper<TaskUserConfig>().lambda()
+                        .eq(TaskUserConfig::getEnable, true)
+                .eq(TaskUserConfig::getDeleted, false));
+        log.info("查找到 {} 个有效的任务配置", configs.size());
+      } catch (Exception e) {
+        // 查询失败不中断启动，只是本次不加载已有任务
+        log.error("查询任务配置失败，跳过数据库任务加载", e);
+      }
+    } else {
+      log.error("数据库未启动，跳过数据库任务加载");
     }
 
     for (TaskUserConfig config : configs) {
@@ -96,6 +106,27 @@ public class Main {
     } catch (InterruptedException e) {
       monitor.stop();
       Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * TCP探测数据库端口是否可达（不触发Druid连接池），
+   * DB未启动时跳过启动期查询，避免Druid后台补连接线程不停重试刷错误日志
+   */
+  private boolean isDbReachable(Environment environment) {
+    String url = environment.getProperty("spring.datasource.druid.url");
+    if (url == null) {
+      return true;
+    }
+    Matcher matcher = Pattern.compile("jdbc:mysql://([^:/]+):(\\d+)").matcher(url);
+    if (!matcher.find()) {
+      return true;
+    }
+    try (Socket socket = new Socket()) {
+      socket.connect(new InetSocketAddress(matcher.group(1), Integer.parseInt(matcher.group(2))), 2000);
+      return true;
+    } catch (Exception e) {
+      return false;
     }
   }
 
