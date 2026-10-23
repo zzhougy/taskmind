@@ -61,3 +61,10 @@ web-monitor:
       enabled: 0
       userQuery: 打开https://www.zhihu.com/hot，告诉第一条和第二条热搜的标题是什么
       modelName: ""
+
+    # 最简单的API监控demo：监控百度热搜API返回值是否变化
+    - type: ApiFetcher
+      name: 百度热搜API
+      url: "https://top.baidu.com/api/board?platform=wise&tab=realtime"
+      intervalSeconds: 5
+      enabled: 0
