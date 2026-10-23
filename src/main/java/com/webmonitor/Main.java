@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -59,13 +60,17 @@ public class Main {
             webMonitorFactory.loadObserverConfigs(),
             webMonitorFactory.loadAIModels());
 
-    // 从数据库查询有效任务配置并启动监控
-    List<TaskUserConfig> configs = taskUserConfigProvider.list(new QueryWrapper<TaskUserConfig>().lambda()
-                    .eq(TaskUserConfig::getEnable, true)
-            .eq(TaskUserConfig::getDeleted, false));
-
-
-    log.info("查找到 {} 个有效的任务配置", configs.size());
+    // 从数据库查询有效任务配置并启动监控（DBObserver只控制结果是否记录到DB）
+    // DB未启动时查询失败不中断启动，只是本次不加载已有任务
+    List<TaskUserConfig> configs = new ArrayList<>();
+    try {
+      configs = taskUserConfigProvider.list(new QueryWrapper<TaskUserConfig>().lambda()
+                      .eq(TaskUserConfig::getEnable, true)
+              .eq(TaskUserConfig::getDeleted, false));
+      log.info("查找到 {} 个有效的任务配置", configs.size());
+    } catch (Exception e) {
+      log.error("查询任务配置失败（数据库可能未启动），跳过数据库任务加载", e);
+    }
 
     for (TaskUserConfig config : configs) {
       try {
